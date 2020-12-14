@@ -1,0 +1,49 @@
+<html lang="en">
+  <head>
+    <title>SmartEvents | Admin</title>
+    <meta charset="utf-8" name="viewport">
+    <link rel="stylesheet" href="./css/main.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="./js/index.js"></script>
+  </head>
+
+  <body>
+    <h1>SLP SmartEvents Admin Page</h1>
+    <div class="section">
+      <h2>Events</h2>
+      <p>Click on an event to edit it and see engagement messages.</p>
+      <table id="all-events">
+        <tr>
+          <th>Name</th><th>Description</th><th>Total Engaged</th>
+        </tr>
+      </table>
+      <button id="add-new-event">Add Event</button>
+      <div class="section" id="event-engagements-section">
+        <h3>Engagements</h3>
+        <p>Click on an engagement to edit it.</p>
+        <table id="event-engagements">
+          <tr>
+            <th>Keyword</th>
+            <th>Message</th>
+            <th>Image URL</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Engaged</th>
+          </tr>
+        </table>
+        <button id="add-new-engagement">Add Engagement</button>
+      </div>
+    </div>
+    <br>
+    <div class="section">
+      <h2>Attractions</h2>
+      <p>Click on an attraction to edit it and see its time slots. Live attractions are colored green.</p>
+      <table id="all-attractions">
+        <tr>
+          <th>Name</th><th>Description</th><th>About</th><th>Image URL</th><th>Remaining Capacity</th>
+        </tr>
+      </table>
+      <button id="add-attraction">Add Attraction</button>
+    </div>
+  </body>
+</html>

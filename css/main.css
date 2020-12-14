@@ -1,0 +1,27 @@
+body {
+  padding: 10px
+}
+table {
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+th {
+  background-color: lightgray;
+}
+td, th {
+  padding: 0px 10px 0px 10px;
+  max-width: 250px;
+  /* background-color: yellow; */
+}
+input {
+  min-width: 150px;
+}
+.section > p {
+  margin-top: -20px;
+}
+.section {
+  padding-left: 30px;
+}
+#event-engagements-section {
+  display: none;
+}
