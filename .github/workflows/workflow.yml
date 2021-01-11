@@ -12,9 +12,9 @@ jobs:
     - uses: actions/checkout@master
     - uses: jakejarvis/s3-sync-action@v0.5.1
       with:
-        args: --acl bucket-owner-full-control --follow-symlinks --delete --exclude '.git/*' --exclude '.github/*' --exclude '*/.DS_Store' --exclude '.DS_Store'
+        args: --acl bucket-owner-full-control --follow-symlinks --delete --exclude .gitignore --exclude '.git/*' --exclude '.github/*' --exclude README.md --exclude '.DS_Store' --exclude '*/.DS_Store'
       env:
-        AWS_S3_BUCKET: ${{ secrets.AWS_ADMIN_S3_BUCKET }}
+        AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET_ADMIN }}
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: 'us-east-2'

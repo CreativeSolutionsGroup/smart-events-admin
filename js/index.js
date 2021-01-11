@@ -78,6 +78,10 @@ function populateEngagements(eventID)
         $row.append($("<td>").text(formatTime(engagement.end_time)).addClass("engagement-end"));
         $row.append($("<td>").text(engagement.engaged));
         $row.attr('onClick', 'engagementClicked($(this))'); // add event listener for click
+        // color blue if engagement is live
+        if (isLiveEngagement(engagement)) {
+          $row.css("background-color", "lightblue");
+        }
         $("#event-engagements").append($row);
       });
     }
@@ -247,20 +251,19 @@ function addRowToEngagementTable()
   let $row = $("<tr>");
   $row.append(
     $("<td>")
-      .append($("<input>").attr("type","text").attr("id","new-engagement-keyword")));
+      .append($("<input>").attr("type","text").attr("id","new-engagement-keyword").val("^\\b...\\b$")));
   $row.append(
     $("<td>")
     .append($("<input>").attr("type","text").attr("id","new-engagement-message")));
   $row.append(
     $("<td>")
     .append($("<input>").attr("type","text").attr("id","new-engagement-image")));
-  console.log(new Date);
-    $row.append(
-    $("<td>")
-    .append($("<input>").attr("type","text").attr("id","new-engagement-start").val(formatTime(new Date))));
   $row.append(
     $("<td>")
-    .append($("<input>").attr("type","text").attr("id","new-engagement-end").val(formatTime(new Date))));
+    .append($("<input>").attr("type","text").attr("id","new-engagement-start").val(formatTime(new Date()))));
+  $row.append(
+    $("<td>")
+    .append($("<input>").attr("type","text").attr("id","new-engagement-end").val(formatTime(new Date()))));
   $row.append(
     $("<td>").text("-"));
   $row.append(
@@ -345,7 +348,6 @@ function updateSelectedEngagement()
     start_time: $("#selected-engagement .engagement-start").find("input").val(),
     end_time: $("#selected-engagement .engagement-end").find("input").val(),
   }
-  console.log(options);
   updateEngagement(id, options, function(results) {
     if (results.status == "success") {
       alert("Engagement updated successfully.")
@@ -393,7 +395,23 @@ function deleteSelectedEngagement()
 
 function exportSelectedEngagement()
 {
-  console.log($("#selected-engagement"))
+  let id = $("#selected-engagement").attr("_id");
+  getEngageesFromEngagament(id, function(results) {
+    // build the CSV
+    let csv = "Message Received,Phone\n";
+    // first map each engagee into a row (array of its 2 attributes)
+    // next convert each row (array of attributes) into a comma seperated string
+    // finally join each row with a new line character
+    csv += results.map(e => [
+      e.message_received,
+      e.phone
+    ]).map(e => 
+      e.join(",")
+    ).join("\n");
+
+    // download the CSV
+    downloadCSV(csv, "export.csv", "text/csv;encoding:utf-8");
+  });
 }
 
 //
@@ -507,6 +525,14 @@ function deleteEngagement(id, callback)
   });
 }
 
+function getEngageesFromEngagament(id, callback)
+{
+  let url = `${apiRoute}/api/engagements/${id}/engagees`;
+  $.get(url, function(results) {
+    callback(results.data);
+  });
+}
+
 // function gets all events with added engaged attribute, calculated from engagements
 function getAllEventsWithEngagements(callback)
 {
@@ -551,11 +577,40 @@ function formatTime(time)
   let hours = d.getHours();
   let minutes = ('0' + d.getMinutes()).slice(-2);
   let TOD;
-  if (hours > 12) {
+  if (hours == 0) {
+    hours = 12;
+    TOD = "AM";
+  } else if (hours == 12) {
+    TOD = "PM";
+  } else if (hours > 12) {
     hours = hours - 12;
     TOD = "PM";
   } else {
     TOD = "AM"
   }
   return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()} ${hours}:${minutes} ${TOD}`;
+}
+
+function isLiveEngagement(engagement)
+{
+  let time = new Date();
+  return new Date(engagement.start_time) <= time && time <= new Date(engagement.end_time)
+}
+
+function downloadCSV(csv, fileName, mimeType) {
+  var a = document.createElement('a');
+  mimeType = mimeType || 'application/octet-stream';
+  // function taken from:
+  // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+  if (URL && 'download' in a) {
+    a.href = URL.createObjectURL(new Blob([csv], {
+      type: mimeType
+    }));
+    a.setAttribute('download', fileName);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } else {
+    location.href = 'data:application/octet-stream,' + encodeURIComponent(csv); // only this mime type is supported
+  }
 }
