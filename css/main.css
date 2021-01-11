@@ -1,6 +1,9 @@
 body {
   padding: 10px
 }
+body * {
+  font-family: Helvetica;
+}
 table {
   border-collapse: separate;
   border-spacing: 0 10px;
@@ -11,7 +14,15 @@ th {
 td, th {
   padding: 0px 10px 0px 10px;
   max-width: 250px;
+  overflow: scroll;
   /* background-color: yellow; */
+}
+button {
+  padding: 5px 10px 5px 10px;
+  font-size: 12px;
+  border-radius: 10px;
+  background-color: white;
+  border: 1px lightgray solid;
 }
 input {
   min-width: 150px;
