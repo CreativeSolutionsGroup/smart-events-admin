@@ -75,3 +75,14 @@ select {
   width:25%;
   background-color: lightgray;
 }
+.twilio-overlay {
+  margin: auto;
+  position: absolute;
+  top: 20px; right: 20px;
+  height: min-content;
+  width: auto;
+  border: none;
+  padding: 0px 20px 0px 20px;
+  background-color: rgba(187, 64, 64, 0.8);
+  color: white;
+}

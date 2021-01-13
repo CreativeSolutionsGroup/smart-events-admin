@@ -1,5 +1,7 @@
 $(document).ready(function() {
   
+  populateTwilio();
+  
   // populate the event and attraction tables on start
   populateEvents();
   populateAttractions();
@@ -395,6 +397,26 @@ function newSlot()
 // *****************
 // API AND EXTRA FUNCTIONS
 // *****************
+
+function populateTwilio()
+{
+  $.ajax(options = {
+    type: 'GET',
+    url: `${apiRoute}/api/twilio`
+  }).done(function (results) {
+    if (results.status == "success") {
+      console.log(results);
+      let $div = $("#twilio-overlay");
+      $div 
+        .append($("<h3>").text("Twilio Account"))
+        .append($("<p>").text("Balance: $" + parseFloat(results.data.balance).toFixed(2)))
+        .append($("<p>").text("Available Texts: " + parseFloat(results.data.balance / 0.0075).toFixed(0)))
+    }
+    console.log(results);
+  }).fail(function (err) {
+    console.log(err);
+  });
+}
 
 function submitForm(method, route)
 {
