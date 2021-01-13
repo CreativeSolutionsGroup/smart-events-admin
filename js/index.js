@@ -25,7 +25,7 @@ $(document).ready(function() {
   });
 });
 
-const apiRoute = "http://18.222.7.110"
+const apiRoute = "http://localhost:3000"; // "http://18.222.7.110"
 
 // *****************
 // EVENTS
@@ -405,14 +405,12 @@ function populateTwilio()
     url: `${apiRoute}/api/twilio`
   }).done(function (results) {
     if (results.status == "success") {
-      console.log(results);
       let $div = $("#twilio-overlay");
       $div 
         .append($("<h3>").text("Twilio Account"))
         .append($("<p>").text("Balance: $" + parseFloat(results.data.balance).toFixed(2)))
         .append($("<p>").text("Available Texts: " + parseFloat(results.data.balance / 0.0075).toFixed(0)))
     }
-    console.log(results);
   }).fail(function (err) {
     console.log(err);
   });
