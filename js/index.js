@@ -313,7 +313,6 @@ function populateSlots(attractionID)
 {
   $("#attraction-slots td").parent().remove();
   getAllSlotsWithTickets(function(slots) {
-    console.log(slots);
     if (slots) {
       // filter by attraction_id then loop through each
       slots.filter(s => 
@@ -329,6 +328,9 @@ function populateSlots(attractionID)
           .append($("<td>").text(slot.tickets + "/" + slot.ticket_capacity))
           .append($("<td>").text(formatTime(slot.hide_time)))
           .append($("<button>").text("Edit").attr("onClick","editSlot($(this))"))
+        if (new Date() < new Date(slot.hide_time)) {
+          $row.css("color", "blue");
+        }
         $("#attraction-slots").append($row);
       });
     }
@@ -499,79 +501,6 @@ function getAllEngagees(callback)
   let url = `${apiRoute}/api/engagees`;
   $.get(url, function(results) {
     callback(results.data);
-  });
-}
-
-function addEvent(options, callback)
-{
-  let url = `${apiRoute}/api/events`;
-  $.post(url, options, function(results) {
-    callback(results);
-  });
-}
-
-function updateEvent(id, options, callback)
-{
-  $.ajax({
-    type: 'PUT',
-    url: `${apiRoute}/api/events/${id}`,
-    contentType: 'application/json',
-    data: JSON.stringify(options),
-  }).done(function (results) {
-    callback(results);
-  }).fail(function (err) {
-    console.log(err);
-  });
-}
-
-function deleteEvent(id, callback)
-{
-  $.ajax({
-    type: 'DELETE',
-    url: `${apiRoute}/api/events/${id}`
-  }).done(function (results) {
-    callback(results);
-  }).fail(function (err) {
-    console.log(err);
-  });
-}
-
-function addEngagement(options, callback)
-{
-  $.ajax({
-    type: 'POST',
-    url: `${apiRoute}/api/engagements`,
-    data: options
-  }).done(function (results) {
-    callback(results);
-  }).fail(function (err) {
-    console.log(err);
-  });
-}
-
-function updateEngagement(id, options, callback)
-{
-  $.ajax({
-    type: 'PUT',
-    url: `${apiRoute}/api/engagements/${id}`,
-    contentType: 'application/json',
-    data: JSON.stringify(options),
-  }).done(function (results) {
-    callback(results);
-  }).fail(function (err) {
-    console.log(err);
-  });
-}
-
-function deleteEngagement(id, callback)
-{
-  $.ajax({
-    type: 'DELETE',
-    url: `${apiRoute}/api/engagements/${id}`
-  }).done(function (results) {
-    callback(results);
-  }).fail(function (err) {
-    console.log(err);
   });
 }
 
