@@ -591,7 +591,7 @@ function getAllAttractionsWithRemainingCapacity(callback)
           }, 0)
           // divide used by total to get remaining capacity
           if (typeof total_capacity === 'number' && total_capacity != 0) {
-            attractions[a].remaining_capacity = (1 - used_capacity / total_capacity) * 100 + "%";
+            attractions[a].remaining_capacity = parseFloat((1 - used_capacity / total_capacity) * 100).toFixed(1) + "%";
           } else {
             attractions[a].remaining_capacity = "-";
           }
