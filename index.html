@@ -1,4 +1,4 @@
-<html lang="en">
+<html>
   <head>
     <title>SmartEvents | Admin</title>
     <meta charset="utf-8" name="viewport">
@@ -8,7 +8,7 @@
   </head>
 
   <body>
-    <h1>SLP SmartEvents Admin Page</h1>
+    <h1>SLP SmartEvents Admin Dashboard</h1>
     <div class="section">
       <h2>Events</h2>
       <p>Click on an event to edit it and see engagement messages.</p>
@@ -17,8 +17,8 @@
           <th>Name</th><th>Description</th><th>Total Engaged</th>
         </tr>
       </table>
-      <button id="add-new-event">Add Event</button>
-      <div class="section" id="event-engagements-section">
+      <button id="new-event">Add Event</button>
+      <div class="section" id="engagements-section">
         <h3>Engagements</h3>
         <p>Click on an engagement to edit it. Live engagements are colored blue.</p>
         <table id="event-engagements">
@@ -31,7 +31,7 @@
             <th>Engaged</th>
           </tr>
         </table>
-        <button id="add-new-engagement">Add Engagement</button>
+        <button id="new-engagement">Add Engagement</button>
       </div>
     </div>
     <br>
@@ -40,10 +40,33 @@
       <p>Click on an attraction to edit it and see its time slots. Live attractions are colored blue.</p>
       <table id="all-attractions">
         <tr>
-          <th>Name</th><th>Description</th><th>About</th><th>Image URL</th><th>Remaining Capacity</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>About</th>
+          <th>Image URL</th>
+          <th>Start Time</th>
+          <th>End Time</th>
+          <th>Remaining Capacity</th>
         </tr>
       </table>
-      <button id="add-attraction">Add Attraction</button>
+      <button id="new-attraction">Add Attraction</button>
+      <div class="section" id="slots-section">
+        <h3>Slots</h3>
+        <p>Click on an slot to edit it. Live slots are colored blue. (sorted by hide time)</p>
+        <table id="attraction-slots">
+          <tr>
+            <th>Label</th>
+            <th>Tickets Used</th>
+            <th>Hide Time</th>
+          </tr>
+        </table>
+        <button id="new-slot">Add Slot</button>
+      </div>
+    </div>
+    <div id="form-overlay" class="form-overlay">
+      <form id="form-content"></form>
+    </div>
+    <div id="twilio-overlay" class="twilio-overlay">
     </div>
   </body>
 </html>
