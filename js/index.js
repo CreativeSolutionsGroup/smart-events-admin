@@ -25,7 +25,7 @@ $(document).ready(function() {
   });
 });
 
-const apiRoute = "http://18.222.7.110"
+const apiRoute = "https://api.cusmartevents.com"
 
 // *****************
 // EVENTS
