@@ -18,7 +18,7 @@ export default class Scanner extends Component {
         showTapHint: true
     }
 
-    serverAddress = 'http://localhost:3001'
+    serverAddress = 'https://api.cusmartevents.com'
 
     componentDidMount() {
         window.addEventListener("resize", this.handleResize);
