@@ -1,5 +1,5 @@
 import React, { createRef } from "react";
-import { Card, Icon, Button, Image, Modal, Divider } from "semantic-ui-react";
+import { Card, Icon, Button, Image, Modal, Divider, Popup } from "semantic-ui-react";
 import { getAttractionSlots, getSlotTickets, formatTime, isTimeLive, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE } from "../../utils";
 import AddSlotModal from "./AddSlotModal";
 import EditSlotModal from "./EditSlotModal";
@@ -143,7 +143,17 @@ export default class AttractionInfo extends React.Component {
     return 0;
   }
 
+  getScannedTicketCount(slotId){
+    let slotTickets = this.state.tickets[slotId];
+    if (slotTickets !== undefined) {
+      let scannedTickets = slotTickets.filter((ticket) => (ticket.scanned === true));
+      return scannedTickets.length === undefined ? 0 : scannedTickets.length;
+    }
+    return 0;
+  }
+
   render() {
+    const now = Date.now();
     return (
       <div>
         <div style={{ display: 'flex', flexDirection: "column" }}>
@@ -197,13 +207,28 @@ export default class AttractionInfo extends React.Component {
                     <Card.Header>{slot.label}</Card.Header>
                   </Card.Content>
                   <Card.Content>
-                    <Icon name="ticket" />
-                    {this.getTicketCount(slot._id)}/{slot.ticket_capacity}
+                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                    <div>
+                      <Icon name="ticket" />
+                      {"Tickets: " + this.getTicketCount(slot._id)}/{slot.ticket_capacity}
+                    </div>
+                    <div>
+                      <Icon name='qrcode' />
+                      {"Scanned: " + this.getScannedTicketCount(slot._id)}/{this.getTicketCount(slot._id)}
+                    </div>
+                    </div>
                   </Card.Content>
                   <Card.Content extra>
                     <div style={{ display: "flex", flexDirection: "row" }}>
                       <Icon name="clock" />
                       {formatTime(slot.hide_time)}
+                      {(now <= new Date(slot.hide_time)) ?
+                          <Popup
+                            content="Slot is Visible"
+                            position='top right'
+                            trigger={<Icon name="eye" size='large' style={{ marginLeft: 'auto', marginRight: 5, marginTop: 'auto', marginBottom: 'auto', color: COLOR_CEDARVILLE_YELLOW }} />}
+                          />
+                          : ""}
                     </div>
                   </Card.Content>
                 </Card>

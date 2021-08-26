@@ -141,7 +141,7 @@ export default class AttractionList extends React.Component {
                                     {element.name}
                                     {isLive(element) ?
                                       <Popup
-                                        content="Event is Live"
+                                        content="Attraction is Live"
                                         trigger={<Icon name="eye" size='large' style={{ marginLeft: 'auto', marginRight: 5, marginTop: 'auto', marginBottom: 'auto', color: COLOR_CEDARVILLE_YELLOW }} />}
                                       />
                                       : ""}

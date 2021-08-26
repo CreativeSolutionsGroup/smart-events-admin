@@ -248,7 +248,7 @@ export default class EventInfo extends React.Component {
                         {element.keyword}
                         {isLive(element) ?
                           <Popup
-                            content="Event is Live"
+                            content="Engagement is Live"
                             position='top right'
                             trigger={<Icon name="eye" size='large' style={{ marginLeft: 'auto', marginRight: 5, marginTop: 'auto', marginBottom: 'auto', color: COLOR_CEDARVILLE_YELLOW }} />}
                           />
