@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, Button, Icon, Checkbox, List, Dropdown } from "semantic-ui-react";
-import { getEventEngagements, getEvents, formatTime } from "../../utils";
+import { getEventEngagements, getEvents, formatTime, authorizedFetch, API_URL } from "../../utils";
 
 export default class Giveaway extends React.Component {
 
@@ -106,13 +106,14 @@ export default class Giveaway extends React.Component {
     }
 
     getEntries() {
-        fetch(`https://api.cusmartevents.com/api/engagees/`)
+        authorizedFetch(API_URL + '/api/engagees/')
             .then((res) => res.json())
             .then(
                 (res) => {
                     if (res.status !== "success") {
                         console.log("Failed to retrieve Engagements");
                         console.log(res.message);
+                        alert("Error (Giveaway): " + res.message);
                     }
 
                     let entryDict = {};

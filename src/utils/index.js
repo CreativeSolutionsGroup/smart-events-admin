@@ -1,5 +1,6 @@
 export const COLOR_CEDARVILLE_YELLOW = "#F3A00F";
 export const COLOR_CEDARVILLE_BLUE = "#31B7E6";
+export const API_URL = "https://api.cusmartevents.com"
 
 export const refreshTokenSetup = (res) => {
     
@@ -59,14 +60,52 @@ export const isTimeLive = (start_time, end_time) =>
   return new Date(start_time) <= time && time <= new Date(end_time)
 }
 
+export const authorizedFetch = (url) => {
+    if(!localStorage.getItem('authToken')){
+        return {status: 'error', message: 'No user is logged in'};
+    }
+    let token = localStorage.getItem('authToken');
+    let authHeader = {Authorization: "Bearer " + token}
+    return fetch(url, {headers: authHeader});
+}
+
+export const authorizedPost = (axios, url, data) => {
+    if(!localStorage.getItem('authToken')){
+        return {status: 'error', message: 'No user is logged in'};
+    }
+    let token = localStorage.getItem('authToken');
+    let authHeader = {Authorization: "Bearer " + token}
+    return axios.post(url, data, {headers: authHeader});
+}
+
+export const authorizedPut = (axios, url, data) => {
+    if(!localStorage.getItem('authToken')){
+        return {status: 'error', message: 'No user is logged in'};
+    }
+    let token = localStorage.getItem('authToken');
+    let authHeader = {Authorization: "Bearer " + token}
+    return axios.put(url, data, {headers: authHeader});
+}
+
+export const authorizedDelete = (axios, url, data) => {
+    if(!localStorage.getItem('authToken')){
+        return {status: 'error', message: 'No user is logged in'};
+    }
+    let token = localStorage.getItem('authToken');
+    let authHeader = {Authorization: "Bearer " + token}
+    return axios.delete(url, data, {headers: authHeader});
+}
+
 export const getEvents = () => {
-    return fetch(`https://api.cusmartevents.com/api/events/`)
+    return authorizedFetch(API_URL + '/api/events/')
         .then((res) => res.json())
         .then(
             (res) => {
                 if (res.status !== "success") {
                     console.log("Failed to retrieve Events");
                     console.log(res.message);
+                    alert("Error (Events): " + res.message);
+                    return []
                 }
                 return res.data;
             },
@@ -78,13 +117,14 @@ export const getEvents = () => {
 }
 
 export const getEvent = (eventId) => {
-    return fetch(`https://api.cusmartevents.com/api/events/` + eventId)
+    return authorizedFetch(API_URL + '/api/events/' + eventId)
         .then((res) => res.json())
         .then(
             (res) => {
                 if (res.status !== "success") {
                     console.log("Failed to retrieve Event");
                     console.log(res.message);
+                    alert("Error (Event): " + res.message);
                 }
                 return res.data;
             },
@@ -96,13 +136,14 @@ export const getEvent = (eventId) => {
 }
 
 export const getEventEngagements = (eventId) => {
-    return fetch(`https://api.cusmartevents.com/api/engagements/`)
+    return fetch(API_URL + '/api/engagements/')
         .then((res) => res.json())
         .then(
             (res) => {
                 if (res.status !== "success") {
                     console.log("Failed to retrieve Engagements");
                     console.log(res.message);
+                    alert("Error (Engagements): " + res.message);
                 }
                 let filteredEngagements = [];
                 res.data.forEach(element => {
@@ -120,13 +161,14 @@ export const getEventEngagements = (eventId) => {
 }
 
 export const getEngagementCounts = (engagements) => {
-    return fetch(`https://api.cusmartevents.com/api/engagees/`)
+    return authorizedFetch(API_URL + '/api/engagees/')
         .then((res) => res.json())
         .then(
             (res) => {
                 if (res.status !== "success") {
                     console.log("Failed to retrieve Engagees");
                     console.log(res.message);
+                    alert("Error (Engagees): " + res.message);
                 }
 
                 let filteredEngagees = {};
@@ -158,7 +200,7 @@ export const getEventEngageeCounts = (eventId) => {
 }
 
 export const getGoogleSheetJSON = (sheetId) => {
-    return fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`)
+    return fetch('https://docs.google.com/spreadsheets/d/' + sheetId + '/gviz/tq?tqx=out:json')
     .then(res => res.text())
     .then(text => {
         const json = JSON.parse(text.substr(47).slice(0, -2))
@@ -230,13 +272,14 @@ export const formatTime = (time) => {
 
 export const getEngagementEngagees = (engagementId) =>
 {
-    return fetch(`https://api.cusmartevents.com/api/engagees/`)
+    return authorizedFetch(API_URL + '/api/engagees/')
     .then((res) => res.json())
     .then(
         (res) => {
             if (res.status !== "success") {
                 console.log("Failed to retrieve Engagees for download");
                 console.log(res.message);
+                alert("Error (Engagees): " + res.message);
             }
 
             let engagees = [];
@@ -257,13 +300,15 @@ export const getEngagementEngagees = (engagementId) =>
 
 //Attractions
 export const getAttractions = () => {
-    return fetch(`https://api.cusmartevents.com/api/attractions/`)
+    return fetch(API_URL + '/api/attractions/')
         .then((res) => res.json())
         .then(
             (res) => {
                 if (res.status !== "success") {
                     console.log("Failed to retrieve Attractions");
                     console.log(res.message);
+                    alert("Error (Attractions): " + res.message);
+                    return [];
                 }
                 return res.data;
             },
@@ -275,13 +320,14 @@ export const getAttractions = () => {
 }
 
 export const getAttractionSlots = (attractionId) => {
-    return fetch(`https://api.cusmartevents.com/api/slots/`)
+    return fetch(API_URL + '/api/slots/')
         .then((res) => res.json())
         .then(
             (res) => {
                 if (res.status !== "success") {
                     console.log("Failed to retrieve Slots");
                     console.log(res.message);
+                    alert("Error (Slots): " + res.message);
                 }
                 let filteredSlots = [];
                 res.data.forEach(element => {
@@ -299,13 +345,15 @@ export const getAttractionSlots = (attractionId) => {
 }
 
 export const getSlotTickets = (slotId) => {
-    return fetch(`https://api.cusmartevents.com/api/slots/` + slotId + "/tickets")
+    return fetch(API_URL + '/api/slots/' + slotId + "/tickets")
         .then((res) => res.json())
         .then(
             (res) => {
                 if (res.status !== "success") {
                     console.log("Failed to retrieve Tickets");
                     console.log(res.message);
+                    alert("Error (Tickets): " + res.message);
+                    return [];
                 }
                 return res.data;
             },

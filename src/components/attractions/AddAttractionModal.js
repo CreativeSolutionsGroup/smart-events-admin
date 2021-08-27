@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Modal, Input, Form, TextArea, Image, Dropdown } from "semantic-ui-react";
 import TextField from '@material-ui/core/TextField';
 import axios from "axios";
-import {formatTime, getEvents} from "../../utils"
+import {API_URL, authorizedFetch, authorizedPost, formatTime, getEvents} from "../../utils"
 
 class AddAttractionModal extends React.Component {
 
@@ -92,7 +92,7 @@ class AddAttractionModal extends React.Component {
             values['end_time'] = formatTime(parsedDate);
         }
 
-        axios.post('https://api.cusmartevents.com/api/attractions/', values)
+        authorizedPost(axios, API_URL + '/api/attractions/', values)
             .then(async response => {
                 const data = await response.data;
 

@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Modal, Input, Form, Image, TextArea } from "semantic-ui-react";
 import TextField from '@material-ui/core/TextField';
 import axios from "axios";
-import { formatTime } from "../../utils"
+import { API_URL, authorizedDelete, authorizedPut, formatTime } from "../../utils"
 
 class EditEngagementModal extends React.Component {
 
@@ -35,7 +35,7 @@ class EditEngagementModal extends React.Component {
             return;
         }
         this.setState({ open: false, openDelete: false });
-        axios.delete('https://api.cusmartevents.com/api/engagements/' + this.state.engagementId)
+        authorizedDelete(axios, API_URL + '/api/engagements/' + this.state.engagementId)
             .then(async response => {
                 const data = await response.data;
 
@@ -130,7 +130,7 @@ class EditEngagementModal extends React.Component {
         }
 
         if (Object.keys(values).length > 0) {
-            axios.put('https://api.cusmartevents.com/api/engagements/' + this.state.engagementId, values)
+            authorizedPut(API_URL + '/api/engagements/' + this.state.engagementId, values)
                 .then(async response => {
                     const data = await response.data;
 
