@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Modal, Input, Form } from "semantic-ui-react";
 import axios from "axios";
+import { API_URL, authorizedDelete, authorizedPut } from "../../utils";
 
 class EditEventModal extends React.Component {
 
@@ -26,7 +27,7 @@ class EditEventModal extends React.Component {
             return;
         }
         this.setState({ open: false, openDelete: false });
-        axios.delete('https://api.cusmartevents.com/api/events/' + this.state.eventId)
+        authorizedDelete(axios, API_URL + '/api/events/' + this.state.eventId)
             .then(async response => {
                 const data = await response.data;
 
@@ -72,7 +73,7 @@ class EditEventModal extends React.Component {
         this.setState({ open: false });
 
         let values = { name: this.state.formName, description: this.state.formDescription };
-        axios.put('https://api.cusmartevents.com/api/events/' + this.state.eventId, values)
+        authorizedPut(API_URL + '/api/events/' + this.state.eventId, values)
             .then(async response => {
                 const data = await response.data;
 

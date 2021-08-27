@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Modal, Input, Form, TextArea, Image } from "semantic-ui-react";
 import TextField from '@material-ui/core/TextField';
 import axios from "axios";
-import {formatTime} from "../../utils"
+import {API_URL, authorizedDelete, authorizedPut, formatTime} from "../../utils"
 
 class EditAttractionModal extends React.Component {
 
@@ -35,7 +35,7 @@ class EditAttractionModal extends React.Component {
             return;
         }
         this.setState({ open: false, openDelete: false });
-        axios.delete('https://api.cusmartevents.com/api/attractions/' + this.state.attractionId)
+        authorizedDelete(axios, API_URL + '/api/attractions/' + this.state.attractionId)
             .then(async response => {
                 const data = await response.data;
 
@@ -132,7 +132,7 @@ class EditAttractionModal extends React.Component {
             values['end_time'] = formatTime(parsedDate);
         }
 
-        axios.put('https://api.cusmartevents.com/api/attractions/' + this.state.attractionId, values)
+        authorizedPut(axios, API_URL + '/api/attractions/' + this.state.attractionId, values)
             .then(async response => {
                 const data = await response.data;
 

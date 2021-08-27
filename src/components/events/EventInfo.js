@@ -4,7 +4,7 @@ import Giveaway from "./Giveaway";
 import AddEngagementModal from "./AddEngagementModal";
 import EditEngagementModal from "./EditEngagementModal";
 import EditEventModal from "./EditEventModal"
-import { getEventEngagements, getEngagementCounts, getEngagementEngagees, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime } from "../../utils";
+import { getEventEngagements, getEngagementCounts, getEngagementEngagees, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL } from "../../utils";
 import { CSVLink } from "react-csv";
 
 export default class EventInfo extends React.Component {
@@ -108,7 +108,7 @@ export default class EventInfo extends React.Component {
   }
 
   getEventName() {
-    fetch(`https://api.cusmartevents.com/api/events/` + this.event_id)
+    authorizedFetch(API_URL + '/api/events/' + this.event_id)
       .then((res) => res.json())
       .then(
         (res) => {

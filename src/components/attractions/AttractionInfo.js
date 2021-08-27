@@ -1,6 +1,6 @@
 import React, { createRef } from "react";
 import { Card, Icon, Button, Image, Modal, Divider, Popup } from "semantic-ui-react";
-import { getAttractionSlots, getSlotTickets, formatTime, isTimeLive, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE } from "../../utils";
+import { getAttractionSlots, getSlotTickets, formatTime, isTimeLive, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, API_URL } from "../../utils";
 import AddSlotModal from "./AddSlotModal";
 import EditSlotModal from "./EditSlotModal";
 import EditAttractionModal from "./EditAttractionModal";
@@ -83,7 +83,7 @@ export default class AttractionInfo extends React.Component {
   }
 
   getAttractionInfo() {
-    fetch(`https://api.cusmartevents.com/api/attractions/` + this.attraction_id)
+    fetch(API_URL + '/api/attractions/' + this.attraction_id)
       .then((res) => res.json())
       .then(
         (res) => {

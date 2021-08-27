@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Modal, Input, Form, Image, TextArea} from "semantic-ui-react";
 import TextField from '@material-ui/core/TextField';
 import axios from "axios";
-import { formatTime } from "../../utils"
+import { API_URL, authorizedPost, formatTime } from "../../utils"
 
 class AddEngagementModal extends React.Component {
 
@@ -77,7 +77,7 @@ class AddEngagementModal extends React.Component {
             values['end_time'] = formatTime(parsedDate);
         }
 
-        axios.post('https://api.cusmartevents.com/api/engagements/', values)
+        authorizedPost(axios, API_URL + '/api/engagements/', values)
         .then(async response => {
             const data = await response.data;
 

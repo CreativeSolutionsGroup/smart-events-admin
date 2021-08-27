@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Modal, Input, Form } from "semantic-ui-react";
 import TextField from '@material-ui/core/TextField';
 import axios from "axios";
-import { formatTime } from "../../utils"
+import { authorizedPost, formatTime, API_URL } from "../../utils"
 
 class AddSlotModal extends React.Component {
 
@@ -68,7 +68,7 @@ class AddSlotModal extends React.Component {
             values['hide_time'] = formatTime(parsedDate);
         }
 
-        axios.post('https://api.cusmartevents.com/api/slots/', values)
+        authorizedPost(axios, API_URL + '/api/slots/', values)
             .then(async response => {
                 const data = await response.data;
 

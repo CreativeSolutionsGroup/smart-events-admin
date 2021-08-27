@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Modal, Input, Form } from "semantic-ui-react";
 import axios from "axios";
+import { API_URL, authorizedPost } from "../../utils";
 
 class AddEventModal extends React.Component {
 
@@ -38,7 +39,7 @@ class AddEventModal extends React.Component {
         this.setState({ open: false });
 
         let values = { name: this.state.name, description: this.state.description };
-        axios.post('https://api.cusmartevents.com/api/events/', values)
+        authorizedPost(axios, API_URL + '/api/events/', values)
             .then(async response => {
                 const data = await response.data;
 

@@ -1,5 +1,6 @@
 import React from "react";
 import { Card, Icon } from "semantic-ui-react";
+import { API_URL } from "../utils";
 
 export default class TwilioAccountInfo extends React.Component {
   constructor(props) {
@@ -22,7 +23,7 @@ export default class TwilioAccountInfo extends React.Component {
   }
 
   getTwilioInfo() {
-    fetch(`https://api.cusmartevents.com/api/twilio/`)
+    fetch(API_URL + '/api/twilio/')
       .then((res) => res.json())
       .then(
         (res) => {
