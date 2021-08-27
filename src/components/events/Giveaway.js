@@ -113,6 +113,7 @@ export default class Giveaway extends React.Component {
                     if (res.status !== "success") {
                         console.log("Failed to retrieve Engagements");
                         console.log(res.message);
+                        alert("Error (Giveaway): " + res.message);
                     }
 
                     let entryDict = {};

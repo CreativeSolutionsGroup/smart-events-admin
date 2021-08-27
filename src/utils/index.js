@@ -10,7 +10,7 @@ export const refreshTokenSetup = (res) => {
         if(response){
             console.log('Login Success: currentUser:', res.profileObj);
             alert(
-            'Logged in successfully welcome ${res.profileObj.email}'
+            `Logged in successfully welcome ${res.profileObj.email}`
             );
     
                     // Timing to renew access token
@@ -35,7 +35,7 @@ export const refreshTokenSetup = (res) => {
             localStorage.removeItem('email');
             console.log('Login Failed: currentUser:', res.profileObj);
             alert(
-            'Logged in failed. ${res.profileObj.email} is not an allowed user'
+            `Logged in failed. ${res.profileObj.email} is not an allowed user`
             );
         }
     })
@@ -65,8 +65,8 @@ export const authorizedFetch = (url) => {
         return {status: 'error', message: 'No user is logged in'};
     }
     let token = localStorage.getItem('authToken');
-    let headers = {Authorization: "Bearer " + token}
-    return fetch(url, headers);
+    let authHeader = {Authorization: "Bearer " + token}
+    return fetch(url, {headers: authHeader});
 }
 
 export const authorizedPost = (axios, url, data) => {
@@ -97,13 +97,15 @@ export const authorizedDelete = (axios, url, data) => {
 }
 
 export const getEvents = () => {
-    return this.authorizedFetch(API_URL + '/api/events/')
+    return authorizedFetch(API_URL + '/api/events/')
         .then((res) => res.json())
         .then(
             (res) => {
                 if (res.status !== "success") {
                     console.log("Failed to retrieve Events");
                     console.log(res.message);
+                    alert("Error (Events): " + res.message);
+                    return []
                 }
                 return res.data;
             },
@@ -115,13 +117,14 @@ export const getEvents = () => {
 }
 
 export const getEvent = (eventId) => {
-    return this.authorizedFetch(API_URL + '/api/events/' + eventId)
+    return authorizedFetch(API_URL + '/api/events/' + eventId)
         .then((res) => res.json())
         .then(
             (res) => {
                 if (res.status !== "success") {
                     console.log("Failed to retrieve Event");
                     console.log(res.message);
+                    alert("Error (Event): " + res.message);
                 }
                 return res.data;
             },
@@ -140,6 +143,7 @@ export const getEventEngagements = (eventId) => {
                 if (res.status !== "success") {
                     console.log("Failed to retrieve Engagements");
                     console.log(res.message);
+                    alert("Error (Engagements): " + res.message);
                 }
                 let filteredEngagements = [];
                 res.data.forEach(element => {
@@ -157,13 +161,14 @@ export const getEventEngagements = (eventId) => {
 }
 
 export const getEngagementCounts = (engagements) => {
-    return this.authorizedFetch(API_URL + '/api/engagees/')
+    return authorizedFetch(API_URL + '/api/engagees/')
         .then((res) => res.json())
         .then(
             (res) => {
                 if (res.status !== "success") {
                     console.log("Failed to retrieve Engagees");
                     console.log(res.message);
+                    alert("Error (Engagees): " + res.message);
                 }
 
                 let filteredEngagees = {};
@@ -195,7 +200,7 @@ export const getEventEngageeCounts = (eventId) => {
 }
 
 export const getGoogleSheetJSON = (sheetId) => {
-    return fetch('https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json')
+    return fetch('https://docs.google.com/spreadsheets/d/' + sheetId + '/gviz/tq?tqx=out:json')
     .then(res => res.text())
     .then(text => {
         const json = JSON.parse(text.substr(47).slice(0, -2))
@@ -262,18 +267,19 @@ export const formatTime = (time) => {
     } else {
         TOD = "AM"
     }
-    return '${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()} ${hours}:${minutes} ${TOD}';
+    return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()} ${hours}:${minutes} ${TOD}`;
 }
 
 export const getEngagementEngagees = (engagementId) =>
 {
-    return this.authorizedFetch(API_URL + '/api/engagees/')
+    return authorizedFetch(API_URL + '/api/engagees/')
     .then((res) => res.json())
     .then(
         (res) => {
             if (res.status !== "success") {
                 console.log("Failed to retrieve Engagees for download");
                 console.log(res.message);
+                alert("Error (Engagees): " + res.message);
             }
 
             let engagees = [];
@@ -301,6 +307,8 @@ export const getAttractions = () => {
                 if (res.status !== "success") {
                     console.log("Failed to retrieve Attractions");
                     console.log(res.message);
+                    alert("Error (Attractions): " + res.message);
+                    return [];
                 }
                 return res.data;
             },
@@ -319,6 +327,7 @@ export const getAttractionSlots = (attractionId) => {
                 if (res.status !== "success") {
                     console.log("Failed to retrieve Slots");
                     console.log(res.message);
+                    alert("Error (Slots): " + res.message);
                 }
                 let filteredSlots = [];
                 res.data.forEach(element => {
@@ -343,6 +352,8 @@ export const getSlotTickets = (slotId) => {
                 if (res.status !== "success") {
                     console.log("Failed to retrieve Tickets");
                     console.log(res.message);
+                    alert("Error (Tickets): " + res.message);
+                    return [];
                 }
                 return res.data;
             },

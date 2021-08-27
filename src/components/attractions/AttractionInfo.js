@@ -90,6 +90,7 @@ export default class AttractionInfo extends React.Component {
           if (res.status !== "success") {
             console.log("Failed to retrieve Attraction info");
             console.log(res.message);
+            alert("Error (Attractions): " + res.message);
           }
           if (res.data != null) {
             let attractionName = res.data.name;

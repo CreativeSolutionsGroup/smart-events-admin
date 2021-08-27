@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Modal, Input, Form, TextArea, Image, Dropdown } from "semantic-ui-react";
 import TextField from '@material-ui/core/TextField';
 import axios from "axios";
-import {API_URL, authorizedFetch, formatTime, getEvents} from "../../utils"
+import {API_URL, authorizedFetch, authorizedPost, formatTime, getEvents} from "../../utils"
 
 class AddAttractionModal extends React.Component {
 

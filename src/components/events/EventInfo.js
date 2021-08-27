@@ -115,6 +115,7 @@ export default class EventInfo extends React.Component {
           if (res.status !== "success") {
             console.log("Failed to retrieve Event Name");
             console.log(res.message);
+            alert("Error (Event): " + res.message);
           }
           if (res.data != null) {
             let eventName = res.data.name;
