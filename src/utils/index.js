@@ -138,7 +138,7 @@ export const getEvent = (eventId) => {
 }
 
 export const getAllEngagements = () => {
-    return fetch(API_URL + '/api/engagements/')
+    return authorizedFetch(API_URL + '/api/engagements/')
         .then((res) => res.json())
         .then(
             (res) => {
@@ -159,7 +159,7 @@ export const getAllEngagements = () => {
 }
 
 export const getEventEngagements = (eventId) => {
-    return fetch(API_URL + '/api/engagements/')
+    return authorizedFetch(API_URL + '/api/engagements/')
         .then((res) => res.json())
         .then(
             (res) => {
@@ -183,8 +183,8 @@ export const getEventEngagements = (eventId) => {
         );
 }
 
-export const getEngagementEngageeCount = (engagementId) => {
-    return fetch(API_URL + '/api/engagees/' + engagementId)
+export const getEngagementEngagees = (engagementId) => {
+    return authorizedFetch(API_URL + '/api/engagements/' + engagementId + "/engagees")
         .then((res) => res.json())
         .then(
             (res) => {
@@ -192,9 +192,9 @@ export const getEngagementEngageeCount = (engagementId) => {
                     console.log("Failed to retrieve Engagement Engagees");
                     console.log(res.message);
                     alert("Error (Engagees): " + res.message);
-                    return 0;
+                    return [];
                 }
-                return res.data.length;
+                return res.data;
             },
             (err) => {
                 console.error("Failed to retrieve Engagement Engagees");
@@ -234,9 +234,9 @@ export const getAllEngageesCount = () => {
 export const getEngagementEngageeCounts = (engagements) => {
     let filteredEngagees = {};
     engagements.forEach((engagement) => {
-        getEngagementEngageeCount(engagement._id)
-        .then((count) => {
-            filteredEngagees[engagement._id] = count;
+        getEngagementEngagees(engagement._id)
+        .then((response) => {
+            filteredEngagees[engagement._id] = response.length;
         })
     })
     return filteredEngagees;
@@ -311,34 +311,6 @@ export const formatTime = (time) => {
         TOD = "AM"
     }
     return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()} ${hours}:${minutes} ${TOD}`;
-}
-
-export const getEngagementEngagees = (engagementId) =>
-{
-    return authorizedFetch(API_URL + '/api/engagees/')
-    .then((res) => res.json())
-    .then(
-        (res) => {
-            if (res.status !== "success") {
-                console.log("Failed to retrieve Engagees for download");
-                console.log(res.message);
-                alert("Error (Engagees): " + res.message);
-            }
-
-            let engagees = [];
-            console.log(engagementId)
-            res.data.forEach(engagee => {
-                if (engagementId === engagee.engagement_id) {
-                    engagees.push(engagee);
-                }
-            });
-            return engagees;
-        },
-        (err) => {
-            console.error("Failed to retrieve Engagees");
-            console.error(err);
-        }
-    )
 }
 
 //Attractions
