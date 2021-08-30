@@ -127,12 +127,14 @@ export const getEvent = (eventId) => {
                     console.log("Failed to retrieve Event");
                     console.log(res.message);
                     alert("Error (Event): " + res.message);
+                    return "";
                 }
                 return res.data;
             },
             (err) => {
                 console.error("Failed to retrieve Event");
                 console.error(err);
+                return "";
             }
         );
 }
@@ -167,6 +169,7 @@ export const getEventEngagements = (eventId) => {
                     console.log("Failed to retrieve Engagements");
                     console.log(res.message);
                     alert("Error (Engagements): " + res.message);
+                    return [];
                 }
                 let filteredEngagements = [];
                 res.data.forEach(element => {
@@ -179,6 +182,7 @@ export const getEventEngagements = (eventId) => {
             (err) => {
                 console.error("Failed to retrieve Engagements");
                 console.error(err);
+                return [];
             }
         );
 }
@@ -199,6 +203,7 @@ export const getEngagementEngagees = (engagementId) => {
             (err) => {
                 console.error("Failed to retrieve Engagement Engagees");
                 console.error(err);
+                return [];
             }
         );
 }
@@ -212,6 +217,7 @@ export const getAllEngageesCount = () => {
                     console.log("Failed to retrieve Engagees");
                     console.log(res.message);
                     alert("Error (Engagees): " + res.message);
+                    return {};
                 }
 
                 let filteredEngagees = {};
@@ -227,6 +233,7 @@ export const getAllEngageesCount = () => {
             (err) => {
                 console.error("Failed to retrieve Engagees");
                 console.error(err);
+                return {};
             }
         );
 }
@@ -330,6 +337,28 @@ export const getAttractions = () => {
             (err) => {
                 console.error("Failed to retrieve Attractions");
                 console.error(err);
+                return [];
+            }
+        );
+}
+
+export const getAllSlots = () => {
+    return fetch(API_URL + '/api/slots/')
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Slots");
+                    console.log(res.message);
+                    alert("Error (Slots): " + res.message);
+                    return [];
+                }
+                return res.data;
+            },
+            (err) => {
+                console.error("Failed to retrieve Slots");
+                console.error(err);
+                return [];
             }
         );
 }
@@ -343,6 +372,7 @@ export const getAttractionSlots = (attractionId) => {
                     console.log("Failed to retrieve Slots");
                     console.log(res.message);
                     alert("Error (Slots): " + res.message);
+                    return [];
                 }
                 let filteredSlots = [];
                 res.data.forEach(element => {
@@ -355,6 +385,7 @@ export const getAttractionSlots = (attractionId) => {
             (err) => {
                 console.error("Failed to retrieve Slots");
                 console.error(err);
+                return [];
             }
         );
 }
@@ -375,24 +406,39 @@ export const getSlotTickets = (slotId) => {
             (err) => {
                 console.error("Failed to retrieve Tickets");
                 console.error(err);
+                return [];
             }
         );
 }
 
-export const getAttractionCapacity = async (attractionId) => {
-    let total_capacity = await getAttractionSlots(attractionId)
-    .then((res) => {
-        let capacity = 0;
-        res.forEach((slot) => {
-            capacity += slot.ticket_capacity;
-        })
-        return capacity;
-    });
+export const getAllAttractionCapacities = async (attractions) => {
+    let slots = await getAllSlots();
+    return attractions.map(async (attraction) => {
+        let attractionSlots = await slots.filter(slot => slot.attraction_id === attraction._id);
+        if(attractionSlots.length === 0) {
+            return [attraction._id, "-"];
+        } else {
+            let values = await Promise.all(attractionSlots.map(async (slot) => {
+                let tickets = await getSlotTickets(slot._id);
+                let capacity = slot.ticket_capacity;
+                let used = tickets.length;
+                return {count: used, capacity: capacity};   
+            }));
+            
+            let used_capacity = 0;
+            let total_capacity = 0;
 
-    let used_capacity = 0;
-    if (total_capacity !== 0) {
-        return parseFloat((1 - used_capacity / total_capacity) * 100).toFixed(1) + "%";
-    } else {
-        return "-";
-    }
+            values.forEach((value) => {
+                used_capacity+= value.count;
+                total_capacity+= value.capacity;
+            })
+
+            if (total_capacity !== 0) {
+                let percent = parseFloat((1 - used_capacity / total_capacity) * 100).toFixed(1) + "%";
+                return [attraction._id, percent];
+            } else {
+                return [attraction._id, "-"];
+            }
+        }
+    });
 }
