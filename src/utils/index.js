@@ -1,6 +1,7 @@
 export const COLOR_CEDARVILLE_YELLOW = "#F3A00F";
 export const COLOR_CEDARVILLE_BLUE = "#31B7E6";
 export const API_URL = "https://api.cusmartevents.com"
+//"http://localhost:3001"//
 
 export const refreshTokenSetup = (res) => {
     
@@ -112,6 +113,7 @@ export const getEvents = () => {
             (err) => {
                 console.error("Failed to retrieve Events");
                 console.error(err);
+                return []
             }
         );
 }
@@ -131,6 +133,27 @@ export const getEvent = (eventId) => {
             (err) => {
                 console.error("Failed to retrieve Event");
                 console.error(err);
+            }
+        );
+}
+
+export const getAllEngagements = () => {
+    return fetch(API_URL + '/api/engagements/')
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Engagements");
+                    console.log(res.message);
+                    alert("Error (Engagements): " + res.message);
+                    return [];
+                }
+                return res.data;
+            },
+            (err) => {
+                console.error("Failed to retrieve Engagements");
+                console.error(err);
+                return [];
             }
         );
 }
@@ -160,7 +183,27 @@ export const getEventEngagements = (eventId) => {
         );
 }
 
-export const getEngagementCounts = (engagements) => {
+export const getEngagementEngageeCount = (engagementId) => {
+    return fetch(API_URL + '/api/engagees/' + engagementId)
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Engagement Engagees");
+                    console.log(res.message);
+                    alert("Error (Engagees): " + res.message);
+                    return 0;
+                }
+                return res.data.length;
+            },
+            (err) => {
+                console.error("Failed to retrieve Engagement Engagees");
+                console.error(err);
+            }
+        );
+}
+
+export const getAllEngageesCount = () => {
     return authorizedFetch(API_URL + '/api/engagees/')
         .then((res) => res.json())
         .then(
@@ -172,16 +215,12 @@ export const getEngagementCounts = (engagements) => {
                 }
 
                 let filteredEngagees = {};
-                engagements.forEach(engagement => {
-                    res.data.forEach(engagee => {
-                        if (engagement._id === engagee.engagement_id) {
-                            let oldCount = 0;
-                            if (filteredEngagees[engagee.engagement_id] != null) {
-                                oldCount = filteredEngagees[engagee.engagement_id];
-                            }
-                            filteredEngagees[engagee.engagement_id] = oldCount + 1;
-                        }
-                    });
+                res.data.forEach(engagee => {
+                   let oldCount = 0;
+                    if (filteredEngagees[engagee.engagement_id] != null) {
+                        oldCount = filteredEngagees[engagee.engagement_id];
+                    }
+                    filteredEngagees[engagee.engagement_id] = oldCount + 1;
                 });
                 return filteredEngagees;
             },
@@ -192,11 +231,15 @@ export const getEngagementCounts = (engagements) => {
         );
 }
 
-export const getEventEngageeCounts = (eventId) => {
-    return getEventEngagements(eventId)
-    .then((engagements) => {
-        return getEngagementCounts(engagements);
+export const getEngagementEngageeCounts = (engagements) => {
+    let filteredEngagees = {};
+    engagements.forEach((engagement) => {
+        getEngagementEngageeCount(engagement._id)
+        .then((count) => {
+            filteredEngagees[engagement._id] = count;
+        })
     })
+    return filteredEngagees;
 }
 
 export const getGoogleSheetJSON = (sheetId) => {
