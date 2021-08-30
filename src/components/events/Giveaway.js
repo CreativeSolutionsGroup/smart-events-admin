@@ -111,7 +111,7 @@ export default class Giveaway extends React.Component {
         filterEngagements.forEach((engagement) => {
             getEngagementEngagees(engagement)
             .then((engagees) => {
-                let entryDict = this.state.entries == undefined ? {} : this.state.entries;
+                let entryDict = this.state.entries === undefined ? {} : this.state.entries;
                 engagees.forEach(engagee => {
                     let message = engagee.message_received;
                     if (!(this.filterOutEngagee(message))) {

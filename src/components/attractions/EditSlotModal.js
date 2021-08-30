@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Modal, Input, Form } from "semantic-ui-react";
 import TextField from '@material-ui/core/TextField';
 import axios from "axios";
-import { API_URL, authorizedDelete, formatTime } from "../../utils"
+import { API_URL, authorizedDelete, authorizedPut, formatTime } from "../../utils"
 
 class EditSlotModal extends React.Component {
 
@@ -104,7 +104,7 @@ class EditSlotModal extends React.Component {
             values['hide_time'] = formatTime(parsedDate);
         }
 
-        axios.put(API_URL + '/api/slots/' + this.state.slotId, values)
+        authorizedPut(axios, API_URL + '/api/slots/' + this.state.slotId, values)
             .then(async response => {
                 const data = await response.data;
 

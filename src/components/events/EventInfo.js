@@ -4,7 +4,7 @@ import Giveaway from "./Giveaway";
 import AddEngagementModal from "./AddEngagementModal";
 import EditEngagementModal from "./EditEngagementModal";
 import EditEventModal from "./EditEventModal"
-import { getEventEngagements, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL, getEngagementEngageeCounts, getEngagementEngagees } from "../../utils";
+import { getEventEngagements, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL, getEngagementEngagees } from "../../utils";
 import { CSVLink } from "react-csv";
 
 export default class EventInfo extends React.Component {

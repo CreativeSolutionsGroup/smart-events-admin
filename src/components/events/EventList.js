@@ -50,7 +50,7 @@ export default class EventList extends React.Component {
           let eventEngageeCount = {}
           engagements.forEach((engagement) => {
             let count = engagementCounts[engagement._id];
-            let oldCount = eventEngageeCount[engagement.event_id] == undefined ? 0 : eventEngageeCount[engagement.event_id];
+            let oldCount = eventEngageeCount[engagement.event_id] === undefined ? 0 : eventEngageeCount[engagement.event_id];
             eventEngageeCount[engagement.event_id] = oldCount + count;
           })
           this.setState({ eventEngagements: eventEngageeCount });
