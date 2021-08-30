@@ -4,7 +4,7 @@ import Giveaway from "./Giveaway";
 import AddEngagementModal from "./AddEngagementModal";
 import EditEngagementModal from "./EditEngagementModal";
 import EditEventModal from "./EditEventModal"
-import { getEventEngagements, getEngagementCounts, getEngagementEngagees, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL } from "../../utils";
+import { getEventEngagements, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL, getEngagementEngagees } from "../../utils";
 import { CSVLink } from "react-csv";
 
 export default class EventInfo extends React.Component {
@@ -23,7 +23,7 @@ export default class EventInfo extends React.Component {
       event_name: "",
       event_desc: "",
       engagements: [],
-      engagementCounts: {},
+      engagementEngagees: {},
       downloadEngagementId: "",
       downloadCSV: [],
       autoSync: false
@@ -61,7 +61,15 @@ export default class EventInfo extends React.Component {
   }
 
   handleChangeDownload = (e, { name, value }) => {
-    this.setState({ downloadEngagementId: value })
+    let keyword = "";
+    this.state.engagements.forEach((engagement) => {
+      if(engagement._id === value){
+        keyword = engagement.keyword;
+      }
+    })
+
+    let downloadName = this.state.event_name + " (" + keyword + ").csv"
+    this.setState({ downloadEngagementId: value, downloadName: downloadName })
     this.updateCSVData(value);
   }
 
@@ -132,25 +140,26 @@ export default class EventInfo extends React.Component {
 
   loadEngagements() {
     getEventEngagements(this.event_id)
-      .then((filteredEngagements) => {
-        this.setState({ engagements: filteredEngagements });
-        getEngagementCounts(filteredEngagements)
-          .then((counts) => {
-            this.setState({ engagementCounts: counts });
-          })
-      });
+    .then((filteredEngagements) => {
+      this.setState({ engagements: filteredEngagements });
+      filteredEngagements.forEach((engagement) => {
+        getEngagementEngagees(engagement._id)
+        .then((response) => {
+          let newEnagementDict = this.state.engagementEngagees;
+          newEnagementDict[engagement._id] = response
+          this.setState({ engagementEngagees:  newEnagementDict});
+        })
+      })
+    });
   }
 
   updateCSVData(engagementId) {
-    getEngagementEngagees(engagementId)
-      .then((response) => {
-        let data = [];
-        data.push(["Message Received", "Phone"])
-        response.forEach((element) => {
-          data.push([element.message_received, element.phone]);
-        })
-        this.setState({ downloadCSV: data })
-      });
+    let data = [];
+    data.push(["Message Received", "Phone"])
+    this.state.engagementEngagees[engagementId].forEach((element) => {
+      data.push([element.message_received, element.phone]);
+    })
+    this.setState({ downloadCSV: data })
   }
 
   toggleAutoSync() {
@@ -166,10 +175,14 @@ export default class EventInfo extends React.Component {
   }
 
   autoSync() {
-    getEngagementCounts(this.state.engagements)
-      .then((counts) => {
-        this.setState({ engagementCounts: counts });
+    this.state.engagements.forEach((engagement) => {
+      getEngagementEngagees(engagement._id)
+      .then((response) => {
+        let newEnagementDict = this.state.engagementEngagees;
+        newEnagementDict[engagement._id] = response
+        this.setState({ engagementEngagees:  newEnagementDict});
       })
+    })
   }
 
   render() {
@@ -210,7 +223,7 @@ export default class EventInfo extends React.Component {
                   <div style={{ marginLeft: 'auto', marginRight: 'auto', marginTop: 5, marginBottom: 5 }}>
                     <CSVLink
                       data={this.state.downloadCSV}
-                      filename={this.state.event_name + ".csv"}
+                      filename={this.state.downloadName}
                       target="_blank"
                       onClick={event => {
                         if (this.state.downloadEngagementId === "") {
@@ -218,7 +231,7 @@ export default class EventInfo extends React.Component {
                         }
                       }}
                     >
-                      <Button color='green'>Download</Button>
+                      <Button color='green' disabled={this.state.downloadEngagementId === ""}>Download</Button>
                     </CSVLink>
                   </div>
                 </div>
@@ -270,7 +283,7 @@ export default class EventInfo extends React.Component {
                   <Card.Content extra>
                     <div>
                       <Icon name="users" />
-                      {this.state.engagementCounts[element._id]}
+                      {this.state.engagementEngagees[element._id] === undefined ? 0 : this.state.engagementEngagees[element._id].length}
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                       <Icon name="clock" />

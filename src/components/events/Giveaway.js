@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, Button, Icon, Checkbox, List, Dropdown } from "semantic-ui-react";
-import { getEventEngagements, getEvents, formatTime, authorizedFetch, API_URL } from "../../utils";
+import { getEventEngagements, getEvents, formatTime, getEngagementEngagees } from "../../utils";
 
 export default class Giveaway extends React.Component {
 
@@ -30,18 +30,19 @@ export default class Giveaway extends React.Component {
     }
 
     loadEvents() {
+        if(!this.showPicker || this.state.eventId !== "")return;
         getEvents()
-            .then((events) => {
-                this.setState({ eventList: events });
-            });
+        .then((events) => {
+            this.setState({ eventList: events });
+        });
     }
 
     loadEventEngagements(eventId) {
+        if(eventId === undefined || eventId === "")return;
         getEventEngagements(eventId)
-            .then((eventEngagements) => {
-                this.setState({ engagements: eventEngagements });
-                this.getEntries();
-            });
+        .then((eventEngagements) => {
+            this.setState({ engagements: eventEngagements });
+        });
     }
 
     eventSelectionList() {
@@ -105,33 +106,21 @@ export default class Giveaway extends React.Component {
         return list;
     }
 
-    getEntries() {
-        authorizedFetch(API_URL + '/api/engagees/')
-            .then((res) => res.json())
-            .then(
-                (res) => {
-                    if (res.status !== "success") {
-                        console.log("Failed to retrieve Engagements");
-                        console.log(res.message);
-                        alert("Error (Giveaway): " + res.message);
+    getEntries(filterEngagements) {
+        this.setState({ entries: {} });
+        filterEngagements.forEach((engagement) => {
+            getEngagementEngagees(engagement)
+            .then((engagees) => {
+                let entryDict = this.state.entries === undefined ? {} : this.state.entries;
+                engagees.forEach(engagee => {
+                    let message = engagee.message_received;
+                    if (!(this.filterOutEngagee(message))) {
+                        entryDict[message] = engagee.phone;
                     }
-
-                    let entryDict = {};
-                    res.data.forEach((element) => {
-                        if (this.state.filterEngagements.includes(element.engagement_id)) {
-                            let message = element.message_received;
-                            if (!(this.filterOutEngagee(message))) {
-                                entryDict[message] = element.phone;
-                            }
-                        }
-                    });
-                    this.setState({ entries: entryDict });
-                },
-                (err) => {
-                    console.error("Failed to retrieve Engagements");
-                    console.error(err);
-                }
-            );
+                })
+                this.setState({ entries: entryDict });
+            })
+        })
     }
 
     filterOutEngagee(message) {
@@ -151,7 +140,7 @@ export default class Giveaway extends React.Component {
 
     handleChangeFilter = (e, { name, value }) => {
         this.setState({ filterEngagements: value });
-        this.refreshEngagees();
+        this.getEntries(value)
     }
 
     handleAdditionBlacklist = (e, { value }) => {
@@ -171,7 +160,7 @@ export default class Giveaway extends React.Component {
     }
 
     refreshEngagees() {
-        this.getEntries()
+        this.getEntries(this.state.filterEngagements);
     }
 
     pickWinner() {

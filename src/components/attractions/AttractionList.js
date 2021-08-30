@@ -1,6 +1,6 @@
 import React, { createRef } from "react";
 import { Icon, Card, Button, Image, Popup } from "semantic-ui-react";
-import { getAttractionCapacity, getAttractions, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, getEvent, isLive } from "../../utils";
+import { getAttractions, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, getEvent, isLive, getAllAttractionCapacities } from "../../utils";
 import AddAttractionModal from "./AddAttractionModal";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
@@ -52,10 +52,13 @@ export default class AttractionList extends React.Component {
         let newEventNames = this.state.eventNames;
         attractions.forEach((attraction) => {
           let event_id = attraction.event_id;
-          getEvent(event_id)
+          if(newEventNames[event_id] === undefined){
+            console.log("Fetch Name: " + event_id);
+            getEvent(event_id)
             .then((res) => {
               newEventNames[event_id] = res.name;
             })
+          }
           let attractionValue = {
             _id: attraction._id,
             name: attraction.name,
@@ -77,17 +80,25 @@ export default class AttractionList extends React.Component {
 
   loadAttractionCapacities(attractionDict) {
     let keys = Object.keys(attractionDict);
+    let allAttractions = [];
     keys.forEach((event) => {
       let attractions = attractionDict[event];
-      attractions.forEach((attraction) => {
-        getAttractionCapacity(attraction._id)
-          .then((res) => {
-            let attractionDict = this.state.attractionCapacities;
-            attractionDict[attraction._id] = res;
-            this.setState({ attractionCapacities: attractionDict });
-          })
+      attractions.forEach(attraction => {
+        allAttractions.push(attraction);
       })
     })
+
+    getAllAttractionCapacities(allAttractions)
+    .then(capacities => {
+      capacities.forEach((capacity) => {
+        capacity.then((value) => {
+          let attractionId = value[0];
+          let values = this.state.attractionCapacities === undefined ? {} : this.state.attractionCapacities;
+          values[attractionId] = value[1];
+          this.setState({ attractionCapacities: values });
+        })
+      })
+    });
   }
 
   clickAttraction(element) {

@@ -1,6 +1,7 @@
 export const COLOR_CEDARVILLE_YELLOW = "#F3A00F";
 export const COLOR_CEDARVILLE_BLUE = "#31B7E6";
 export const API_URL = "https://api.cusmartevents.com"
+//"http://localhost:3001"//
 
 export const refreshTokenSetup = (res) => {
     
@@ -112,6 +113,7 @@ export const getEvents = () => {
             (err) => {
                 console.error("Failed to retrieve Events");
                 console.error(err);
+                return []
             }
         );
 }
@@ -125,18 +127,20 @@ export const getEvent = (eventId) => {
                     console.log("Failed to retrieve Event");
                     console.log(res.message);
                     alert("Error (Event): " + res.message);
+                    return "";
                 }
                 return res.data;
             },
             (err) => {
                 console.error("Failed to retrieve Event");
                 console.error(err);
+                return "";
             }
         );
 }
 
-export const getEventEngagements = (eventId) => {
-    return fetch(API_URL + '/api/engagements/')
+export const getAllEngagements = () => {
+    return authorizedFetch(API_URL + '/api/engagements/')
         .then((res) => res.json())
         .then(
             (res) => {
@@ -144,6 +148,28 @@ export const getEventEngagements = (eventId) => {
                     console.log("Failed to retrieve Engagements");
                     console.log(res.message);
                     alert("Error (Engagements): " + res.message);
+                    return [];
+                }
+                return res.data;
+            },
+            (err) => {
+                console.error("Failed to retrieve Engagements");
+                console.error(err);
+                return [];
+            }
+        );
+}
+
+export const getEventEngagements = (eventId) => {
+    return authorizedFetch(API_URL + '/api/engagements/')
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Engagements");
+                    console.log(res.message);
+                    alert("Error (Engagements): " + res.message);
+                    return [];
                 }
                 let filteredEngagements = [];
                 res.data.forEach(element => {
@@ -156,11 +182,33 @@ export const getEventEngagements = (eventId) => {
             (err) => {
                 console.error("Failed to retrieve Engagements");
                 console.error(err);
+                return [];
             }
         );
 }
 
-export const getEngagementCounts = (engagements) => {
+export const getEngagementEngagees = (engagementId) => {
+    return authorizedFetch(API_URL + '/api/engagements/' + engagementId + "/engagees")
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Engagement Engagees");
+                    console.log(res.message);
+                    alert("Error (Engagees): " + res.message);
+                    return [];
+                }
+                return res.data;
+            },
+            (err) => {
+                console.error("Failed to retrieve Engagement Engagees");
+                console.error(err);
+                return [];
+            }
+        );
+}
+
+export const getAllEngageesCount = () => {
     return authorizedFetch(API_URL + '/api/engagees/')
         .then((res) => res.json())
         .then(
@@ -169,34 +217,36 @@ export const getEngagementCounts = (engagements) => {
                     console.log("Failed to retrieve Engagees");
                     console.log(res.message);
                     alert("Error (Engagees): " + res.message);
+                    return {};
                 }
 
                 let filteredEngagees = {};
-                engagements.forEach(engagement => {
-                    res.data.forEach(engagee => {
-                        if (engagement._id === engagee.engagement_id) {
-                            let oldCount = 0;
-                            if (filteredEngagees[engagee.engagement_id] != null) {
-                                oldCount = filteredEngagees[engagee.engagement_id];
-                            }
-                            filteredEngagees[engagee.engagement_id] = oldCount + 1;
-                        }
-                    });
+                res.data.forEach(engagee => {
+                   let oldCount = 0;
+                    if (filteredEngagees[engagee.engagement_id] != null) {
+                        oldCount = filteredEngagees[engagee.engagement_id];
+                    }
+                    filteredEngagees[engagee.engagement_id] = oldCount + 1;
                 });
                 return filteredEngagees;
             },
             (err) => {
                 console.error("Failed to retrieve Engagees");
                 console.error(err);
+                return {};
             }
         );
 }
 
-export const getEventEngageeCounts = (eventId) => {
-    return getEventEngagements(eventId)
-    .then((engagements) => {
-        return getEngagementCounts(engagements);
+export const getEngagementEngageeCounts = (engagements) => {
+    let filteredEngagees = {};
+    engagements.forEach((engagement) => {
+        getEngagementEngagees(engagement._id)
+        .then((response) => {
+            filteredEngagees[engagement._id] = response.length;
+        })
     })
+    return filteredEngagees;
 }
 
 export const getGoogleSheetJSON = (sheetId) => {
@@ -270,34 +320,6 @@ export const formatTime = (time) => {
     return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()} ${hours}:${minutes} ${TOD}`;
 }
 
-export const getEngagementEngagees = (engagementId) =>
-{
-    return authorizedFetch(API_URL + '/api/engagees/')
-    .then((res) => res.json())
-    .then(
-        (res) => {
-            if (res.status !== "success") {
-                console.log("Failed to retrieve Engagees for download");
-                console.log(res.message);
-                alert("Error (Engagees): " + res.message);
-            }
-
-            let engagees = [];
-            console.log(engagementId)
-            res.data.forEach(engagee => {
-                if (engagementId === engagee.engagement_id) {
-                    engagees.push(engagee);
-                }
-            });
-            return engagees;
-        },
-        (err) => {
-            console.error("Failed to retrieve Engagees");
-            console.error(err);
-        }
-    )
-}
-
 //Attractions
 export const getAttractions = () => {
     return fetch(API_URL + '/api/attractions/')
@@ -315,6 +337,28 @@ export const getAttractions = () => {
             (err) => {
                 console.error("Failed to retrieve Attractions");
                 console.error(err);
+                return [];
+            }
+        );
+}
+
+export const getAllSlots = () => {
+    return fetch(API_URL + '/api/slots/')
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Slots");
+                    console.log(res.message);
+                    alert("Error (Slots): " + res.message);
+                    return [];
+                }
+                return res.data;
+            },
+            (err) => {
+                console.error("Failed to retrieve Slots");
+                console.error(err);
+                return [];
             }
         );
 }
@@ -328,6 +372,7 @@ export const getAttractionSlots = (attractionId) => {
                     console.log("Failed to retrieve Slots");
                     console.log(res.message);
                     alert("Error (Slots): " + res.message);
+                    return [];
                 }
                 let filteredSlots = [];
                 res.data.forEach(element => {
@@ -340,6 +385,7 @@ export const getAttractionSlots = (attractionId) => {
             (err) => {
                 console.error("Failed to retrieve Slots");
                 console.error(err);
+                return [];
             }
         );
 }
@@ -360,24 +406,39 @@ export const getSlotTickets = (slotId) => {
             (err) => {
                 console.error("Failed to retrieve Tickets");
                 console.error(err);
+                return [];
             }
         );
 }
 
-export const getAttractionCapacity = async (attractionId) => {
-    let total_capacity = await getAttractionSlots(attractionId)
-    .then((res) => {
-        let capacity = 0;
-        res.forEach((slot) => {
-            capacity += slot.ticket_capacity;
-        })
-        return capacity;
-    });
+export const getAllAttractionCapacities = async (attractions) => {
+    let slots = await getAllSlots();
+    return attractions.map(async (attraction) => {
+        let attractionSlots = await slots.filter(slot => slot.attraction_id === attraction._id);
+        if(attractionSlots.length === 0) {
+            return [attraction._id, "-"];
+        } else {
+            let values = await Promise.all(attractionSlots.map(async (slot) => {
+                let tickets = await getSlotTickets(slot._id);
+                let capacity = slot.ticket_capacity;
+                let used = tickets.length;
+                return {count: used, capacity: capacity};   
+            }));
+            
+            let used_capacity = 0;
+            let total_capacity = 0;
 
-    let used_capacity = 0;
-    if (total_capacity !== 0) {
-        return parseFloat((1 - used_capacity / total_capacity) * 100).toFixed(1) + "%";
-    } else {
-        return "-";
-    }
+            values.forEach((value) => {
+                used_capacity+= value.count;
+                total_capacity+= value.capacity;
+            })
+
+            if (total_capacity !== 0) {
+                let percent = parseFloat((1 - used_capacity / total_capacity) * 100).toFixed(1) + "%";
+                return [attraction._id, percent];
+            } else {
+                return [attraction._id, "-"];
+            }
+        }
+    });
 }
