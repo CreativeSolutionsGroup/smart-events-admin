@@ -22,7 +22,6 @@ import Header from "./components/Header";
 import { isLogin } from "./utils";
 import smart_events_logo from "./images/smart-events-logo.png";
 import Giveaway from "./components/events/Giveaway";
-import Scanner from "./components/Scanner";
 
 import AttractionList from "./components/attractions/AttractionList";
 import AttractionInfo from "./components/attractions/AttractionInfo";
@@ -50,7 +49,6 @@ class App extends React.Component {
               : <Redirect to="/signin" />
           )} />
           <PublicRoute restricted={true} component={SignIn} path="/signin" exact />
-          <Route path="/scanner" exact component={ScannerPage} />
           <PrivateRoute component={Dashboard} path="/dashboard" exact />
           <PrivateRoute component={Event} path="/event/:event_id" exact />
           <PrivateRoute component={GiveawayPage} path="/giveaway" exact />
@@ -153,14 +151,6 @@ function SignIn() {
           </div>
         )
     )} />
-  );
-}
-
-function ScannerPage() {
-  return (
-    <div>
-      <Scanner />
-    </div>
   );
 }
 
