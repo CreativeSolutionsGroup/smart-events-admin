@@ -1,8 +1,9 @@
 import React from "react";
-import { Button, Modal, Input, Form, TextArea, Image, Dropdown } from "semantic-ui-react";
+import { Button, Modal, Input, Icon, Form, TextArea, Image, Dropdown } from "semantic-ui-react";
 import TextField from '@material-ui/core/TextField';
 import axios from "axios";
-import {API_URL, authorizedPost, formatTime, getEvents} from "../../utils"
+import {API_URL, authorizedPost, formatTime, getEvents, clientId} from "../../utils"
+import GooglePicker from 'react-google-picker'
 
 class AddAttractionModal extends React.Component {
 
@@ -20,7 +21,8 @@ class AddAttractionModal extends React.Component {
             startTime: "",
             endTime: "",
             formStartTime: "",
-            formEndTime: ""
+            formEndTime: "",
+            openDrive: false
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -144,120 +146,157 @@ class AddAttractionModal extends React.Component {
         return list;
     }
 
+    googleDriveImageURL(data){
+        const driveImageURL = 'http://drive.google.com/uc?export=view&id=';
+        if(data.docs !== undefined){
+            let doc = data.docs[0]; //Only Get one
+            let docId = doc.id;
+            console.log(docId);
+            if(docId !== undefined){
+                this.setState({imageURL: driveImageURL + docId})
+            }
+        }
+    }
+
     render() {
         return (
-            <Modal
-                closeIcon
-                size="large"
-                onClose={() => this.setState({ open: false })}
-                onOpen={() => this.setState({ open: true })}
-                open={this.state.open}
-            >
-                <Modal.Header>
-                    <div style={{ display: 'flex', flexDirection: 'row' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <div>Create Attraction</div>
+            <div>
+                <Modal
+                    closeIcon
+                    size="large"
+                    onClose={() => this.setState({ open: false })}
+                    onOpen={() => this.setState({ open: true })}
+                    open={this.state.open}
+                >
+                    <Modal.Header>
+                        <div style={{ display: 'flex', flexDirection: 'row' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <div>Create Attraction</div>
+                            </div>
                         </div>
-                    </div>
-                </Modal.Header>
-                <Modal.Content>
-                    <Form>
-                        <Form.Field required>
-                            <label>Event</label>
-                            <Dropdown
-                                placeholder='Select Event'
-                                selection
-                                value={this.state.eventId}
-                                options={this.eventSelectionList()}
-                                onChange={this.handleChangeEvent}
-                                style={{marginTop: 5, marginBottom: 5}}
-                            />
-                        </Form.Field>
-                        <Form.Field required>
-                            <label>Name</label>
-                            <Input
-                                fluid
-                                name='name'
-                                onChange={this.handleChange}
-                            />
-                        </Form.Field>
-                        <Form.Field required>
-                            <label>Description (Public)</label>
-                            <TextArea
-                                fluid
-                                name='description'
-                                onChange={this.handleChange}
-                            />
-                        </Form.Field>
-                        <Form.Field required>
-                            <label>About (Dashboard)</label>
-                            <Input
-                                fluid
-                                name='about'
-                                onChange={this.handleChange}
-                            />
-                        </Form.Field>
-                        <Form.Field required>
-                            <label>Image URL</label>
-                            <Input
-                                fluid
-                                name='imageURL'
-                                onChange={this.handleChange}
-                                icon='image'
-                                iconPosition='left'
-                            />
-                            <Image src={this.state.imageURL} size='medium' centered />
-                        </Form.Field>
-                        <Form.Group widths='equal'>
-                            <Form.Field>
-                                <TextField
-                                    label="Start Time"
-                                    type="datetime-local"
-                                    required
-                                    InputLabelProps={{
-                                        shrink: true,
-                                    }}
-                                    name='formStartTime'
-                                    onChange={(event) => {
-                                        this.handleChange(event, { name: 'formStartTime', value: this.dateString(event.target.value) })
-                                    }}
+                    </Modal.Header>
+                    <Modal.Content>
+                        <Form>
+                            <Form.Field required>
+                                <label>Event</label>
+                                <Dropdown
+                                    placeholder='Select Event'
+                                    selection
+                                    value={this.state.eventId}
+                                    options={this.eventSelectionList()}
+                                    onChange={this.handleChangeEvent}
+                                    style={{marginTop: 5, marginBottom: 5}}
                                 />
                             </Form.Field>
-                            <Form.Field>
-                                <TextField
-                                    label="End Time"
-                                    type="datetime-local"
-                                    required
-                                    InputLabelProps={{
-                                        shrink: true,
-                                    }}
-                                    name='formEndTime'
-                                    onChange={(event) => {
-                                        this.handleChange(event, { name: 'formEndTime', value: this.dateString(event.target.value) })
-                                    }}
+                            <Form.Field required>
+                                <label>Name</label>
+                                <Input
+                                    fluid
+                                    name='name'
+                                    onChange={this.handleChange}
                                 />
                             </Form.Field>
-                        </Form.Group>
-                    </Form>
-                </Modal.Content>
-                <Modal.Actions>
-                    <Button
-                        content="Create"
-                        labelPosition='right'
-                        icon='checkmark'
-                        onClick={() => this.handleSubmit()}
-                        disabled={!this.isSubmitValid()}
-                        positive
-                    />
-                    <Button
-                        content="Cancel"
-                        labelPosition='right'
-                        icon='close'
-                        onClick={() => this.setState({ open: false })}
-                        negative
-                    />
-                </Modal.Actions>
-            </Modal>
+                            <Form.Field required>
+                                <label>Description (Public)</label>
+                                <TextArea
+                                    fluid
+                                    name='description'
+                                    onChange={this.handleChange}
+                                />
+                            </Form.Field>
+                            <Form.Field required>
+                                <label>About (Dashboard)</label>
+                                <Input
+                                    fluid
+                                    name='about'
+                                    onChange={this.handleChange}
+                                />
+                            </Form.Field>
+                            <Form.Field required>
+                                <div style={{display: 'flex', marginRight: 0, width: '100%'}}>
+                                    
+                                    <div style={{width: '100%'}}>
+                                        <label>Image URL</label>
+                                        <Input
+                                            name='imageURL'
+                                            value={this.state.imageURL}
+                                            onChange={this.handleChange}
+                                            icon='image'
+                                            iconPosition='left'
+                                        />
+                                    </div>
+                                    <GooglePicker 
+                                        clientId={clientId}
+                                        developerKey={'AIzaSyBwjEWiq9VGOgHdMcjDTJGNyQWHGaLg3gg'}
+                                        scope={['https://www.googleapis.com/auth/drive.readonly']}
+                                        onChange={data => this.googleDriveImageURL(data)}
+                                        onAuthFailed={data => console.log('on auth failed:', data)}
+                                        navHidden={true}
+                                        authImmediate={false}
+                                        mimeTypes={['image/png', 'image/jpeg', 'image/jpg']}
+                                        viewId={'FOLDERS'}>
+                                            <Button 
+                                                icon
+                                                style={{marginTop: 20, marginLeft: 2}}
+                                            >
+                                                <Icon name='google drive' />
+                                            </Button>
+                                    </GooglePicker>
+                                    
+                                </div>
+                                <Image src={this.state.imageURL} size='medium' centered style={{margin: 20, marginLeft: 'auto', marginRight: 'auto'}} />
+                            </Form.Field>
+                            <Form.Group widths='equal'>
+                                <Form.Field>
+                                    <TextField
+                                        label="Start Time"
+                                        type="datetime-local"
+                                        required
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        name='formStartTime'
+                                        onChange={(event) => {
+                                            this.handleChange(event, { name: 'formStartTime', value: this.dateString(event.target.value) })
+                                        }}
+                                    />
+                                </Form.Field>
+                                <Form.Field>
+                                    <TextField
+                                        label="End Time"
+                                        type="datetime-local"
+                                        required
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        name='formEndTime'
+                                        onChange={(event) => {
+                                            this.handleChange(event, { name: 'formEndTime', value: this.dateString(event.target.value) })
+                                        }}
+                                    />
+                                </Form.Field>
+                            </Form.Group>
+                        </Form>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button
+                            content="Create"
+                            labelPosition='right'
+                            icon='checkmark'
+                            onClick={() => this.handleSubmit()}
+                            disabled={!this.isSubmitValid()}
+                            positive
+                        />
+                        <Button
+                            content="Cancel"
+                            labelPosition='right'
+                            icon='close'
+                            onClick={() => this.setState({ open: false })}
+                            negative
+                        />
+                    </Modal.Actions>
+                </Modal>
+            </div>
         );
     }
 }
