@@ -1,8 +1,9 @@
 import React from "react";
-import { Button, Modal, Input, Form, TextArea, Image } from "semantic-ui-react";
+import { Button, Modal, Input, Icon, Form, TextArea, Image } from "semantic-ui-react";
 import TextField from '@material-ui/core/TextField';
 import axios from "axios";
-import {API_URL, authorizedDelete, authorizedPut, formatTime} from "../../utils"
+import {API_URL, authorizedDelete, authorizedPut, formatTime, clientId} from "../../utils"
+import GooglePicker from 'react-google-picker';
 
 class EditAttractionModal extends React.Component {
 
@@ -160,6 +161,18 @@ class EditAttractionModal extends React.Component {
         return parsedDate.toISOString().slice(0, 16);
     };
 
+    googleDriveImageURL(data){
+        const driveImageURL = 'http://drive.google.com/uc?export=view&id=';
+        if(data.docs !== undefined){
+            let doc = data.docs[0]; //Only Get one
+            let docId = doc.id;
+            console.log(docId);
+            if(docId !== undefined){
+                this.setState({formImageURL: driveImageURL + docId})
+            }
+        }
+    }
+
     render() {
         return (
             <div>
@@ -214,16 +227,37 @@ class EditAttractionModal extends React.Component {
                                 />
                             </Form.Field>
                             <Form.Field required>
-                                <label>Image URL</label>
-                                <Input
-                                    fluid
-                                    defaultValue={this.state.imageURL}
-                                    name='formImageURL'
-                                    onChange={this.handleChange}
-                                    icon='image'
-                                    iconPosition='left'
-                                />
-                                <Image src={this.state.formImageURL} size='medium' centered />
+                                <div style={{display: 'flex', marginRight: 0, width: '100%'}}>
+                                    <div style={{width: '100%'}}>
+                                        <label>Image URL</label>
+                                        <Input
+                                            name='imageURL'
+                                            defaultValue={this.state.imageURL}
+                                            value={this.state.formImageURL}
+                                            onChange={this.handleChange}
+                                            icon='image'
+                                            iconPosition='left'
+                                        />
+                                    </div>
+                                    <GooglePicker 
+                                        clientId={clientId}
+                                        developerKey={'AIzaSyBwjEWiq9VGOgHdMcjDTJGNyQWHGaLg3gg'}
+                                        scope={['https://www.googleapis.com/auth/drive.readonly']}
+                                        onChange={data => this.googleDriveImageURL(data)}
+                                        onAuthFailed={data => console.log('on auth failed:', data)}
+                                        navHidden={true}
+                                        authImmediate={false}
+                                        mimeTypes={['image/png', 'image/jpeg', 'image/jpg']}
+                                        viewId={'FOLDERS'}>
+                                            <Button 
+                                                icon
+                                                style={{marginTop: 20, marginLeft: 2}}
+                                            >
+                                                <Icon name='google drive' />
+                                            </Button>
+                                    </GooglePicker>
+                                </div>
+                                <Image src={this.state.formImageURL} size='medium' centered style={{margin: 20, marginLeft: 'auto', marginRight: 'auto'}} />
                             </Form.Field>
                             <Form.Group widths='equal'>
                                 <Form.Field>

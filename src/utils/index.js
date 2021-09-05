@@ -3,6 +3,10 @@ export const COLOR_CEDARVILLE_BLUE = "#31B7E6";
 export const API_URL = "https://api.cusmartevents.com"
 //"http://localhost:3001"//
 
+export const clientId =
+  '787844068457-38ubcdtp9moimvtq3a1du037nphmo8ee.apps.googleusercontent.com';
+
+
 export const refreshTokenSetup = (res) => {
     
     let email = res.profileObj.email;
