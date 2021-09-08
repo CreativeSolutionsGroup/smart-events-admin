@@ -231,7 +231,7 @@ class EditAttractionModal extends React.Component {
                                     <div style={{width: '100%'}}>
                                         <label>Image URL</label>
                                         <Input
-                                            name='imageURL'
+                                            name='formImageURL'
                                             defaultValue={this.state.imageURL}
                                             value={this.state.formImageURL}
                                             onChange={this.handleChange}
@@ -245,6 +245,7 @@ class EditAttractionModal extends React.Component {
                                         scope={['https://www.googleapis.com/auth/drive.readonly']}
                                         onChange={data => this.googleDriveImageURL(data)}
                                         onAuthFailed={data => console.log('on auth failed:', data)}
+                                        multiple={true}
                                         navHidden={true}
                                         authImmediate={false}
                                         mimeTypes={['image/png', 'image/jpeg', 'image/jpg']}

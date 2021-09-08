@@ -1,5 +1,5 @@
 import React, { createRef } from "react";
-import { Card, Image, Icon, Button, Dropdown, Popup, Divider } from "semantic-ui-react";
+import { Card, Image, Icon, Button, Dropdown, Popup, Divider, Grid } from "semantic-ui-react";
 import Giveaway from "./Giveaway";
 import AddEngagementModal from "./AddEngagementModal";
 import EditEngagementModal from "./EditEngagementModal";
@@ -278,7 +278,19 @@ export default class EventInfo extends React.Component {
                     alignItems: 'center',
                     justifyContent: 'center'
                   }}>
-                    <Image src={element.image_url} size='medium' />
+                  <Grid style={{overflow: 'scroll', display: 'inline'}}>
+                      <Grid.Row centered verticalAlign='middle'>
+                      {
+                          element.image_url.split("|").map((imageURL) => {
+                              return (
+                                  <Grid.Column width={5}>
+                                      <Image src={imageURL} size='small'/>
+                                  </Grid.Column>
+                              )
+                          })
+                      }
+                      </Grid.Row>
+                  </Grid>
                   </Card.Content> : ""}
                   <Card.Content extra>
                     <div>

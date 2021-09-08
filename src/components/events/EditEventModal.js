@@ -73,7 +73,7 @@ class EditEventModal extends React.Component {
         this.setState({ open: false });
 
         let values = { name: this.state.formName, description: this.state.formDescription };
-        authorizedPut(API_URL + '/api/events/' + this.state.eventId, values)
+        authorizedPut(axios, API_URL + '/api/events/' + this.state.eventId, values)
             .then(async response => {
                 const data = await response.data;
 

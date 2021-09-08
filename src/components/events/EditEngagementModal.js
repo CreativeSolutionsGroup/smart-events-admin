@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Modal, Input, Form, Image, TextArea, Icon } from "semantic-ui-react";
+import { Button, Modal, Input, Form, Image, TextArea, Icon, Grid } from "semantic-ui-react";
 import TextField from '@material-ui/core/TextField';
 import axios from "axios";
 import { API_URL, authorizedDelete, authorizedPut, formatTime, clientId } from "../../utils"
@@ -131,7 +131,7 @@ class EditEngagementModal extends React.Component {
         }
 
         if (Object.keys(values).length > 0) {
-            authorizedPut(API_URL + '/api/engagements/' + this.state.engagementId, values)
+            authorizedPut(axios, API_URL + '/api/engagements/' + this.state.engagementId, values)
                 .then(async response => {
                     const data = await response.data;
 
@@ -163,11 +163,17 @@ class EditEngagementModal extends React.Component {
     googleDriveImageURL(data){
         const driveImageURL = 'http://drive.google.com/uc?export=view&id=';
         if(data.docs !== undefined){
-            let doc = data.docs[0]; //Only Get one
-            let docId = doc.id;
-            console.log(docId);
-            if(docId !== undefined){
-                this.setState({formImageURL: driveImageURL + docId})
+            let finalString = '';
+            for(let i = 0; i < data.docs.length; i++){
+                let doc = data.docs[i];
+                let docId = doc.id;
+                console.log(docId);
+                if(docId !== undefined){
+                    finalString += i > 0 ? ("|"+ driveImageURL + docId) : (driveImageURL + docId);
+                }
+            }
+            if(finalString !== undefined){
+                this.setState({formImageURL: finalString})
             }
         }
     }
@@ -222,7 +228,7 @@ class EditEngagementModal extends React.Component {
                                     <div style={{width: '100%'}}>
                                         <label>Image URL</label>
                                         <Input
-                                            name='imageURL'
+                                            name='formImageURL'
                                             defaultValue={this.state.imageURL}
                                             value={this.state.formImageURL}
                                             onChange={this.handleChange}
@@ -238,6 +244,7 @@ class EditEngagementModal extends React.Component {
                                         onAuthFailed={data => console.log('on auth failed:', data)}
                                         navHidden={true}
                                         authImmediate={false}
+                                        multiselect={true}
                                         mimeTypes={['image/png', 'image/jpeg', 'image/jpg']}
                                         viewId={'FOLDERS'}>
                                             <Button 
@@ -248,7 +255,19 @@ class EditEngagementModal extends React.Component {
                                             </Button>
                                     </GooglePicker>
                                 </div>
-                                <Image src={this.state.formImageURL} size='medium' centered style={{margin: 20, marginLeft: 'auto', marginRight: 'auto'}} />
+                                <Grid style={{overflow: 'scroll', display: 'inline'}}>
+                                    <Grid.Row centered verticalAlign='middle'>
+                                    {
+                                        this.state.formImageURL.split("|").map((imageURL) => {
+                                            return (
+                                                <Grid.Column width={5}>
+                                                    <Image src={imageURL} size='medium'/>
+                                                </Grid.Column>
+                                            )
+                                        })
+                                    }
+                                    </Grid.Row>
+                                </Grid>
                             </Form.Field>
                             <Form.Group widths='equal'>
                                 <Form.Field>

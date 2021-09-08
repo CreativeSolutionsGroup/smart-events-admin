@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Modal, Input, Form, Image, TextArea, Icon} from "semantic-ui-react";
+import { Button, Modal, Input, Form, Image, TextArea, Icon, Grid} from "semantic-ui-react";
 import TextField from '@material-ui/core/TextField';
 import axios from "axios";
 import { API_URL, authorizedPost, formatTime, clientId } from "../../utils"
@@ -109,11 +109,17 @@ class AddEngagementModal extends React.Component {
     googleDriveImageURL(data){
         const driveImageURL = 'http://drive.google.com/uc?export=view&id=';
         if(data.docs !== undefined){
-            let doc = data.docs[0]; //Only Get one
-            let docId = doc.id;
-            console.log(docId);
-            if(docId !== undefined){
-                this.setState({imageURL: driveImageURL + docId})
+            let finalString = '';
+            for(let i = 0; i < data.docs.length; i++){
+                let doc = data.docs[i];
+                let docId = doc.id;
+                console.log(docId);
+                if(docId !== undefined){
+                    finalString += i > 0 ? ("|"+ driveImageURL + docId) : (driveImageURL + docId);
+                }
+            }
+            if(finalString !== undefined){
+                this.setState({imageURL: finalString})
             }
         }
     }
@@ -172,6 +178,7 @@ class AddEngagementModal extends React.Component {
                                         onAuthFailed={data => console.log('on auth failed:', data)}
                                         navHidden={true}
                                         authImmediate={false}
+                                        multiselect={true}
                                         mimeTypes={['image/png', 'image/jpeg', 'image/jpg']}
                                         viewId={'FOLDERS'}>
                                             <Button 
@@ -183,7 +190,19 @@ class AddEngagementModal extends React.Component {
                                     </GooglePicker>
                                     
                                 </div>
-                                <Image src={this.state.imageURL} size='medium' centered style={{margin: 20, marginLeft: 'auto', marginRight: 'auto'}} />
+                                <Grid style={{overflow: 'scroll', display: 'inline'}}>
+                                    <Grid.Row centered verticalAlign='middle'>
+                                    {
+                                        this.state.imageURL.split("|").map((imageURL) => {
+                                            return (
+                                                <Grid.Column width={5}>
+                                                    <Image src={imageURL} size='medium'/>
+                                                </Grid.Column>
+                                            )
+                                        })
+                                    }
+                                    </Grid.Row>
+                                </Grid>
                             </Form.Field>
                             <Form.Group widths='equal'>
                                 <Form.Field>
