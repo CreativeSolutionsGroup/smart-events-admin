@@ -1,7 +1,6 @@
 export const COLOR_CEDARVILLE_YELLOW = "#F3A00F";
 export const COLOR_CEDARVILLE_BLUE = "#31B7E6";
-export const API_URL = "https://api.cusmartevents.com"
-//"http://localhost:3001"//
+export const API_URL = "https://api.cusmartevents.com" //"http://localhost:3001"
 
 export const clientId =
   '787844068457-38ubcdtp9moimvtq3a1du037nphmo8ee.apps.googleusercontent.com';
@@ -92,13 +91,12 @@ export const authorizedPut = (axios, url, data) => {
     return axios.put(url, data, {headers: authHeader});
 }
 
-export const authorizedDelete = (axios, url, data) => {
+export const authorizedDelete = (axios, url) => {
     if(!localStorage.getItem('authToken')){
         return {status: 'error', message: 'No user is logged in'};
     }
     let token = localStorage.getItem('authToken');
-    let authHeader = {Authorization: "Bearer " + token}
-    return axios.delete(url, data, {headers: authHeader});
+    return axios.delete(url, {headers: {Authorization: "Bearer " + token}});
 }
 
 export const getEvents = () => {
