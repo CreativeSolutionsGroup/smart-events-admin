@@ -1,8 +1,10 @@
-import React from "react";
-import { Card, Button, Icon, Checkbox, List, Dropdown } from "semantic-ui-react";
-import { getEventEngagements, getEvents, formatTime, getEngagementEngagees } from "../../utils";
+import React, {createRef} from "react";
+import { Card, Button, Icon, Checkbox, List, Dropdown, Message, Transition } from "semantic-ui-react";
+import { getEventEngagements, getEvents, formatTimeHour, getEngagementEngagees } from "../../utils";
+import TextWinnerModal from "./TextWinnerModal";
 
 export default class Giveaway extends React.Component {
+    textWinnerModalRef = createRef();
 
     constructor(props) {
         super(props);
@@ -16,12 +18,15 @@ export default class Giveaway extends React.Component {
             blacklist: [],
             engagements: [],
             filterEngagements: [],
-            winners: []
+            winners: [],
+            showTextToast: false
         };
 
         this.getEntries = this.getEntries.bind(this);
         this.loadEvents = this.loadEvents.bind(this);
         this.loadEventEngagements = this.loadEventEngagements.bind(this);
+        this.showTextWinnerModal = this.showTextWinnerModal.bind(this);
+        this.onTextSent = this.onTextSent.bind(this);
     }
 
     componentDidMount() {
@@ -180,19 +185,31 @@ export default class Giveaway extends React.Component {
         this.refreshEngagees();
     }
 
-    textWinner(element){
+    showTextWinnerModal(studentId, number) {
+        let phoneNumber = "+18155720738" //number
+        this.textWinnerModalRef.current.setState({
+            studentId: studentId,
+            phone: phoneNumber,
+            text: "",
+            open: true
+        });
+    }
 
+    onTextSent(){
+        this.setState({showTextToast: true});
+        setTimeout(() => this.setState({showTextToast: false}), 3000);
     }
 
     render() {
         return (
-            <Card style={{width: '90%', marginTop: 5, marginBottom: 5}}>
+            <div style={{width: '90%', marginTop: 5, marginBottom: 5}}>
+            <Card fluid>
                 <Card.Content>
                     <Card.Header>
                         Giveaway
                     </Card.Header>
                 </Card.Content>
-                <Card.Content fluid>
+                <Card.Content>
                     <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                         {this.showPicker ? <Dropdown
                             placeholder='Select Event'
@@ -211,7 +228,6 @@ export default class Giveaway extends React.Component {
                             value={this.state.filterEngagements}
                             onChange={this.handleChangeFilter}
                             style={{marginTop: 5, marginBottom: 5}}
-                            fluid
                         />
                         <Dropdown
                             clearable
@@ -225,11 +241,10 @@ export default class Giveaway extends React.Component {
                             onAddItem={this.handleAdditionBlacklist}
                             onChange={this.handleChangeBlacklist}
                             style={{marginTop: 5, marginBottom: 5}}
-                            fluid
                         />
                     </div>
                 </Card.Content>
-                <Card.Content fluid>
+                <Card.Content>
                     <div style={{ display: 'flex', flexDirection: 'row', marginTop: 5, marginBottom: 5}}>
                         <Icon name='users' size='large' style={{marginTop: 'auto', marginBottom: 'auto', marginLeft: 'auto', marginRight: 5}}/>
                         <div style={{marginTop: 'auto', marginBottom: 'auto', marginLeft: 5, marginRight: 5}}>
@@ -253,11 +268,11 @@ export default class Giveaway extends React.Component {
                             style={{ marginLeft: 5, marginRight: 'auto' }}
                         />
                     </div>
-                    <List fluid>
+                    <List>
                         {
                             this.state.winners.map((element) => {
                                 return (
-                                    <List.Item style={{ display: 'flex', flexDirection: 'row', marginTop: 5, marginBottom: 5, marginLeft: 'auto', marginRight: 'auto'}}>
+                                    <List.Item style={{ display: 'flex', flexDirection: 'row', marginTop: 5, marginBottom: 5, marginLeft: 'auto', marginRight: 'auto'}} key={element.message}>
                                         <Checkbox style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 'auto', marginRight: 5 }} />
                                         <div style={{ display: 'flex', flexDirection: 'column', marginTop: 'auto', marginBottom: 'auto', marginLeft: 5, marginRight: 5 }}>
                                             <div style={{  marginLeft: 'auto', marginRight: 'auto' }}>
@@ -266,11 +281,11 @@ export default class Giveaway extends React.Component {
                                             <div>{element.phone}</div>
                                         </div>
                                         <div style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 5, marginRight: 5 }}>
-                                            {formatTime(element.time)}
+                                            {formatTimeHour(element.time)}
                                         </div>                                        
                                         <Button
                                             icon="comment"
-                                            onClick={() => this.textWinner(element)}
+                                            onClick={() => this.showTextWinnerModal(element.message, element.phone)}
                                             style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 5, marginRight: 5 }}
                                         />
                                         <Button
@@ -285,6 +300,16 @@ export default class Giveaway extends React.Component {
                     </List>
                 </Card.Content>
             </Card>
+            <TextWinnerModal ref={this.textWinnerModalRef} messageSent={this.onTextSent}/>
+            <Transition visible={this.state.showTextToast} animation='scale' duration={500}>
+                <Message floating icon positive style={{display: 'flex'}}>
+                    <Icon name='check' style={{marginLeft: 'auto', marginRight: 'auto'}}/>
+                    <Message.Header style={{display: 'flex'}}>
+                        <div style={{marginLeft: 'auto', marginRight: 'auto'}}>Text message successfully sent</div>
+                    </Message.Header>
+                </Message>
+            </Transition>
+            </div>
         );
     }
 }
