@@ -1,6 +1,7 @@
 export const COLOR_CEDARVILLE_YELLOW = "#F3A00F";
 export const COLOR_CEDARVILLE_BLUE = "#31B7E6";
 export const API_URL = "https://api.cusmartevents.com" //"http://localhost:3001"
+export const ENGAGEMENT_WEBHOOK_GIVEAWAY = "http://engagements.cusmartevents.com/webhook/giveaway" //"http://localhost:3001/webhook/giveaway"
 
 export const clientId =
   '787844068457-38ubcdtp9moimvtq3a1du037nphmo8ee.apps.googleusercontent.com';
@@ -320,6 +321,25 @@ export const formatTime = (time) => {
         TOD = "AM"
     }
     return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()} ${hours}:${minutes} ${TOD}`;
+}
+
+export const formatTimeHour = (time) => {
+    let d = new Date(time);
+    let hours = d.getHours();
+    let minutes = ('0' + d.getMinutes()).slice(-2);
+    let TOD;
+    if (hours === 0) {
+        hours = 12;
+        TOD = "AM";
+    } else if (hours === 12) {
+        TOD = "PM";
+    } else if (hours > 12) {
+        hours = hours - 12;
+        TOD = "PM";
+    } else {
+        TOD = "AM"
+    }
+    return `${hours}:${minutes} ${TOD}`;
 }
 
 //Attractions
