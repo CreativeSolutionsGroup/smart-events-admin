@@ -186,10 +186,9 @@ export default class Giveaway extends React.Component {
     }
 
     showTextWinnerModal(studentId, number) {
-        let phoneNumber = "+18155720738" //number
         this.textWinnerModalRef.current.setState({
             studentId: studentId,
-            phone: phoneNumber,
+            phone: number,
             text: "",
             open: true
         });
