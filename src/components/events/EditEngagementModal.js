@@ -217,7 +217,6 @@ class EditEngagementModal extends React.Component {
                             <Form.Field required>
                                 <label>Message</label>
                                 <TextArea 
-                                    fluid
                                     defaultValue={this.state.message}
                                     name='formMessage'
                                     onChange={this.handleChange}
@@ -229,7 +228,6 @@ class EditEngagementModal extends React.Component {
                                         <label>Image URL</label>
                                         <Input
                                             name='formImageURL'
-                                            defaultValue={this.state.imageURL}
                                             value={this.state.formImageURL}
                                             onChange={this.handleChange}
                                             icon='image'
@@ -260,7 +258,7 @@ class EditEngagementModal extends React.Component {
                                     {
                                         this.state.formImageURL.split("|").map((imageURL) => {
                                             return (
-                                                <Grid.Column width={5}>
+                                                <Grid.Column width={5} key={"column_" + imageURL}>
                                                     <Image src={imageURL} size='medium'/>
                                                 </Grid.Column>
                                             )

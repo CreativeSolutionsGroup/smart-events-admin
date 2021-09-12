@@ -211,7 +211,6 @@ class EditAttractionModal extends React.Component {
                             <Form.Field required>
                                 <label>Description (Public)</label>
                                 <TextArea
-                                    fluid
                                     defaultValue={this.state.description}
                                     name='formDescription'
                                     onChange={this.handleChange}
@@ -232,7 +231,6 @@ class EditAttractionModal extends React.Component {
                                         <label>Image URL</label>
                                         <Input
                                             name='formImageURL'
-                                            defaultValue={this.state.imageURL}
                                             value={this.state.formImageURL}
                                             onChange={this.handleChange}
                                             icon='image'

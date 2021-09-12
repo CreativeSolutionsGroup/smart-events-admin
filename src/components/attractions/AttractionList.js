@@ -52,11 +52,12 @@ export default class AttractionList extends React.Component {
         let newEventNames = this.state.eventNames;
         attractions.forEach((attraction) => {
           let event_id = attraction.event_id;
+          
           if(newEventNames[event_id] === undefined){
-            console.log("Fetch Name: " + event_id);
             getEvent(event_id)
             .then((res) => {
               newEventNames[event_id] = res.name;
+              this.setState({ eventNames: newEventNames })
             })
           }
           let attractionValue = {
@@ -144,6 +145,7 @@ export default class AttractionList extends React.Component {
                             <Card
                               style={{ marginLeft: 'auto', marginRight: 'auto', marginBottom: 5 }}
                               onClick={() => window.open("/attraction/" + element._id, "_self")}
+                              key={"attraction_" + element.id}
                             >
                               <Image src={element.image_url} wrapped ui={false} />
                               <Card.Content>

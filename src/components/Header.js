@@ -56,7 +56,7 @@ export default class Header extends React.Component {
                   content={
                     <TwilioAccountInfo />
                   }
-                  position='left center'
+                  position='bottom right'
                   on='click'
                   trigger={
                     <Button
