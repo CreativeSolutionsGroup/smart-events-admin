@@ -151,7 +151,6 @@ class AddEngagementModal extends React.Component {
                             <Form.Field required>
                                 <label>Message</label>
                                 <TextArea 
-                                    fluid
                                     defaultValue={this.state.message}
                                     name='message'
                                     onChange={this.handleChange}
@@ -195,7 +194,7 @@ class AddEngagementModal extends React.Component {
                                     {
                                         this.state.imageURL.split("|").map((imageURL) => {
                                             return (
-                                                <Grid.Column width={5}>
+                                                <Grid.Column width={5} key={"column_" + imageURL}>
                                                     <Image src={imageURL} size='medium'/>
                                                 </Grid.Column>
                                             )

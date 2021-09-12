@@ -283,7 +283,7 @@ export default class EventInfo extends React.Component {
                       {
                           element.image_url.split("|").map((imageURL) => {
                               return (
-                                  <Grid.Column width={5}>
+                                  <Grid.Column width={5} key={"column_" + imageURL}>
                                       <Image src={imageURL} size='small'/>
                                   </Grid.Column>
                               )

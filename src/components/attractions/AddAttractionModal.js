@@ -199,7 +199,6 @@ class AddAttractionModal extends React.Component {
                             <Form.Field required>
                                 <label>Description (Public)</label>
                                 <TextArea
-                                    fluid
                                     name='description'
                                     onChange={this.handleChange}
                                 />
