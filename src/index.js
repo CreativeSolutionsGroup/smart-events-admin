@@ -23,6 +23,7 @@ import { isLogin } from "./utils";
 import smart_events_logo from "./images/smart-events-logo.png";
 import Giveaway from "./components/events/Giveaway";
 import Scanner from "./components/Scanner";
+import Counter from "./components/events/Counter";
 
 import AttractionList from "./components/attractions/AttractionList";
 import AttractionInfo from "./components/attractions/AttractionInfo";
@@ -53,6 +54,7 @@ class App extends React.Component {
           <Route path="/scanner" exact component={ScannerPage} />
           <PrivateRoute component={Dashboard} path="/dashboard" exact />
           <PrivateRoute component={Event} path="/event/:event_id" exact />
+          <PrivateRoute component={CounterPage} path="/counter" exact />
           <PrivateRoute component={GiveawayPage} path="/giveaway" exact />
           <PrivateRoute component={Attractions} path="/attractions" exact />
           <PrivateRoute component={AttractionPage} path="/attraction/:attraction_id" exact />
@@ -95,6 +97,17 @@ function GiveawayPage() {
       <Header />
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <Giveaway showPicker={true} />
+      </div>
+    </div>
+  );
+}
+
+function CounterPage() {
+  return (
+    <div>
+      <Header />
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <Counter />
       </div>
     </div>
   );
