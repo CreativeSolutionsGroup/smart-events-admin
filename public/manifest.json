@@ -1,6 +1,7 @@
 {
-  "short_name": "Smart Events Admin Dashboard",
+  "short_name": "SE Admin Dashboard",
   "name": "Smart Events API Admin Dashboard",
+  "start_url": ".",
   "icons": [
     {
       "src": "favicon.ico",
@@ -18,7 +19,16 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "shortcuts" : [
+    {
+      "name": "Attractions",
+      "url": "/attractions"
+    },
+    {
+      "name": "Giveaway",
+      "url": "/giveaway"
+    }
+  ],
   "display": "standalone",
   "theme_color": "#000000",
   "background_color": "#ffffff"
