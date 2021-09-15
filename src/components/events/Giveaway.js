@@ -18,6 +18,8 @@ export default class Giveaway extends React.Component {
             blacklist: [],
             engagements: [],
             filterEngagements: [],
+            qualificationEngagement: "",
+            qualificationPhoneNumbers: [],
             winners: [],
             showTextToast: false
         };
@@ -119,7 +121,7 @@ export default class Giveaway extends React.Component {
                 let entryDict = this.state.entries === undefined ? {} : this.state.entries;
                 engagees.forEach(engagee => {
                     let message = engagee.message_received;
-                    if (!(this.filterOutEngagee(message))) {
+                    if (!(this.ignoreEngagee(message, engagee.phone))) {
                         entryDict[message] = engagee.phone;
                     }
                 })
@@ -128,13 +130,20 @@ export default class Giveaway extends React.Component {
         })
     }
 
-    filterOutEngagee(message) {
+    ignoreEngagee(message, phone) {
         let foundInWinners = false;
         this.state.winners.forEach((winner) => {
             if (winner.message === message) {
                 foundInWinners = true;
             }
         });
+
+        if(this.state.qualificationPhoneNumbers.length > 0){
+            if(this.state.qualificationPhoneNumbers.includes(phone) === false){
+                return true;
+            }
+        }
+
         return this.state.blacklist.includes(message) || foundInWinners;
     }
 
@@ -146,6 +155,12 @@ export default class Giveaway extends React.Component {
     handleChangeFilter = (e, { name, value }) => {
         this.setState({ filterEngagements: value });
         this.getEntries(value)
+    }
+
+    handleChangeQualification = async (e, { name, value }) => {
+        let phoneNumbers = await this.getQualificationPhoneNumbers(value);
+        this.setState({ qualificationEngagement: value, qualificationPhoneNumbers: phoneNumbers });
+        this.getEntries(this.state.filterEngagements)
     }
 
     handleAdditionBlacklist = (e, { value }) => {
@@ -199,6 +214,18 @@ export default class Giveaway extends React.Component {
         setTimeout(() => this.setState({showTextToast: false}), 3000);
     }
 
+    getQualificationPhoneNumbers(qualificationEngagement){
+        if(qualificationEngagement === undefined || qualificationEngagement === '')return [];
+        return getEngagementEngagees(qualificationEngagement)
+        .then((engagees) => {
+            let list = [];
+            engagees.forEach(engagee => {
+                list.push(engagee.phone);
+            })
+            return list;
+        })
+    }
+
     render() {
         return (
             <div style={{width: '90%', marginTop: 5, marginBottom: 5}}>
@@ -226,6 +253,15 @@ export default class Giveaway extends React.Component {
                             options={this.engagmentKeywordSelectionList()}
                             value={this.state.filterEngagements}
                             onChange={this.handleChangeFilter}
+                            style={{marginTop: 5, marginBottom: 5}}
+                        />
+                        <Dropdown
+                            clearable
+                            selection
+                            placeholder='Qualification Engagement'
+                            options={this.engagmentKeywordSelectionList()}
+                            value={this.state.qualificationEngagement}
+                            onChange={this.handleChangeQualification}
                             style={{marginTop: 5, marginBottom: 5}}
                         />
                         <Dropdown
