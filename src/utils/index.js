@@ -8,36 +8,19 @@ export const clientId =
 
 
 export const refreshTokenSetup = (res) => {
+    console.log(res)
     
     let email = res.profileObj.email;
-    
     checkUserList(email).then((response) => {
         if(response){
             console.log('Login Success: currentUser:', res.profileObj);
-            alert(
-            `Logged in successfully welcome ${res.profileObj.email}`
-            );
-    
-                    // Timing to renew access token
-            let refreshTiming = (res.tokenObj.expires_in || 3600 - 5 * 60) * 1000;
 
-            const refreshToken = async () => {
-                const newAuthRes = await res.reloadAuthResponse();
-                refreshTiming = (newAuthRes.expires_in || 3600 - 5 * 60) * 1000;
-                console.log('newAuthRes:', newAuthRes);
-                // saveUserToken(newAuthRes.access_token);  <-- save new token
-                localStorage.setItem('authToken', newAuthRes.id_token);
-                // Setup the other timer after the first one
-                setTimeout(refreshToken, refreshTiming);
-            };
-             // Setup first refresh timer
-            setTimeout(refreshToken, refreshTiming);
             localStorage.setItem('authToken', res.getAuthResponse().id_token);
+            localStorage.setItem('authExpire', new Date(res.getAuthResponse().expires_at))
             localStorage.setItem('email', email);
             window.open('/dashboard', "_self");
         } else {
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('email');
+            localStorage.clear();
             console.log('Login Failed: currentUser:', res.profileObj);
             alert(
             `Logged in failed. ${res.profileObj.email} is not an allowed user`

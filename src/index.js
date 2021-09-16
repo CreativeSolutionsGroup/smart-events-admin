@@ -33,6 +33,30 @@ class App extends React.Component {
     darkMode: true
   };
 
+  componentDidMount() {
+    this.handleTokenExpiration();
+  }
+
+  handleTokenExpiration() {
+    if(localStorage.getItem('authToken') == null)return;
+    let now = new Date();
+    let expires = new Date(localStorage.getItem('authExpire'));
+    if(now >= expires){
+      this.refreshToken();
+    } else {
+      let remainingTime = expires.getTime() - now.getTime() - (60000 * 5); //5 Min offset
+      setTimeout(() => {
+        this.refreshToken();
+      }, remainingTime);
+    }
+  }
+
+  async refreshToken(){
+      //Log Out
+      localStorage.clear();
+      window.location.reload();
+  }
+
   render() {
     const { error } = this.state;
 

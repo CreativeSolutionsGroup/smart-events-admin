@@ -8,9 +8,7 @@ const clientId =
 const Logout = (props) => {
   const onSuccess = () => {
     console.log('Logout made successfully');
-    alert('Logout made successfully');
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("email");
+    localStorage.clear();
     window.open('/signin', "_self");
   };
 
@@ -21,7 +19,7 @@ const Logout = (props) => {
         buttonText="Logout"
         onLogoutSuccess={onSuccess}
         render={renderProps => (
-          <Button onClick={renderProps.onClick} disabled={renderProps.disabled} icon labelPosition='left' negative>
+          <Button onClick={renderProps.onClick} disabled={renderProps.disabled} icon labelPosition='right' negative>
             <Icon name="sign-out"/>
             Log out
           </Button>
