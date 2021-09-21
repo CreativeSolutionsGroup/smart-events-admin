@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Modal, Input, Icon, Form, TextArea, Image } from "semantic-ui-react";
+import { Button, Modal, Input, Icon, Form, TextArea, Image, Radio } from "semantic-ui-react";
 import TextField from '@material-ui/core/TextField';
 import axios from "axios";
 import {API_URL, authorizedDelete, authorizedPut, formatTime, clientId} from "../../utils"
@@ -19,12 +19,16 @@ class EditAttractionModal extends React.Component {
             imageURL: props.imageURL === undefined ? "" : props.imageURL,
             startTime: props.startTime === undefined ? "" : props.startTime,
             endTime: props.endTime === undefined ? "" : props.endTime,
+            location: props.location === undefined ? "" : props.location,
+            hidden: props.hidden === undefined ? false : props.hidden,
             formName: props.name === undefined ? "" : props.name,
             formDescription: props.description === undefined ? "" : props.description,
             formAbout: props.about === undefined ? "" : props.about,
             formImageURL: props.imageURL === undefined ? "" : props.imageURL,
             formStartTime: props.startTime === undefined ? "" : props.startTime,
-            formEndTime: props.endTime === undefined ? "" : props.endTime
+            formEndTime: props.endTime === undefined ? "" : props.endTime,
+            formLocation: props.location === undefined ? "" : props.location,
+            formHidden: props.hidden === undefined ? false : props.hidden
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -102,6 +106,17 @@ class EditAttractionModal extends React.Component {
             //TODO check if date is less than start
         }
 
+        if (this.state.location !== this.state.formLocation) {
+            changed = true;
+            if (this.state.formLocation === "") {
+                return false;
+            }
+        }
+
+        if (this.state.hidden !== this.state.formHidden) {
+            changed = true;
+        }
+
         return changed;
     }
 
@@ -117,7 +132,9 @@ class EditAttractionModal extends React.Component {
             name: this.state.formName, 
             description: this.state.formDescription, 
             about: this.state.formAbout,
-            image_url: this.state.formImageURL
+            image_url: this.state.formImageURL,
+            location: this.state.formLocation,
+            hidden: this.state.formHidden
         };
 
         if (this.state.startTime !== this.state.formStartTime) {
@@ -188,9 +205,25 @@ class EditAttractionModal extends React.Component {
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <div>Edit Attraction</div>
                             </div>
+                            <div style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 'auto', marginRight: 5 }}>
+                                <div style={{ display: 'flex' }}>
+                                    <Icon style={{ marginTop: 5, marginBottom: 10 }} name={this.state.formHidden ? "eye slash" : "eye"} />
+                                    <Radio 
+                                        toggle 
+                                        checked={!this.state.formHidden} 
+                                        onChange={
+                                            () => {
+                                                let oldValue = this.state.formHidden;
+                                                this.setState({formHidden: !oldValue});
+                                            }
+                                        }
+                                        style={{ marginTop: 'auto', marginBottom: 'auto' }}
+                                    />
+                                </div>
+                            </div>
                             <Button
                                 icon='trash'
-                                style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 'auto', marginRight: 5 }}
+                                style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 5, marginRight: 5 }}
                                 onClick={() => {
                                     this.setState({ openDelete: true })
                                 }}
@@ -290,6 +323,16 @@ class EditAttractionModal extends React.Component {
                                     />
                                 </Form.Field>
                             </Form.Group>
+                            <Form.Field required>
+                                <label>Location</label>
+                                <Input
+                                    name='formLocation'
+                                    defaultValue={this.state.location}
+                                    onChange={this.handleChange}
+                                    icon='map marker alternate'
+                                    iconPosition='left'
+                                />
+                            </Form.Field>
                         </Form>
                     </Modal.Content>
                     <Modal.Actions>
