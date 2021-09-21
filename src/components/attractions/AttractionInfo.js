@@ -22,6 +22,8 @@ export default class AttractionInfo extends React.Component {
       attraction_imageURL: "",
       attraction_startTime: "",
       attraction_endTime: "",
+      attraction_location: "",
+      attraction_hidden: "",
       slots: [],
       tickets: {},
       imageModalOpen: false
@@ -78,6 +80,10 @@ export default class AttractionInfo extends React.Component {
       formStartTime: this.state.attraction_startTime,
       endTime: this.state.attraction_endTime,
       formEndTime: this.state.attraction_endTime,
+      location: this.state.attraction_location,
+      formLocation: this.state.attraction_location,
+      hidden: this.state.attraction_hidden,
+      formHidden: this.state.attraction_hidden,
       open: true
     });
   }
@@ -99,13 +105,17 @@ export default class AttractionInfo extends React.Component {
             let attractionImageURL = res.data.image_url;
             let attractionStartTime = res.data.start_time;
             let attractionEndTime = res.data.end_time;
+            let attractionLocation = res.data.location;
+            let attractionHidden = res.data.hidden;
             this.setState({
               attraction_name: attractionName,
               attraction_desc: attractionDesc,
               attraction_about: attractionAbout,
               attraction_imageURL: attractionImageURL,
               attraction_startTime: attractionStartTime,
-              attraction_endTime: attractionEndTime
+              attraction_endTime: attractionEndTime,
+              attraction_location: attractionLocation,
+              attraction_hidden: attractionHidden
             });
           }
         },
@@ -162,6 +172,7 @@ export default class AttractionInfo extends React.Component {
           <div style={{ display: 'flex', flexDirection: 'row' }}>
             <h1 style={{ marginTop: 'auto', marginBottom: 'auto' }}>{this.state.attraction_name}</h1>
             {isTimeLive(this.state.attraction_startTime, this.state.attraction_endTime) ? <Icon name="eye" size='large' style={{ marginLeft: 5, marginRight: 5, marginTop: 10, color: COLOR_CEDARVILLE_YELLOW }} /> : ""}
+            {this.state.attraction_hidden ? <Icon name="eye slash" size='large' style={{ marginLeft: 5, marginRight: 5, marginTop: 10 }} /> : ""}
             <Button
               icon
               style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 'auto', marginRight: 5 }}
@@ -190,6 +201,10 @@ export default class AttractionInfo extends React.Component {
               {formatTime(this.state.attraction_startTime)}
               {" - "}
               {formatTime(this.state.attraction_endTime)}
+            </div>
+            <div style={{ display: "flex", flexDirection: "row", marginTop: 5 }}>
+              <Icon name="map marker alternate" />
+              {this.state.attraction_location}
             </div>
           </div>
         </div>

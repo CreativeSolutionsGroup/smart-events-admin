@@ -22,6 +22,7 @@ class AddAttractionModal extends React.Component {
             endTime: "",
             formStartTime: "",
             formEndTime: "",
+            location: "",
             openDrive: false
         };
 
@@ -62,6 +63,10 @@ class AddAttractionModal extends React.Component {
             return false;
         }
 
+        if (this.state.location === "") {
+            return false;
+        }
+
         return true;
     }
 
@@ -78,7 +83,9 @@ class AddAttractionModal extends React.Component {
             name: this.state.name, 
             description: this.state.description, 
             about: this.state.about,
-            image_url: this.state.imageURL
+            image_url: this.state.imageURL,
+            location: this.state.location,
+            hidden: false //Default to false
         };
 
         if (this.state.startTime !== this.state.formStartTime) {
@@ -275,6 +282,15 @@ class AddAttractionModal extends React.Component {
                                     />
                                 </Form.Field>
                             </Form.Group>
+                            <Form.Field required>
+                                <label>Location</label>
+                                <Input
+                                    name='location'
+                                    onChange={this.handleChange}
+                                    icon='map marker alternate'
+                                    iconPosition='left'
+                                />
+                            </Form.Field>
                         </Form>
                     </Modal.Content>
                     <Modal.Actions>

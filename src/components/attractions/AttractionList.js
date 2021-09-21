@@ -1,6 +1,6 @@
 import React, { createRef } from "react";
 import { Icon, Card, Button, Image, Popup } from "semantic-ui-react";
-import { getAttractions, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, getEvent, isLive, getAllAttractionCapacities } from "../../utils";
+import { getAttractions, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, getEvent, formatTime, isLive, getAllAttractionCapacities } from "../../utils";
 import AddAttractionModal from "./AddAttractionModal";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
@@ -40,6 +40,7 @@ export default class AttractionList extends React.Component {
       endTime: "",
       formStartTime: "",
       formEndTime: "",
+      location: "",
       open: true
     });
   }
@@ -67,7 +68,9 @@ export default class AttractionList extends React.Component {
             about: attraction.about,
             image_url: attraction.image_url,
             start_time: attraction.start_time,
-            end_time: attraction.end_time
+            end_time: attraction.end_time,
+            location: attraction.location,
+            hidden: attraction.hidden
           }
           let attractionList = attractionDict[event_id] === undefined ? [] : attractionDict[event_id];
           attractionList.push(attractionValue);
@@ -158,13 +161,33 @@ export default class AttractionList extends React.Component {
                                         trigger={<Icon name="eye" size='large' style={{ marginLeft: 'auto', marginRight: 5, marginTop: 'auto', marginBottom: 'auto', color: COLOR_CEDARVILLE_YELLOW }} />}
                                       />
                                       : ""}
+                                    {element.hidden ?
+                                      <Popup
+                                        content="Attraction is Hidden"
+                                        trigger={<Icon name="eye slash" size='large' style={{ marginLeft: 'auto', marginRight: 5, marginTop: 'auto', marginBottom: 'auto' }} />}
+                                      />
+                                      : ""}
                                   </div>
                                 </Card.Header>
                                 <Card.Description style={{ whiteSpace: 'pre-line' }}>{element.description}</Card.Description>
+                                {this.state.attractionCapacities[element._id] !== "-" ?
+                                  <div style={{ display: "flex" }}>
+                                    <Icon name='ticket' />
+                                    {this.state.attractionCapacities[element._id]}
+                                  </div>
+                                : ""}
                                 <div style={{ display: "flex" }}>
-                                  <Icon name='ticket' />
-                                  {this.state.attractionCapacities[element._id]}
+                                  <Icon name='clock' />
+                                  {formatTime(element.start_time)}
+                                  {" - "}
+                                  {formatTime(element.end_time)}
                                 </div>
+                                {(element.location !== "" && element.location !== undefined && element.location !== "N/A") ?
+                                  <div style={{ display: "flex" }}>
+                                    <Icon name='map marker alternate' />
+                                    {element.location}
+                                  </div> 
+                                : ""}
                               </Card.Content>
                             </Card>
                           );
