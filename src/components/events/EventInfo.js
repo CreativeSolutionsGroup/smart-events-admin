@@ -260,6 +260,8 @@ export default class EventInfo extends React.Component {
                     <Card.Header>
                       <div style={{ display: 'flex' }}>
                         {element.keyword}
+
+                        {/*Visible Indicator*/}
                         {isLive(element) ?
                           <Popup
                             content="Engagement is Live"
@@ -278,6 +280,7 @@ export default class EventInfo extends React.Component {
                     alignItems: 'center',
                     justifyContent: 'center'
                   }}>
+                  {/*Display Image list in a scroll area*/}
                   <Grid style={{overflow: 'scroll', display: 'inline'}}>
                       <Grid.Row centered verticalAlign='middle'>
                       {

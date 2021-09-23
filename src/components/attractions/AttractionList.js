@@ -155,12 +155,14 @@ export default class AttractionList extends React.Component {
                                 <Card.Header>
                                   <div style={{ display: 'flex' }}>
                                     {element.name}
+                                    {/*Visible Indicator*/}
                                     {isLive(element) ?
                                       <Popup
                                         content="Attraction is Live"
                                         trigger={<Icon name="eye" size='large' style={{ marginLeft: 'auto', marginRight: 5, marginTop: 'auto', marginBottom: 'auto', color: COLOR_CEDARVILLE_YELLOW }} />}
                                       />
                                       : ""}
+                                    {/*Hidden Indicator*/}
                                     {element.hidden ?
                                       <Popup
                                         content="Attraction is Hidden"
@@ -182,6 +184,7 @@ export default class AttractionList extends React.Component {
                                   {" - "}
                                   {formatTime(element.end_time)}
                                 </div>
+                                {/*Location Information*/}
                                 {(element.location !== "" && element.location !== undefined && element.location !== "N/A") ?
                                   <div style={{ display: "flex" }}>
                                     <Icon name='map marker alternate' />
