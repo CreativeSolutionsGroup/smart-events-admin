@@ -74,7 +74,6 @@ class App extends React.Component {
               : <Redirect to="/signin" />
           )} />
           <PublicRoute restricted={true} component={SignIn} path="/signin" exact />
-          <Route path="/scanner" exact component={ScannerPage} />
           <PrivateRoute component={Dashboard} path="/dashboard" exact />
           <PrivateRoute component={Event} path="/event/:event_id" exact />
           <PrivateRoute component={GiveawayPage} path="/giveaway" exact />
@@ -177,14 +176,6 @@ function SignIn() {
           </div>
         )
     )} />
-  );
-}
-
-function ScannerPage() {
-  return (
-    <div>
-      <Scanner />
-    </div>
   );
 }
 

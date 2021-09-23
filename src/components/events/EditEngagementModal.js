@@ -319,6 +319,8 @@ class EditEngagementModal extends React.Component {
                         />
                     </Modal.Actions>
                 </Modal>
+                
+                {/*Delete Modal*/}
                 <Modal
                     size="small"
                     onClose={() => this.setState({ openDelete: false })}

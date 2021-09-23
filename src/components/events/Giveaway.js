@@ -52,6 +52,7 @@ export default class Giveaway extends React.Component {
         });
     }
 
+    //List of events
     eventSelectionList() {
         let list = [];
         this.state.eventList.forEach((event) => {
@@ -65,6 +66,7 @@ export default class Giveaway extends React.Component {
         return list;
     }
 
+    //List of engagements 
     engagmentKeywordSelectionList() {
         let list = [];
         this.state.engagements.forEach((engagement) => {
@@ -78,6 +80,7 @@ export default class Giveaway extends React.Component {
         return list;
     }
 
+    //List of messages to select for blacklist
     entrySelectionList() {
         let list = [];
         const keys = Object.keys(this.state.entries);
@@ -100,6 +103,7 @@ export default class Giveaway extends React.Component {
         return list;
     }
 
+    //List of blacklisted entries
     blackListSelectionList() {
         let list = [];
         this.state.blacklist.forEach((entry) => {
@@ -130,6 +134,7 @@ export default class Giveaway extends React.Component {
         })
     }
 
+    //Filter out entries
     ignoreEngagee(message, phone) {
         let foundInWinners = false;
         this.state.winners.forEach((winner) => {
@@ -138,6 +143,7 @@ export default class Giveaway extends React.Component {
             }
         });
 
+        //Check if entry is also in other engagement
         if(this.state.qualificationPhoneNumbers.length > 0){
             if(this.state.qualificationPhoneNumbers.includes(phone) === false){
                 return true;
@@ -183,6 +189,7 @@ export default class Giveaway extends React.Component {
         this.getEntries(this.state.filterEngagements);
     }
 
+    //Randomly pick a winner from list of entries
     pickWinner() {
         const keys = Object.keys(this.state.entries);
         let i = keys.length - 1;

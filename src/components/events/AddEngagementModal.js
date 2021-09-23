@@ -106,6 +106,7 @@ class AddEngagementModal extends React.Component {
         return parsedDate.toISOString().slice(0, 16);
     };
 
+    //Fix the list of images to use the public image URL for each image
     googleDriveImageURL(data){
         const driveImageURL = 'http://drive.google.com/uc?export=view&id=';
         if(data.docs !== undefined){
@@ -177,7 +178,7 @@ class AddEngagementModal extends React.Component {
                                         onAuthFailed={data => console.log('on auth failed:', data)}
                                         navHidden={true}
                                         authImmediate={false}
-                                        multiselect={true}
+                                        multiselect={true} //Allow multiple images
                                         mimeTypes={['image/png', 'image/jpeg', 'image/jpg']}
                                         viewId={'FOLDERS'}>
                                             <Button 
@@ -189,6 +190,7 @@ class AddEngagementModal extends React.Component {
                                     </GooglePicker>
                                     
                                 </div>
+                                {/*Display Images in scroll list*/}
                                 <Grid style={{overflow: 'scroll', display: 'inline'}}>
                                     <Grid.Row centered verticalAlign='middle'>
                                     {

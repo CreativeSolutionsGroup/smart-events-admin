@@ -19,6 +19,7 @@ export default class Header extends React.Component {
   render() {
     return (
       <div style={{ width: "100%", display: 'flex', flexDirection: 'row' }}>
+        {/*Logo*/}
         <Image
           src={smart_events_logo}
           size="small"
@@ -26,13 +27,14 @@ export default class Header extends React.Component {
           onClick={() => window.open("/dashboard", "_self")}
         />
 
-
+        {/*Menu Button*/}
         <Popup 
           trigger={
             <Button icon='bars' style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 'auto', marginRight: 5 }}/>
           } 
           on={['click']}
         >
+          {/*Menu Buttons*/}
           <div style={{display: 'flex', flexDirection: 'column', margin: 5}}>
                 <Button
                   icon

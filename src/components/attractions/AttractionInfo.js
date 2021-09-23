@@ -171,7 +171,10 @@ export default class AttractionInfo extends React.Component {
 
           <div style={{ display: 'flex', flexDirection: 'row' }}>
             <h1 style={{ marginTop: 'auto', marginBottom: 'auto' }}>{this.state.attraction_name}</h1>
+            {/*Visible Indicator*/}
             {isTimeLive(this.state.attraction_startTime, this.state.attraction_endTime) ? <Icon name="eye" size='large' style={{ marginLeft: 5, marginRight: 5, marginTop: 10, color: COLOR_CEDARVILLE_YELLOW }} /> : ""}
+
+            {/*Hidden Indicator*/}
             {this.state.attraction_hidden ? <Icon name="eye slash" size='large' style={{ marginLeft: 5, marginRight: 5, marginTop: 10 }} /> : ""}
             <Button
               icon
@@ -238,6 +241,8 @@ export default class AttractionInfo extends React.Component {
                     <div style={{ display: "flex", flexDirection: "row" }}>
                       <Icon name="clock" />
                       {formatTime(slot.hide_time)}
+                      
+                      {/*Visible Indicator*/}
                       {(now <= new Date(slot.hide_time)) ?
                           <Popup
                             content="Slot is Visible"

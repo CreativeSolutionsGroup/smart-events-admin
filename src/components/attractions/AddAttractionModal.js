@@ -34,6 +34,7 @@ class AddAttractionModal extends React.Component {
         this.loadEvents();
     }
 
+    //Make sure all required fields are filled out
     isSubmitValid() {
         if (this.state.eventId === "") {
             return false;
@@ -140,6 +141,7 @@ class AddAttractionModal extends React.Component {
         this.setState({ eventId: value})
     }
 
+    //List of events
     eventSelectionList() {
         let list = [];
         this.state.eventList.forEach((event) => {
@@ -153,6 +155,7 @@ class AddAttractionModal extends React.Component {
         return list;
     }
 
+    //Convert Google Drive Image to public url
     googleDriveImageURL(data){
         const driveImageURL = 'http://drive.google.com/uc?export=view&id=';
         if(data.docs !== undefined){
@@ -250,6 +253,7 @@ class AddAttractionModal extends React.Component {
                                     </GooglePicker>
                                     
                                 </div>
+                                {/*Show current image*/}
                                 <Image src={this.state.imageURL} size='medium' centered style={{margin: 20, marginLeft: 'auto', marginRight: 'auto'}} />
                             </Form.Field>
                             <Form.Group widths='equal'>

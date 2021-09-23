@@ -244,6 +244,7 @@ export const getGoogleSheetJSON = (sheetId) => {
     })
 }
 
+//Get user permissions from Google Sheet
 export const getPermissionList = () => {
     return getGoogleSheetJSON("16z9qXFdq9nr56WH323vJ16ty2VFJqKMEWfy6JMnlCXc")
     .then((json) => {

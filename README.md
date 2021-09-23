@@ -6,3 +6,5 @@
 </p>
 
 # SmartEvents Admin
+
+[Project Structure](docs/Structure.md)
