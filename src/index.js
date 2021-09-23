@@ -22,7 +22,6 @@ import Header from "./components/Header";
 import { isLogin } from "./utils";
 import smart_events_logo from "./images/smart-events-logo.png";
 import Giveaway from "./components/events/Giveaway";
-import Scanner from "./components/Scanner";
 
 import AttractionList from "./components/attractions/AttractionList";
 import AttractionInfo from "./components/attractions/AttractionInfo";
