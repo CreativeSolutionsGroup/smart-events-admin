@@ -279,7 +279,7 @@ class EditAttractionModal extends React.Component {
                                         multiple={true}
                                         navHidden={true}
                                         authImmediate={false}
-                                        mimeTypes={['image/png', 'image/jpeg', 'image/jpg']}
+                                        mimeTypes={['image/png', 'image/jpeg', 'image/jpg', 'image/webp']}
                                         viewId={'FOLDERS'}>
                                             <Button 
                                                 icon
