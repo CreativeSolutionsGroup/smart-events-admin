@@ -134,9 +134,9 @@ export default class AttractionList extends React.Component {
           Object.entries(this.state.attractions)
             .map(([event_id, attraction]) => {
               return (
-                <Card key={"event_" + event_id} fluid>
+                <Card key={"event_" + event_id} fluid style={{minHeight: 250}}>
                   <Card.Content style={{ backgroundColor: COLOR_CEDARVILLE_BLUE }}>
-                    <Card.Header>{this.state.eventNames[event_id]}</Card.Header>
+                    <Card.Header style={{minHeight: 20}}>{this.state.eventNames[event_id]}</Card.Header>
                   </Card.Content>
                   <Card.Content>
                     <Carousel
@@ -146,11 +146,11 @@ export default class AttractionList extends React.Component {
                         attraction.map((element) => {
                           return (
                             <Card
-                              style={{ marginLeft: 'auto', marginRight: 'auto', marginBottom: 5 }}
+                              style={{ marginLeft: 'auto', marginRight: 'auto', marginBottom: 5, minHeight: 250}}
                               onClick={() => window.open("/attraction/" + element._id, "_self")}
                               key={"attraction_" + element.id}
                             >
-                              <Image src={element.image_url} wrapped ui={false} />
+                              <Image src={element.image_url} wrapped />
                               <Card.Content>
                                 <Card.Header>
                                   <div style={{ display: 'flex' }}>

@@ -1,5 +1,5 @@
 import React, { createRef } from "react";
-import { Card, Icon, Button, Image, Modal, Divider, Popup } from "semantic-ui-react";
+import { Card, Icon, Button, Image, Modal, Divider, Popup, Segment } from "semantic-ui-react";
 import { getAttractionSlots, getSlotTickets, formatTime, isTimeLive, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, API_URL } from "../../utils";
 import AddSlotModal from "./AddSlotModal";
 import EditSlotModal from "./EditSlotModal";
@@ -170,19 +170,18 @@ export default class AttractionInfo extends React.Component {
         <div style={{ display: 'flex', flexDirection: "column" }}>
 
           <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <h1 style={{ marginTop: 'auto', marginBottom: 'auto' }}>{this.state.attraction_name}</h1>
+            <h1 style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 10 }}>{this.state.attraction_name}</h1>
             {/*Visible Indicator*/}
             {isTimeLive(this.state.attraction_startTime, this.state.attraction_endTime) ? <Icon name="eye" size='large' style={{ marginLeft: 5, marginRight: 5, marginTop: 10, color: COLOR_CEDARVILLE_YELLOW }} /> : ""}
 
             {/*Hidden Indicator*/}
-            {this.state.attraction_hidden ? <Icon name="eye slash" size='large' style={{ marginLeft: 5, marginRight: 5, marginTop: 10 }} /> : ""}
+            {this.state.attraction_hidden ? <Icon name="eye slash" size='large' style={{ marginLeft: 5, marginRight: 5, marginTop: 'auto', marginBottom: 'auto' }} /> : ""}
             <Button
               icon
               style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 'auto', marginRight: 5 }}
               onClick={() => this.setState({ imageModalOpen: true })}
             >
               <Icon name='image' />
-              View Image
             </Button>
             <Button
               icon
@@ -195,69 +194,73 @@ export default class AttractionInfo extends React.Component {
             </Button>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 10, marginRight: 10 }}>
-            <h3>Description (Public)</h3>
-            <div style={{ whiteSpace: 'pre-line', marginLeft: 10 }}>"{this.state.attraction_desc}"</div>
-            <h3>About (Private)</h3>
-            <div style={{ marginLeft: 10 }}>{this.state.attraction_about}</div>
-            <div style={{ display: "flex", flexDirection: "row", marginTop: 5 }}>
-              <Icon name="clock" />
-              {formatTime(this.state.attraction_startTime)}
-              {" - "}
-              {formatTime(this.state.attraction_endTime)}
-            </div>
-            <div style={{ display: "flex", flexDirection: "row", marginTop: 5 }}>
-              <Icon name="map marker alternate" />
-              {this.state.attraction_location}
-            </div>
+            <Segment compact style={{marginTop: 10}}>
+              <div style={{ display: "flex" }}> <h3>Public Info</h3></div>
+              <div style={{ display: "flex", whiteSpace: 'pre-line', marginLeft: 10, width: 'wrap-content' }}>"{this.state.attraction_desc}"</div>
+              <div style={{ display: "flex", flexDirection: "row", marginTop: 5 }}>
+                <Icon name="clock" />
+                {formatTime(this.state.attraction_startTime)}
+                {" - "}
+                {formatTime(this.state.attraction_endTime)}
+              </div>
+              <div style={{ display: "flex", flexDirection: "row", marginTop: 5 }}>
+                <Icon name="map marker alternate" />
+                {this.state.attraction_location}
+              </div>
+              <Divider />
+              <h3>Private Info</h3>
+              <div style={{ marginLeft: 10 }}>{this.state.attraction_about}</div>
+            </Segment>
           </div>
-        </div>
+        </div>        
 
-        <div style={{ display: 'flex', marginTop: 5 }}>
-          <h2 style={{ marginLeft: 'auto', marginRight: 'auto' }}>Slots</h2>
-        </div>
-
-        <Divider />
-        <Card.Group style={{ margin: 5 }} centered>
-          {
-            this.state.slots.map((slot) => {
-              return (
-                <Card onClick={() => this.showEditSlotModal(slot)} key={"card_" + slot._id}>
-                  <Card.Content style={{ backgroundColor: COLOR_CEDARVILLE_BLUE }}>
-                    <Card.Header>{slot.label}</Card.Header>
-                  </Card.Content>
-                  <Card.Content>
-                    <div style={{display: 'flex', flexDirection: 'column'}}>
-                    <div>
-                      <Icon name="ticket" />
-                      {"Tickets: " + this.getTicketCount(slot._id)}/{slot.ticket_capacity}
-                    </div>
-                    <div>
-                      <Icon name='qrcode' />
-                      {"Scanned: " + this.getScannedTicketCount(slot._id)}/{this.getTicketCount(slot._id)}
-                    </div>
-                    </div>
-                  </Card.Content>
-                  <Card.Content extra>
-                    <div style={{ display: "flex", flexDirection: "row" }}>
-                      <Icon name="clock" />
-                      {formatTime(slot.hide_time)}
-                      
-                      {/*Visible Indicator*/}
-                      {(now <= new Date(slot.hide_time)) ?
-                          <Popup
-                            content="Slot is Visible"
-                            position='top right'
-                            trigger={<Icon name="eye" size='large' style={{ marginLeft: 'auto', marginRight: 5, marginTop: 'auto', marginBottom: 'auto', color: COLOR_CEDARVILLE_YELLOW }} />}
-                          />
-                          : ""}
-                    </div>
-                  </Card.Content>
-                </Card>
-              );
-            })
-          }
-        </Card.Group>
-        <Divider />
+        <Segment compact raised style={{marginLeft: 'auto', marginRight: 'auto'}}>
+          <div style={{ display: 'flex', marginTop: 5 }}>
+            <h2 style={{ marginLeft: 'auto', marginRight: 'auto' }}>Slots</h2>
+          </div>          
+          <Divider />
+          <Card.Group style={{ margin: 5 }} centered>
+            {this.state.slots.length === 0 ? <div><b>No Slots Created</b></div>: ""}
+            {
+              this.state.slots.map((slot) => {
+                return (
+                  <Card onClick={() => this.showEditSlotModal(slot)} key={"card_" + slot._id}>
+                    <Card.Content style={{ backgroundColor: COLOR_CEDARVILLE_BLUE }}>
+                      <Card.Header>{slot.label}</Card.Header>
+                    </Card.Content>
+                    <Card.Content>
+                      <div style={{display: 'flex', flexDirection: 'column'}}>
+                      <div>
+                        <Icon name="ticket" />
+                        {"Tickets: " + this.getTicketCount(slot._id)}/{slot.ticket_capacity}
+                      </div>
+                      <div>
+                        <Icon name='qrcode' />
+                        {"Scanned: " + this.getScannedTicketCount(slot._id)}/{this.getTicketCount(slot._id)}
+                      </div>
+                      </div>
+                    </Card.Content>
+                    <Card.Content extra>
+                      <div style={{ display: "flex", flexDirection: "row" }}>
+                        <Icon name="clock" />
+                        {formatTime(slot.hide_time)}
+                        
+                        {/*Visible Indicator*/}
+                        {(now <= new Date(slot.hide_time)) ?
+                            <Popup
+                              content="Slot is Visible"
+                              position='top right'
+                              trigger={<Icon name="eye" size='large' style={{ marginLeft: 'auto', marginRight: 5, marginTop: 'auto', marginBottom: 'auto', color: COLOR_CEDARVILLE_YELLOW }} />}
+                            />
+                            : ""}
+                      </div>
+                    </Card.Content>
+                  </Card>
+                );
+              })
+            }
+          </Card.Group>
+        </Segment>
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <Button
             icon labelPosition='left'

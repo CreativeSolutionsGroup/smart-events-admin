@@ -156,6 +156,7 @@ class AddEngagementModal extends React.Component {
                                     name='message'
                                     onChange={this.handleChange}
                                  />
+                                 {this.state.message === undefined ? 0 : this.state.message.length} / 160
                             </Form.Field>
                             <Form.Field>
                                 <div style={{display: 'flex', marginRight: 0, width: '100%'}}>

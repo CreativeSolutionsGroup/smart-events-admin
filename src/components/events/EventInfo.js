@@ -1,16 +1,19 @@
 import React, { createRef } from "react";
-import { Card, Image, Icon, Button, Dropdown, Popup, Divider, Grid } from "semantic-ui-react";
-import Giveaway from "./Giveaway";
+import { Card, Image, Icon, Button, Dropdown, Popup, Segment, Grid, Divider } from "semantic-ui-react";
 import AddEngagementModal from "./AddEngagementModal";
 import EditEngagementModal from "./EditEngagementModal";
 import EditEventModal from "./EditEventModal"
-import { getEventEngagements, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL, getEngagementEngagees } from "../../utils";
+import AddAttractionModal from "../attractions/AddAttractionModal"
+import { getEventEngagements, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL, getEngagementEngagees, getAttractions, getAllAttractionCapacities } from "../../utils";
 import { CSVLink } from "react-csv";
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
 
 export default class EventInfo extends React.Component {
   addEngagementModalRef = createRef();
   editEngagementModalRef = createRef();
   editEventModalRef = createRef();
+  addAttractionModalRef = createRef();
 
   intervalID;
 
@@ -26,19 +29,25 @@ export default class EventInfo extends React.Component {
       engagementEngagees: {},
       downloadEngagementId: "",
       downloadCSV: [],
+      attractions: [],
+      attractionCapacities: {},
       autoSync: false
     }
 
     this.getEventName = this.getEventName.bind(this);
     this.loadEngagements = this.loadEngagements.bind(this);
+    this.loadAttractions = this.loadAttractions.bind(this);
+
     this.showAddEngagementModal = this.showAddEngagementModal.bind(this);
     this.showEditEngagementModal = this.showEditEngagementModal.bind(this);
     this.showEditEventModal = this.showEditEventModal.bind(this);
+    this.showAddAttractionModal = this.showAddAttractionModal.bind(this);
   }
 
   componentDidMount() {
     this.getEventName();
     this.loadEngagements();
+    this.loadAttractions();
   }
 
   componentWillUnmount() {
@@ -83,6 +92,22 @@ export default class EventInfo extends React.Component {
       formStartTime: "",
       endTime: "",
       formEndTime: "",
+      open: true
+    });
+  }
+
+  showAddAttractionModal() {
+    this.addAttractionModalRef.current.setState({
+      eventId: "",
+      name: "",
+      description: "",
+      about: "",
+      imageURL: "",
+      startTime: "",
+      endTime: "",
+      formStartTime: "",
+      formEndTime: "",
+      location: "",
       open: true
     });
   }
@@ -153,6 +178,49 @@ export default class EventInfo extends React.Component {
     });
   }
 
+  loadAttractions() {
+    getAttractions()
+      .then((attractions) => {
+
+        let attractionList = []
+        attractions.forEach((attraction) => {
+          let attraction_event_id = attraction.event_id;
+          if(attraction_event_id !== this.event_id)return;
+
+          let attractionValue = {
+            _id: attraction._id,
+            name: attraction.name,
+            description: attraction.description,
+            about: attraction.about,
+            image_url: attraction.image_url,
+            start_time: attraction.start_time,
+            end_time: attraction.end_time,
+            location: attraction.location,
+            hidden: attraction.hidden
+          }
+          attractionList.push(attractionValue);
+        });
+
+        this.setState({ attractions: attractionList });
+        this.loadAttractionCapacities(attractionList)
+      });
+  }
+
+  loadAttractionCapacities(attractionList) {
+    
+    getAllAttractionCapacities(attractionList)
+    .then(capacities => {
+      capacities.forEach((capacity) => {
+        capacity.then((value) => {
+          let attractionId = value[0];
+          let values = this.state.attractionCapacities === undefined ? {} : this.state.attractionCapacities;
+          values[attractionId] = value[1];
+          this.setState({ attractionCapacities: values });
+        })
+      })
+    });
+  }
+
   updateCSVData(engagementId) {
     let data = [];
     data.push(["Message Received", "Phone"])
@@ -184,6 +252,24 @@ export default class EventInfo extends React.Component {
       })
     })
   }
+
+  responsiveCarousel = {
+    desktop: {
+      breakpoint: { max: 3000, min: 1024 },
+      items: 3,
+      slidesToSlide: 3 // optional, default to 1.
+    },
+    tablet: {
+      breakpoint: { max: 1000, min: 464 },
+      items: 2,
+      slidesToSlide: 2 // optional, default to 1.
+    },
+    mobile: {
+      breakpoint: { max: 1000, min: 0 },
+      items: 1,
+      slidesToSlide: 1 // optional, default to 1.
+    }
+  };
 
   render() {
     return (
@@ -247,90 +333,171 @@ export default class EventInfo extends React.Component {
           </div>
         </div>
 
-        <div style={{ display: 'flex', marginTop: 5 }}>
-          <h2 style={{ marginLeft: 'auto', marginRight: 'auto' }}>Engagements</h2>
-        </div>
-        <Divider />
-        <Card.Group centered style={{ margin: 5 }}>
-          {
-            this.state.engagements.map((element) => {
-              return (
-                <Card onClick={() => this.showEditEngagementModal(element)} key={"card_" + element._id} style={{ width: 'fit-content' }}>
-                  <Card.Content style={{ backgroundColor: COLOR_CEDARVILLE_BLUE }}>
-                    <Card.Header>
-                      <div style={{ display: 'flex' }}>
-                        {element.keyword}
+        
+        <Segment compact raised style={{marginLeft: 'auto', marginRight: 'auto'}}>
+          <div style={{ display: 'flex', marginTop: 5 }}>
+            <h2 style={{ marginLeft: 'auto', marginRight: 'auto' }}>Engagements</h2>
+          </div>
+          <Divider />
+          {this.state.engagements.length === 0 ? <div><b>No Engagements have been created</b></div>: ""}
+          <Card.Group centered style={{ margin: 5 }}>
+            {
+              this.state.engagements.map((element) => {
+                return (
+                  <Card onClick={() => this.showEditEngagementModal(element)} key={"card_" + element._id} style={{ width: 'fit-content' }}>
+                    <Card.Content style={{ backgroundColor: COLOR_CEDARVILLE_BLUE }}>
+                      <Card.Header>
+                        <div style={{ display: 'flex' }}>
+                          {element.keyword}
 
-                        {/*Visible Indicator*/}
-                        {isLive(element) ?
-                          <Popup
-                            content="Engagement is Live"
-                            position='top right'
-                            trigger={<Icon name="eye" size='large' style={{ marginLeft: 'auto', marginRight: 5, marginTop: 'auto', marginBottom: 'auto', color: COLOR_CEDARVILLE_YELLOW }} />}
-                          />
-                          : ""}
+                          {/*Visible Indicator*/}
+                          {isLive(element) ?
+                            <Popup
+                              content="Engagement is Live"
+                              position='top right'
+                              trigger={<Icon name="eye" size='large' style={{ marginLeft: 'auto', marginRight: 5, marginTop: 'auto', marginBottom: 'auto', color: COLOR_CEDARVILLE_YELLOW }} />}
+                            />
+                            : ""}
+                        </div>
+                      </Card.Header>
+                    </Card.Content>
+                    <Card.Content>
+                      <Card.Description style={{ whiteSpace: 'pre-line' }}>"{element.message}"</Card.Description>
+                    </Card.Content>
+                    {element.image_url !== "" ? <Card.Content style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                    {/*Display Image list in a scroll area*/}
+                    <Grid style={{overflow: 'scroll', display: 'inline'}}>
+                        <Grid.Row centered verticalAlign='middle'>
+                        {
+                            element.image_url.split("|").map((imageURL) => {
+                                return (
+                                    <Grid.Column width={5} key={"column_" + imageURL}>
+                                        <Image src={imageURL} size='large'/>
+                                    </Grid.Column>
+                                )
+                            })
+                        }
+                        </Grid.Row>
+                    </Grid>
+                    </Card.Content> : ""}
+                    <Card.Content extra>
+                      <div>
+                        <Icon name="users" />
+                        {this.state.engagementEngagees[element._id] === undefined ? 0 : this.state.engagementEngagees[element._id].length}
                       </div>
-                    </Card.Header>
-                  </Card.Content>
-                  <Card.Content>
-                    <Card.Description style={{ whiteSpace: 'pre-line' }}>"{element.message}"</Card.Description>
-                  </Card.Content>
-                  {element.image_url !== "" ? <Card.Content style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                  {/*Display Image list in a scroll area*/}
-                  <Grid style={{overflow: 'scroll', display: 'inline'}}>
-                      <Grid.Row centered verticalAlign='middle'>
-                      {
-                          element.image_url.split("|").map((imageURL) => {
-                              return (
-                                  <Grid.Column width={5} key={"column_" + imageURL}>
-                                      <Image src={imageURL} size='small'/>
-                                  </Grid.Column>
-                              )
-                          })
-                      }
-                      </Grid.Row>
-                  </Grid>
-                  </Card.Content> : ""}
-                  <Card.Content extra>
-                    <div>
-                      <Icon name="users" />
-                      {this.state.engagementEngagees[element._id] === undefined ? 0 : this.state.engagementEngagees[element._id].length}
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'row' }}>
-                      <Icon name="clock" />
-                      {formatTime(element.start_time)}
-                      {" - "}
-                      {formatTime(element.end_time)}
-                    </div>
-                  </Card.Content>
-                </Card>
-              );
-            })
-          }
-        </Card.Group>
-        <Divider />
+                      <div style={{ display: 'flex', flexDirection: 'row' }}>
+                        <Icon name="clock" />
+                        {formatTime(element.start_time)}
+                        {" - "}
+                        {formatTime(element.end_time)}
+                      </div>
+                    </Card.Content>
+                  </Card>
+                );
+              })
+            }
+          </Card.Group>
+        </Segment>
+        {
+          this.state.attractions.length !== 0 ?
+            <Segment raised style={{marginLeft: 'auto', marginRight: 'auto', maxWidth: '80%'}}>
+              <div style={{ display: 'flex', marginTop: 5 }}>
+                <h2 style={{ marginLeft: 'auto', marginRight: 'auto' }}>Attractions</h2>
+              </div>
+              <Divider />
+              <Carousel
+                responsive={this.responsiveCarousel}
+              >
+              {
+                this.state.attractions.map((element) => {
+                  return (
+                    <Card
+                      style={{ marginLeft: 'auto', marginRight: 'auto', marginBottom: 5, minHeight: 250}}
+                      onClick={() => window.open("/attraction/" + element._id, "_self")}
+                      key={"attraction_" + element.id}
+                    >
+                      <Image src={element.image_url} wrapped />
+                      <Card.Content>
+                        <Card.Header>
+                          <div style={{ display: 'flex' }}>
+                            {element.name}
+                            {/*Visible Indicator*/}
+                            {isLive(element) ?
+                              <Popup
+                                content="Attraction is Live"
+                                trigger={<Icon name="eye" size='large' style={{ marginLeft: 'auto', marginRight: 5, marginTop: 'auto', marginBottom: 'auto', color: COLOR_CEDARVILLE_YELLOW }} />}
+                              />
+                              : ""}
+                            {/*Hidden Indicator*/}
+                            {element.hidden ?
+                              <Popup
+                                content="Attraction is Hidden"
+                                trigger={<Icon name="eye slash" size='large' style={{ marginLeft: 'auto', marginRight: 5, marginTop: 'auto', marginBottom: 'auto' }} />}
+                              />
+                              : ""}
+                          </div>
+                        </Card.Header>
+                        <Card.Description style={{ whiteSpace: 'pre-line' }}>{element.description}</Card.Description>
+                      </Card.Content>
+                      <Card.Content extra style={{color: 'black'}}>
+                          {this.state.attractionCapacities[element._id] !== "-" ?
+                            <div style={{ display: "flex" }}>
+                              <Icon name='ticket' />
+                              {this.state.attractionCapacities[element._id]}
+                            </div>
+                          : ""}
+                          <div style={{ display: "flex", fontSize: 13}}>
+                            <Icon name='clock' />
+                            {formatTime(element.start_time)}
+                            {" - "}
+                            {formatTime(element.end_time)}
+                          </div>
+                          {/*Location Information*/}
+                          {(element.location !== "" && element.location !== undefined && element.location !== "N/A") ?
+                            <div style={{ display: "flex" }}>
+                              <Icon name='map marker alternate' />
+                              {element.location}
+                            </div> 
+                          : ""}
+                          </Card.Content>
+                    </Card>
+                  );
+                })
+              }
+              </Carousel>
+            </Segment>
+          : ""
+        }
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <Button
             icon labelPosition='left'
             onClick={() => {
               this.showAddEngagementModal();
             }}
-            style={{ marginTop: 10, marginBottom: 10, marginLeft: 'auto', marginRight: 'auto', backgroundColor: COLOR_CEDARVILLE_YELLOW }}
+            style={{ marginTop: 10, marginBottom: 10, marginLeft: 'auto', marginRight: 5, backgroundColor: COLOR_CEDARVILLE_YELLOW }}
           >
             <Icon name='add' />
             Add Engagement
           </Button>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-          <Giveaway eventId={this.event_id} showPicker={false} />
+          <Button
+            icon labelPosition='left'
+            onClick={() => {
+              this.showAddAttractionModal();
+            }}
+            style={{ marginTop: 10, marginBottom: 10, marginLeft: 5, marginRight: 'auto', backgroundColor: COLOR_CEDARVILLE_YELLOW }}
+          >
+            <Icon name='add' />
+            Add Attraction
+          </Button>
         </div>
         <AddEngagementModal ref={this.addEngagementModalRef} />
         <EditEngagementModal ref={this.editEngagementModalRef} />
         <EditEventModal ref={this.editEventModalRef} />
+        <AddAttractionModal ref={this.addAttractionModalRef} />
       </div>
     );
   }
