@@ -22,6 +22,7 @@ import Header from "./components/Header";
 import { isLogin } from "./utils";
 import smart_events_logo from "./images/smart-events-logo.png";
 import Giveaway from "./components/events/Giveaway";
+import Announcement from "./components/events/Announcement";
 
 import AttractionList from "./components/attractions/AttractionList";
 import AttractionInfo from "./components/attractions/AttractionInfo";
@@ -76,6 +77,7 @@ class App extends React.Component {
           <PrivateRoute component={Dashboard} path="/dashboard" exact />
           <PrivateRoute component={Event} path="/event/:event_id" exact />
           <PrivateRoute component={GiveawayPage} path="/giveaway" exact />
+          <PrivateRoute component={AnnouncementPage} path="/announcement" exact />
           <PrivateRoute component={Attractions} path="/attractions" exact />
           <PrivateRoute component={AttractionPage} path="/attraction/:attraction_id" exact />
         </Switch>
@@ -117,6 +119,17 @@ function GiveawayPage() {
       <Header />
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <Giveaway showPicker={true} />
+      </div>
+    </div>
+  );
+}
+
+function AnnouncementPage() {
+  return (
+    <div>
+      <Header />
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <Announcement />
       </div>
     </div>
   );

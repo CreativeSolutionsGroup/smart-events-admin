@@ -1,7 +1,8 @@
 import React, { createRef } from "react";
-import { Icon, Card, Button, Image, Popup } from "semantic-ui-react";
+import { Icon, Card, Button, Popup } from "semantic-ui-react";
 import { getAttractions, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, getEvent, formatTime, isLive, getAllAttractionCapacities } from "../../utils";
 import AddAttractionModal from "./AddAttractionModal";
+import AsyncImage from "../AsyncImage";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 
@@ -150,7 +151,7 @@ export default class AttractionList extends React.Component {
                               onClick={() => window.open("/attraction/" + element._id, "_self")}
                               key={"attraction_" + element.id}
                             >
-                              <Image src={element.image_url} wrapped />
+                              <AsyncImage src={element.image_url} wrapped />
                               <Card.Content>
                                 <Card.Header>
                                   <div style={{ display: 'flex' }}>

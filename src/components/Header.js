@@ -3,7 +3,6 @@ import smart_events_logo from "../images/smart-events-logo.png";
 import Logout from "../components/Logout";
 import { Image, Button, Icon, Divider, Popup } from "semantic-ui-react";
 import TwilioAccountInfo from "./TwilioAccountInfo";
-import { COLOR_CEDARVILLE_YELLOW } from "../utils";
 
 export default class Header extends React.Component {
 
@@ -40,10 +39,19 @@ export default class Header extends React.Component {
                   icon
                   labelPosition='left'
                   onClick={() => window.open("/attractions", "_self")}
-                  style={{ margin: 5, backgroundColor: COLOR_CEDARVILLE_YELLOW, color: 'white' }}
+                  style={{ margin: 5, backgroundColor: 'olive', color: 'white' }}
                 >
                   <Icon name='ticket' />
                   Attractions
+                </Button>
+                <Button
+                  icon
+                  labelPosition='left'
+                  onClick={() => window.open("/announcement", "_self")}
+                  style={{ margin: 5, backgroundColor: 'orange', color: 'white' }}
+                >
+                  <Icon name='bullhorn' />
+                  Text Blast
                 </Button>
                 <Button
                   icon
