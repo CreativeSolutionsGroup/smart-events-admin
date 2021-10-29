@@ -1,5 +1,5 @@
 import React, { createRef } from "react";
-import { Card, Image, Icon, Button, Dropdown, Popup, Segment, Grid, Divider } from "semantic-ui-react";
+import { Card, Icon, Button, Dropdown, Popup, Segment, Grid, Divider } from "semantic-ui-react";
 import AddEngagementModal from "./AddEngagementModal";
 import EditEngagementModal from "./EditEngagementModal";
 import EditEventModal from "./EditEventModal"
@@ -8,6 +8,7 @@ import { getEventEngagements, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, is
 import { CSVLink } from "react-csv";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
+import AsyncImage from "../AsyncImage";
 
 export default class EventInfo extends React.Component {
   addEngagementModalRef = createRef();
@@ -376,7 +377,7 @@ export default class EventInfo extends React.Component {
                             element.image_url.split("|").map((imageURL) => {
                                 return (
                                     <Grid.Column width={5} key={"column_" + imageURL}>
-                                        <Image src={imageURL} size='large'/>
+                                        <AsyncImage src={imageURL} size='large'/>
                                     </Grid.Column>
                                 )
                             })
@@ -420,7 +421,7 @@ export default class EventInfo extends React.Component {
                       onClick={() => window.open("/attraction/" + element._id, "_self")}
                       key={"attraction_" + element.id}
                     >
-                      <Image src={element.image_url} wrapped />
+                      <AsyncImage src={element.image_url} wrapped />
                       <Card.Content>
                         <Card.Header>
                           <div style={{ display: 'flex' }}>
