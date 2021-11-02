@@ -1,10 +1,10 @@
 import React, { createRef } from "react";
-import { Card, Icon, Button, Dropdown, Popup, Segment, Grid, Divider } from "semantic-ui-react";
+import { Card, Icon, Button, Dropdown, Popup, Segment, Grid, Divider, Checkbox } from "semantic-ui-react";
 import AddEngagementModal from "./AddEngagementModal";
 import EditEngagementModal from "./EditEngagementModal";
 import EditEventModal from "./EditEventModal"
 import AddAttractionModal from "../attractions/AddAttractionModal"
-import { getEventEngagements, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL, getEngagementEngagees, getAttractions, getAllAttractionCapacities } from "../../utils";
+import { getEventEngagements, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL, getEngagementEngagees, getEngagementUniqueEngagees, getAttractions, getAllAttractionCapacities } from "../../utils";
 import { CSVLink } from "react-csv";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
@@ -28,7 +28,9 @@ export default class EventInfo extends React.Component {
       event_desc: "",
       engagements: [],
       engagementEngagees: {},
+      allEngagementEngagees: {},
       downloadEngagementId: "",
+      downloadAllEngagees: false,
       downloadCSV: [],
       attractions: [],
       attractionCapacities: {},
@@ -169,11 +171,17 @@ export default class EventInfo extends React.Component {
     .then((filteredEngagements) => {
       this.setState({ engagements: filteredEngagements });
       filteredEngagements.forEach((engagement) => {
-        getEngagementEngagees(engagement._id)
+        getEngagementUniqueEngagees(engagement._id)
         .then((response) => {
           let newEnagementDict = this.state.engagementEngagees;
           newEnagementDict[engagement._id] = response
           this.setState({ engagementEngagees:  newEnagementDict});
+        })
+        getEngagementEngagees(engagement._id)
+        .then((response) => {
+          let newEnagementDict = this.state.allEngagementEngagees;
+          newEnagementDict[engagement._id] = response
+          this.setState({ allEngagementEngagees:  newEnagementDict});
         })
       })
     });
@@ -225,9 +233,15 @@ export default class EventInfo extends React.Component {
   updateCSVData(engagementId) {
     let data = [];
     data.push(["Message Received", "Phone"])
-    this.state.engagementEngagees[engagementId].forEach((element) => {
-      data.push([element.message_received, element.phone]);
-    })
+    if(this.state.downloadAllEngagees){
+      this.state.allEngagementEngagees[engagementId].forEach((element) => {
+        data.push([element.message_received, element.phone]);
+      })
+    } else {
+      this.state.engagementEngagees[engagementId].forEach((element) => {
+        data.push([element.message_received, element.phone]);
+      })
+    }
     this.setState({ downloadCSV: data })
   }
 
@@ -245,11 +259,17 @@ export default class EventInfo extends React.Component {
 
   autoSync() {
     this.state.engagements.forEach((engagement) => {
-      getEngagementEngagees(engagement._id)
+      getEngagementUniqueEngagees(engagement._id)
       .then((response) => {
         let newEnagementDict = this.state.engagementEngagees;
         newEnagementDict[engagement._id] = response
         this.setState({ engagementEngagees:  newEnagementDict});
+      })
+      getEngagementEngagees(engagement._id)
+      .then((response) => {
+        let newEnagementDict = this.state.allEngagementEngagees;
+        newEnagementDict[engagement._id] = response
+        this.setState({ allEngagementEngagees:  newEnagementDict});
       })
     })
   }
@@ -290,46 +310,55 @@ export default class EventInfo extends React.Component {
             >
               <Icon name='sync' />
             </Button>
-            <Dropdown
-              icon='download'
-              floating
-              button
-              className='icon'
-              style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 5, marginRight: 5 }}
-            >
-              <Dropdown.Menu direction='left'>
-                <Dropdown
-                  placeholder='Engagement'
-                  selection
-                  value={this.state.downloadEngagementId}
-                  options={this.engagmentDownloadSelectionList()}
-                  onChange={this.handleChangeDownload}
-                  style={{ margin: 10 }}
-                />
-                <div style={{ display: 'flex' }}>
-                  <div style={{ marginLeft: 'auto', marginRight: 'auto', marginTop: 5, marginBottom: 5 }}>
-                    <CSVLink
-                      data={this.state.downloadCSV}
-                      filename={this.state.downloadName}
-                      target="_blank"
-                      onClick={event => {
-                        if (this.state.downloadEngagementId === "") {
-                          return false;
-                        }
-                      }}
-                    >
-                      <Button color='green' disabled={this.state.downloadEngagementId === ""}>Download</Button>
-                    </CSVLink>
-                  </div>
-                </div>
-              </Dropdown.Menu>
-            </Dropdown>
+            <Popup
+              trigger={<Button icon='download' style={{height: 38, width: 38, marginTop: 'auto', marginBottom: 'auto'}}/>}
+              on='click'
+              content={
+                <div>
+                   <Dropdown
+                      placeholder='Engagement'
+                      selection
+                      value={this.state.downloadEngagementId}
+                      options={this.engagmentDownloadSelectionList()}
+                      onChange={this.handleChangeDownload}
+                      style={{ margin: 10 }}
+                    />
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <Checkbox 
+                        label='Include Duplicate Entries'
+                        onChange={(e, { checked }) => {
+                          this.updateCSVData(this.state.downloadEngagementId);
+                          this.setState((prevState) => ({ downloadAllEngagees: !prevState.downloadAllEngagees }))
+                        }}
+                        checked={this.state.downloadAllEngagees}
+                        style={{marginLeft: 'auto', marginRight: 'auto', marginTop: 5}}
+                        disabled={this.state.downloadEngagementId === undefined || this.state.downloadEngagementId === ""}
+                      />
+                      <div style={{ marginLeft: 'auto', marginRight: 'auto', marginTop: 5, marginBottom: 5 }}>
+                        <CSVLink
+                          data={this.state.downloadCSV}
+                          filename={this.state.downloadName}
+                          target="_blank"
+                          onClick={event => {
+                            if (this.state.downloadEngagementId === "") {
+                              return false;
+                            }
+                          }}
+                        >
+                          <Button color='green' disabled={this.state.downloadEngagementId === ""}>Download</Button>
+                        </CSVLink>
+                      </div>
+                    </div>
+                </div>                
+              }
+              basic
+            />
             <Button
               icon='edit'
               onClick={() => {
                 this.showEditEventModal();
               }}
-              style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 5, marginRight: 5 }}
+              style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 1, marginRight: 5 }}
             />
           </div>
         </div>
@@ -389,6 +418,8 @@ export default class EventInfo extends React.Component {
                       <div>
                         <Icon name="users" />
                         {this.state.engagementEngagees[element._id] === undefined ? 0 : this.state.engagementEngagees[element._id].length}
+                        {" "}
+                        ({this.state.allEngagementEngagees[element._id] === undefined ? 0 : this.state.allEngagementEngagees[element._id].length})
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <Icon name="clock" />

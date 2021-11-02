@@ -195,6 +195,35 @@ export const getEngagementEngagees = (engagementId) => {
         );
 }
 
+export const getEngagementUniqueEngagees = (engagementId) => {
+    return authorizedFetch(API_URL + '/api/engagements/' + engagementId + "/engagees")
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Engagement Engagees");
+                    console.log(res.message);
+                    alert("Error (Engagees): " + res.message);
+                    return [];
+                }
+                let uniquePhoneNumbers = [];
+                let uniqueList = [];
+                res.data.forEach((engagee) => {
+                    if(!uniquePhoneNumbers.includes(engagee.phone)){
+                        uniqueList.push(engagee);
+                        uniquePhoneNumbers.push(engagee.phone);
+                    }
+                });
+                return uniqueList;
+            },
+            (err) => {
+                console.error("Failed to retrieve Engagement Engagees");
+                console.error(err);
+                return [];
+            }
+        );
+}
+
 export const getAllEngageesCount = () => {
     return authorizedFetch(API_URL + '/api/engagees/')
         .then((res) => res.json())
@@ -214,6 +243,40 @@ export const getAllEngageesCount = () => {
                         oldCount = filteredEngagees[engagee.engagement_id];
                     }
                     filteredEngagees[engagee.engagement_id] = oldCount + 1;
+                });
+                return filteredEngagees;
+            },
+            (err) => {
+                console.error("Failed to retrieve Engagees");
+                console.error(err);
+                return {};
+            }
+        );
+}
+
+export const getAllUniqueEngageesCount = () => {
+    return authorizedFetch(API_URL + '/api/engagees/')
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Engagees");
+                    console.log(res.message);
+                    alert("Error (Engagees): " + res.message);
+                    return {};
+                }
+
+                let filteredEngagees = {};
+                res.data.forEach(engagee => {
+                    let list = [];
+                    if (filteredEngagees[engagee.engagement_id] != null) {
+                        list = filteredEngagees[engagee.engagement_id];
+                    }
+                    let phone = engagee.phone;
+                    if(!list.includes(phone)){
+                        list.push(phone);
+                        filteredEngagees[engagee.engagement_id] = list;
+                    }
                 });
                 return filteredEngagees;
             },
