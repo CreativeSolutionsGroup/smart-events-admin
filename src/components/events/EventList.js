@@ -1,7 +1,7 @@
 import React, { createRef } from "react";
 import { Icon, Card, Button, Divider, CardContent } from "semantic-ui-react";
 import AddEventModal from "./AddEventModal"
-import { getEvents, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, getAllEngageesCount, getAllEngagements } from "../../utils";
+import { getEvents, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, getAllUniqueEngageesCount, getAllEngagements } from "../../utils";
 
 export default class EventList extends React.Component {
   addEventModalRef = createRef();
@@ -45,11 +45,11 @@ export default class EventList extends React.Component {
   loadEventTotalEngagements() {
     getAllEngagements()
     .then((engagements) => {
-      getAllEngageesCount()
+      getAllUniqueEngageesCount()
       .then((engagementCounts) => {
           let eventEngageeCount = {}
           engagements.forEach((engagement) => {
-            let count = engagementCounts[engagement._id];
+            let count = engagementCounts[engagement._id] === undefined ? 0 : engagementCounts[engagement._id].length;
             let oldCount = eventEngageeCount[engagement.event_id] === undefined ? 0 : eventEngageeCount[engagement.event_id];
             eventEngageeCount[engagement.event_id] = oldCount + count;
           })
