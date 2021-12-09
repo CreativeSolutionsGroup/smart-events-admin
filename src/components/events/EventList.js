@@ -1,5 +1,5 @@
 import React, { createRef } from "react";
-import { Icon, Card, Button, Divider, CardContent } from "semantic-ui-react";
+import { Icon, Card, Button, Divider, CardContent, Input } from "semantic-ui-react";
 import AddEventModal from "./AddEventModal"
 import { getEvents, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, getAllUniqueEngageesCount, getAllEngagements } from "../../utils";
 
@@ -15,7 +15,8 @@ export default class EventList extends React.Component {
       windowWidth: window.innerWidth,
       addModalOpen: false,
       editModalOpen: false,
-      editEvent: null
+      editEvent: null,
+      searchValue: ""
     }
 
     this.loadEvents = this.loadEvents.bind(this);
@@ -63,16 +64,32 @@ export default class EventList extends React.Component {
     window.open("/event/" + element._id, "_self")
   }
 
+  getFilteredEvents(searchValue){
+    if(searchValue === ""){
+      return this.state.events;
+    }
+    return this.state.events.filter(event => (event.name.toLowerCase().includes(searchValue.toLowerCase()) || event.description.toLowerCase().includes(searchValue.toLowerCase())));
+  }
+
   render() {
     return (
       <div>
-        <div style={{ display: 'flex', marginTop: 5 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', marginTop: 5 }}>
           <h2 style={{ marginLeft: 'auto', marginRight: 'auto' }}>Events</h2>
+          <Input 
+            icon='search' 
+            placeholder='Search...' 
+            style={{width: '45%', marginLeft: 'auto', marginRight: 'auto'}}
+            value={this.state.searchValue}
+            onChange={(e, { name, value }) => {
+              this.setState({ searchValue: value })
+            }}
+          />
         </div>
         <Divider />
         <Card.Group style={{ margin: 5 }} centered>
           {
-            this.state.events.map((element) => {
+            this.getFilteredEvents(this.state.searchValue).map((element) => {
               return (
                 <Card onClick={() => this.clickEvent(element)} key={"event_" + element._id}>
                   <Card.Content style={{ backgroundColor: COLOR_CEDARVILLE_BLUE }}>
