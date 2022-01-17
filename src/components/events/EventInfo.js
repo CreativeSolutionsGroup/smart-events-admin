@@ -4,7 +4,7 @@ import AddEngagementModal from "./AddEngagementModal";
 import EditEngagementModal from "./EditEngagementModal";
 import EditEventModal from "./EditEventModal"
 import AddAttractionModal from "../attractions/AddAttractionModal"
-import { getEventEngagements, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL, getEngagementEngagees, getEngagementUniqueEngagees, getAttractions, getAllAttractionCapacities } from "../../utils";
+import { getEventEngagements, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL, getEngagementEngagees, getEngagementUniqueEngagees, getAttractions, getAllAttractionCapacities, getUserPermissions } from "../../utils";
 import { CSVLink } from "react-csv";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
@@ -51,6 +51,11 @@ export default class EventInfo extends React.Component {
     this.getEventName();
     this.loadEngagements();
     this.loadAttractions();
+
+    //Check user permissions
+    getUserPermissions(localStorage.getItem("email")).then(response => {
+      this.setState({permissions: response});
+    })
   }
 
   componentWillUnmount() {
@@ -353,13 +358,17 @@ export default class EventInfo extends React.Component {
               }
               basic
             />
-            <Button
-              icon='edit'
-              onClick={() => {
-                this.showEditEventModal();
-              }}
-              style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 1, marginRight: 5 }}
-            />
+            {
+               this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("edit")) ?
+                <Button
+                  icon='edit'
+                  onClick={() => {
+                    this.showEditEventModal();
+                  }}
+                  style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 1, marginRight: 5 }}
+                />
+              : ""
+            }
           </div>
         </div>
 
@@ -374,7 +383,16 @@ export default class EventInfo extends React.Component {
             {
               this.state.engagements.map((element) => {
                 return (
-                  <Card onClick={() => this.showEditEngagementModal(element)} key={"card_" + element._id} style={{ width: 'fit-content' }}>
+                  <Card 
+                    onClick={() => 
+                      {
+                        if(this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("edit"))){
+                          this.showEditEngagementModal(element)
+                        }
+                      }
+                    }
+                    key={"card_" + element._id} style={{ width: 'fit-content' }}
+                  >
                     <Card.Content style={{ backgroundColor: COLOR_CEDARVILLE_BLUE }}>
                       <Card.Header>
                         <div style={{ display: 'flex' }}>
@@ -504,28 +522,32 @@ export default class EventInfo extends React.Component {
             </Segment>
           : ""
         }
-        <div style={{ display: 'flex', flexDirection: 'row' }}>
-          <Button
-            icon labelPosition='left'
-            onClick={() => {
-              this.showAddEngagementModal();
-            }}
-            style={{ marginTop: 10, marginBottom: 10, marginLeft: 'auto', marginRight: 5, backgroundColor: COLOR_CEDARVILLE_YELLOW }}
-          >
-            <Icon name='add' />
-            Add Engagement
-          </Button>
-          <Button
-            icon labelPosition='left'
-            onClick={() => {
-              this.showAddAttractionModal();
-            }}
-            style={{ marginTop: 10, marginBottom: 10, marginLeft: 5, marginRight: 'auto', backgroundColor: COLOR_CEDARVILLE_YELLOW }}
-          >
-            <Icon name='add' />
-            Add Attraction
-          </Button>
-        </div>
+        {
+          this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("edit")) ?
+              <div style={{ display: 'flex', flexDirection: 'row' }}>
+                <Button
+                  icon labelPosition='left'
+                  onClick={() => {
+                    this.showAddEngagementModal();
+                  }}
+                  style={{ marginTop: 10, marginBottom: 10, marginLeft: 'auto', marginRight: 5, backgroundColor: COLOR_CEDARVILLE_YELLOW }}
+                >
+                  <Icon name='add' />
+                  Add Engagement
+                </Button>
+                <Button
+                  icon labelPosition='left'
+                  onClick={() => {
+                    this.showAddAttractionModal();
+                  }}
+                  style={{ marginTop: 10, marginBottom: 10, marginLeft: 5, marginRight: 'auto', backgroundColor: COLOR_CEDARVILLE_YELLOW }}
+                >
+                  <Icon name='add' />
+                  Add Attraction
+                </Button>
+              </div>
+          : ""  
+        }
         <AddEngagementModal ref={this.addEngagementModalRef} />
         <EditEngagementModal ref={this.editEngagementModalRef} />
         <EditEventModal ref={this.editEventModalRef} />

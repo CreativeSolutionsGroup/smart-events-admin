@@ -1,6 +1,6 @@
 import React, { createRef } from "react";
 import { Card, Icon, Button, Image, Modal, Divider, Popup, Segment } from "semantic-ui-react";
-import { getAttractionSlots, getSlotTickets, formatTime, isTimeLive, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, API_URL } from "../../utils";
+import { getAttractionSlots, getSlotTickets, formatTime, isTimeLive, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, API_URL, getUserPermissions } from "../../utils";
 import AddSlotModal from "./AddSlotModal";
 import EditSlotModal from "./EditSlotModal";
 import EditAttractionModal from "./EditAttractionModal";
@@ -38,7 +38,12 @@ export default class AttractionInfo extends React.Component {
 
   componentDidMount() {
     this.getAttractionInfo();
-    this.loadSlots();
+    this.loadSlots();    
+
+    //Check user permissions
+    getUserPermissions(localStorage.getItem("email")).then(response => {
+      this.setState({permissions: response});
+    });
   }
 
   showAddSlotModal() {
@@ -183,15 +188,19 @@ export default class AttractionInfo extends React.Component {
             >
               <Icon name='image' />
             </Button>
-            <Button
-              icon
-              onClick={() => {
-                this.showEditAttractionModal();
-              }}
-              style={{ marginTop: 'auto', marginBottom: 'auto', marginRight: 5 }}
-            >
-              <Icon name='edit' />
-            </Button>
+            {
+              this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("edit")) ?
+                <Button
+                  icon
+                  onClick={() => {
+                    this.showEditAttractionModal();
+                  }}
+                  style={{ marginTop: 'auto', marginBottom: 'auto', marginRight: 5 }}
+                >
+                  <Icon name='edit' />
+                </Button>
+              : ""
+            }
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 10, marginRight: 10 }}>
             <Segment compact style={{marginTop: 10}}>
@@ -224,7 +233,16 @@ export default class AttractionInfo extends React.Component {
             {
               this.state.slots.map((slot) => {
                 return (
-                  <Card onClick={() => this.showEditSlotModal(slot)} key={"card_" + slot._id}>
+                  <Card 
+                    onClick={() => 
+                      {
+                        if(this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("edit"))){
+                          this.showEditSlotModal(slot)
+                        }
+                      }
+                    } 
+                    key={"card_" + slot._id}
+                  >
                     <Card.Content style={{ backgroundColor: COLOR_CEDARVILLE_BLUE }}>
                       <Card.Header>{slot.label}</Card.Header>
                     </Card.Content>
@@ -261,18 +279,22 @@ export default class AttractionInfo extends React.Component {
             }
           </Card.Group>
         </Segment>
-        <div style={{ display: 'flex', flexDirection: 'row' }}>
-          <Button
-            icon labelPosition='left'
-            onClick={() => {
-              this.showAddSlotModal();
-            }}
-            style={{ marginTop: 10, marginBottom: 10, marginLeft: 'auto', marginRight: 'auto', backgroundColor: COLOR_CEDARVILLE_YELLOW }}
-          >
-            <Icon name='add' />
-            Add Slot
-          </Button>
-        </div>
+        {
+          this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("edit")) ?
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+              <Button
+                icon labelPosition='left'
+                onClick={() => {
+                  this.showAddSlotModal();
+                }}
+                style={{ marginTop: 10, marginBottom: 10, marginLeft: 'auto', marginRight: 'auto', backgroundColor: COLOR_CEDARVILLE_YELLOW }}
+              >
+                <Icon name='add' />
+                Add Slot
+              </Button>
+            </div>
+          : ""
+        }
         <AddSlotModal ref={this.addSlotModalRef} />
         <EditSlotModal ref={this.editSlotModalRef} />
         <EditAttractionModal ref={this.editAttractionModalRef} />
