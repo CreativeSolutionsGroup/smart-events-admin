@@ -38,7 +38,7 @@ export default class EventList extends React.Component {
   loadEvents() {
     getEvents()
       .then((events) => {
-        this.setState({ events: events });
+        this.setState({ events: events.reverse() });
         this.loadEventTotalEngagements()
       });
   }
