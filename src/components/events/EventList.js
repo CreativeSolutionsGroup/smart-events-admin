@@ -1,7 +1,9 @@
 import React, { createRef } from "react";
 import { Icon, Card, Button, Divider, CardContent, Input } from "semantic-ui-react";
 import AddEventModal from "./AddEventModal"
-import { getEvents, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, getAllUniqueEngageesCount, getAllEngagements } from "../../utils";
+import { getEvents, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, getAllUniqueEngageesCount, getAllEngagements, getUserPermissions } from "../../utils";
+import { ThisMonthInstance } from "twilio/lib/rest/api/v2010/account/usage/record/thisMonth";
+import Understand from "twilio/lib/rest/preview/Understand";
 
 export default class EventList extends React.Component {
   addEventModalRef = createRef();
@@ -25,6 +27,9 @@ export default class EventList extends React.Component {
 
   componentDidMount() {
     this.loadEvents();
+    getUserPermissions(localStorage.getItem("email")).then(response => {
+      this.setState({permissions: response});
+    })
   }
 
   showAddEventModal() {
@@ -110,18 +115,22 @@ export default class EventList extends React.Component {
           }
         </Card.Group>
         <Divider />
-        <div style={{ display: 'flex', flexDirection: 'row' }}>
-          <Button
-            icon labelPosition='left'
-            onClick={() => {
-              this.showAddEventModal();
-            }}
-            style={{ marginTop: 10, marginBottom: 10, marginLeft: 'auto', marginRight: 'auto', backgroundColor: COLOR_CEDARVILLE_YELLOW }}
-          >
-            <Icon name='add' />
-            Add Event
-          </Button>
-        </div>
+        {
+          this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("edit")) ?
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+              <Button
+                icon labelPosition='left'
+                onClick={() => {
+                  this.showAddEventModal();
+                }}
+                style={{ marginTop: 10, marginBottom: 10, marginLeft: 'auto', marginRight: 'auto', backgroundColor: COLOR_CEDARVILLE_YELLOW }}
+              >
+                <Icon name='add' />
+                Add Event
+              </Button>
+            </div>
+          : ""
+        }
         <AddEventModal ref={this.addEventModalRef} />
       </div>
     );

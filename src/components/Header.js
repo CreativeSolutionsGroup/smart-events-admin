@@ -3,6 +3,7 @@ import smart_events_logo from "../images/smart-events-logo.png";
 import Logout from "../components/Logout";
 import { Image, Button, Icon, Divider, Popup } from "semantic-ui-react";
 import TwilioAccountInfo from "./TwilioAccountInfo";
+import { getUserPermissions } from "../utils";
 
 export default class Header extends React.Component {
 
@@ -14,6 +15,12 @@ export default class Header extends React.Component {
     }
   }
 
+  componentDidMount() {
+    //Check user permissions
+    getUserPermissions(localStorage.getItem("email")).then(response => {
+      this.setState({permissions: response});
+    });
+  }
 
   render() {
     return (
@@ -44,24 +51,32 @@ export default class Header extends React.Component {
                   <Icon name='ticket' />
                   Attractions
                 </Button>
-                <Button
-                  icon
-                  labelPosition='left'
-                  onClick={() => window.open("/announcement", "_self")}
-                  style={{ margin: 5, backgroundColor: 'orange', color: 'white' }}
-                >
-                  <Icon name='bullhorn' />
-                  Text Blast
-                </Button>
-                <Button
-                  icon
-                  labelPosition='left'
-                  onClick={() => window.open("/giveaway", "_self")}
-                  style={{ margin: 5, backgroundColor: 'green', color: 'white' }}
-                >
-                  <Icon name='winner' />
-                  Giveaway
-                </Button>
+                {
+                  this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("text")) ?
+                    <Button
+                      icon
+                      labelPosition='left'
+                      onClick={() => window.open("/announcement", "_self")}
+                      style={{ margin: 5, backgroundColor: 'orange', color: 'white' }}
+                    >
+                      <Icon name='bullhorn' />
+                      Text Blast
+                    </Button>
+                  : ""
+                }
+                {
+                  this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("giveaway")) ?
+                    <Button
+                      icon
+                      labelPosition='left'
+                      onClick={() => window.open("/giveaway", "_self")}
+                      style={{ margin: 5, backgroundColor: 'green', color: 'white' }}
+                    >
+                      <Icon name='winner' />
+                      Giveaway
+                    </Button>
+                  : ""
+                }
                 <Popup
                   content={
                     <TwilioAccountInfo />

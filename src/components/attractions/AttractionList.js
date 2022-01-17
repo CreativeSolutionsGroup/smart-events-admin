@@ -1,6 +1,6 @@
 import React, { createRef } from "react";
 import { Icon, Card, Button, Popup } from "semantic-ui-react";
-import { getAttractions, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, getEvent, formatTime, isLive, getAllAttractionCapacities } from "../../utils";
+import { getAttractions, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, getEvent, formatTime, isLive, getAllAttractionCapacities, getUserPermissions } from "../../utils";
 import AddAttractionModal from "./AddAttractionModal";
 import AsyncImage from "../AsyncImage";
 import Carousel from "react-multi-carousel";
@@ -28,6 +28,11 @@ export default class AttractionList extends React.Component {
 
   componentDidMount() {
     this.loadAttractions();
+
+    //Check user permissions
+    getUserPermissions(localStorage.getItem("email")).then(response => {
+      this.setState({permissions: response});
+    })
   }
 
   showAddAttractionModal() {
@@ -203,18 +208,22 @@ export default class AttractionList extends React.Component {
               );
             })
         }
-        <div style={{ display: 'flex', flexDirection: 'row' }}>
-          <Button
-            icon labelPosition='left'
-            onClick={() => {
-              this.showAddAttractionModal();
-            }}
-            style={{ marginTop: 10, marginBottom: 10, marginLeft: 'auto', marginRight: 'auto', backgroundColor: COLOR_CEDARVILLE_YELLOW }}
-          >
-            <Icon name='add' />
-            Add Attraction
-          </Button>
-        </div>
+        {
+          this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("edit")) ?
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+              <Button
+                icon labelPosition='left'
+                onClick={() => {
+                  this.showAddAttractionModal();
+                }}
+                style={{ marginTop: 10, marginBottom: 10, marginLeft: 'auto', marginRight: 'auto', backgroundColor: COLOR_CEDARVILLE_YELLOW }}
+              >
+                <Icon name='add' />
+                Add Attraction
+              </Button>
+            </div>
+          : ""
+        }
         <AddAttractionModal ref={this.addAttractionModalRef} />
       </div>
     );
