@@ -1,6 +1,6 @@
 export const COLOR_CEDARVILLE_YELLOW = "#F3A00F";
 export const COLOR_CEDARVILLE_BLUE = "#31B7E6";
-export const API_URL = "https://api.cusmartevents.com" //"http://localhost:3001"
+export const API_URL = /*"https://api.cusmartevents.com"*/ "http://localhost:3001"
 export const ENGAGEMENT_WEBHOOK_GIVEAWAY = "https://engagements.cusmartevents.com/webhook/giveaway" //"http://localhost:3001/webhook/giveaway"
 export const ENGAGEMENT_WEBHOOK_ANNOUNCEMENT = "https://engagements.cusmartevents.com/webhook/announcement" //"http://localhost:3001/webhook/announcement" 
 
@@ -298,6 +298,56 @@ export const getEngagementEngageeCounts = (engagements) => {
     })
     return filteredEngagees;
 }
+
+//Giveaways
+export const getEventGiveaways = (eventId) => {
+    return authorizedFetch(API_URL + '/api/giveaway/')
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Giveaways");
+                    console.log(res.message);
+                    alert("Error (Giveaways): " + res.message);
+                    return [];
+                }
+                let filteredGiveaways = [];
+                res.data.forEach(element => {
+                    if (element.event_id === eventId) {
+                        filteredGiveaways.push(element);
+                    }
+                });
+                return filteredGiveaways;
+            },
+            (err) => {
+                console.error("Failed to retrieve Giveaways");
+                console.error(err);
+                return [];
+            }
+        );
+}
+
+export const getGiveawayEntires = (giveawayId) => {
+    return authorizedFetch(API_URL + '/api/giveaway/' + giveawayId + "/entries")
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Giveaway Entries");
+                    console.log(res.message);
+                    alert("Error (Giveaway): " + res.message);
+                    return [];
+                }
+                return res.data;
+            },
+            (err) => {
+                console.error("Failed to retrieve Giveaway Entries");
+                console.error(err.message);
+                return [];
+            }
+        );
+}
+
 
 export const getGoogleSheetJSON = (sheetId) => {
     return fetch('https://docs.google.com/spreadsheets/d/' + sheetId + '/gviz/tq?tqx=out:json')

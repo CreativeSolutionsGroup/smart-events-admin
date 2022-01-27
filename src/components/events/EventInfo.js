@@ -4,7 +4,9 @@ import AddEngagementModal from "./AddEngagementModal";
 import EditEngagementModal from "./EditEngagementModal";
 import EditEventModal from "./EditEventModal"
 import AddAttractionModal from "../attractions/AddAttractionModal"
-import { getEventEngagements, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL, getEngagementEngagees, getEngagementUniqueEngagees, getAttractions, getAllAttractionCapacities, getUserPermissions } from "../../utils";
+import AddGiveawayModal from "./AddGiveawayModal"
+import EditGiveawayModal from "./EditGiveawayModal"
+import { getEventEngagements, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL, getEngagementEngagees, getEngagementUniqueEngagees, getAttractions, getAllAttractionCapacities, getUserPermissions, getEventGiveaways, getGiveawayEntires } from "../../utils";
 import { CSVLink } from "react-csv";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
@@ -15,6 +17,8 @@ export default class EventInfo extends React.Component {
   editEngagementModalRef = createRef();
   editEventModalRef = createRef();
   addAttractionModalRef = createRef();
+  addGiveawayModalRef = createRef();
+  editGiveawayModalRef = createRef();
 
   intervalID;
 
@@ -34,23 +38,29 @@ export default class EventInfo extends React.Component {
       downloadCSV: [],
       attractions: [],
       attractionCapacities: {},
+      giveways: [],
+      giveawayEngagees: {},
       autoSync: false
     }
 
     this.getEventName = this.getEventName.bind(this);
     this.loadEngagements = this.loadEngagements.bind(this);
     this.loadAttractions = this.loadAttractions.bind(this);
+    this.loadGiveaways = this.loadGiveaways.bind(this);
 
     this.showAddEngagementModal = this.showAddEngagementModal.bind(this);
     this.showEditEngagementModal = this.showEditEngagementModal.bind(this);
     this.showEditEventModal = this.showEditEventModal.bind(this);
     this.showAddAttractionModal = this.showAddAttractionModal.bind(this);
+    this.showAddGiveawayModal = this.showAddGiveawayModal.bind(this);
+    this.showEditGiveawayModal = this.showEditGiveawayModal.bind(this);
   }
 
   componentDidMount() {
     this.getEventName();
     this.loadEngagements();
     this.loadAttractions();
+    this.loadGiveaways();
 
     //Check user permissions
     getUserPermissions(localStorage.getItem("email")).then(response => {
@@ -120,6 +130,18 @@ export default class EventInfo extends React.Component {
     });
   }
 
+  showAddGiveawayModal() {
+    this.addGiveawayModalRef.current.setState({
+      eventId: this.event_id,
+      message: "",
+      startTime: "",
+      formStartTime: "",
+      endTime: "",
+      formEndTime: "",
+      open: true
+    });
+  }
+
   showEditEngagementModal(engagement) {
     this.editEngagementModalRef.current.setState({
       engagementId: engagement._id,
@@ -144,6 +166,19 @@ export default class EventInfo extends React.Component {
       description: this.state.event_desc,
       formName: this.state.event_name,
       formDescription: this.state.event_desc,
+      open: true
+    });
+  }
+
+  showEditGiveawayModal(giveaway) {
+    this.editGiveawayModalRef.current.setState({
+      giveawayId: giveaway._id,
+      message: giveaway.message,
+      formMessage: giveaway.message,
+      startTime: giveaway.start_time,
+      formStartTime: giveaway.start_time,
+      endTime: giveaway.end_time,
+      formEndTime: giveaway.end_time,
       open: true
     });
   }
@@ -235,6 +270,21 @@ export default class EventInfo extends React.Component {
     });
   }
 
+  loadGiveaways() {
+    getEventGiveaways(this.event_id)
+    .then((filteredGiveaways) => {
+      this.setState({ giveways: filteredGiveaways });
+      filteredGiveaways.forEach((giveaway) => {
+        getGiveawayEntires(giveaway._id)
+        .then((response) => {
+          let newEnagementDict = this.state.giveawayEngagees;
+          newEnagementDict[giveaway._id] = response
+          this.setState({ giveawayEngagees:  newEnagementDict});
+        })
+      })
+    });
+  }
+
   updateCSVData(engagementId) {
     let data = [];
     data.push(["Message Received", "Phone"])
@@ -275,6 +325,14 @@ export default class EventInfo extends React.Component {
         let newEnagementDict = this.state.allEngagementEngagees;
         newEnagementDict[engagement._id] = response
         this.setState({ allEngagementEngagees:  newEnagementDict});
+      })
+    })
+    this.state.giveways.forEach((giveaway) => {
+      getGiveawayEntires(giveaway._id)
+      .then((response) => {
+        let newEnagementDict = this.state.giveawayEngagees;
+        newEnagementDict[giveaway._id] = response
+        this.setState({ giveawayEngagees:  newEnagementDict});
       })
     })
   }
@@ -452,6 +510,70 @@ export default class EventInfo extends React.Component {
             }
           </Card.Group>
         </Segment>
+
+        {/* Giveaway Cards */}
+        {
+          this.state.giveways.length !== 0 ?
+            <Segment compact raised style={{marginLeft: 'auto', marginRight: 'auto'}}>
+              <div style={{ display: 'flex', marginTop: 5 }}>
+                <h2 style={{ marginLeft: 'auto', marginRight: 'auto' }}>Giveaways</h2>
+              </div>
+              <Divider />
+              <Card.Group centered style={{ margin: 5 }}>
+              {
+                this.state.giveways.map((element) => {
+                  return (
+                    <Card 
+                      onClick={() => 
+                        {
+                          if(this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("edit"))){
+                            this.showEditGiveawayModal(element)
+                          }
+                        }
+                      }
+                      key={"card_" + element._id} style={{ width: 'fit-content' }}
+                    >
+                      <Card.Content style={{ backgroundColor: COLOR_CEDARVILLE_BLUE }}>
+                        <Card.Header>
+                          <div style={{ display: 'flex', flexDirection: 'row' }}>
+                            <div style={{ display: 'flex', flexDirection: 'row', marginTop: 'auto', marginBottom: 'auto', marginRight: 5 }}>
+                              <Icon name="clock" />
+                              {formatTime(element.start_time)}
+                              {" - "}
+                              {formatTime(element.end_time)}
+                            </div>
+                            {/*Visible Indicator*/}
+                            {isLive(element) ?
+                              <Popup
+                                content="Giveaway is Live"
+                                position='top right'
+                                trigger={<Icon name="eye" size='large' style={{ marginLeft: 'auto', marginRight: 'auto', marginTop: 'auto', marginBottom: 'auto', color: COLOR_CEDARVILLE_YELLOW }} />}
+                              />
+                              : ""}
+                          </div>
+                        </Card.Header>
+                      </Card.Content>
+
+                      <Card.Content>
+                        <Card.Description style={{ whiteSpace: 'pre-line' }}>"{element.message}"</Card.Description>
+                      </Card.Content>
+                      
+                      <Card.Content extra>
+                        <div>
+                          <Icon name="users" />
+                          {this.state.giveawayEngagees[element._id] === undefined ? 0 : this.state.giveawayEngagees[element._id].length}
+                        </div>
+                      </Card.Content>
+                    </Card>
+                  );
+                })
+              }
+            </Card.Group>
+            </Segment>
+          : ""
+        }
+
+        {/* Attraction Cards */}
         {
           this.state.attractions.length !== 0 ?
             <Segment raised style={{marginLeft: 'auto', marginRight: 'auto', maxWidth: '80%'}}>
@@ -522,6 +644,7 @@ export default class EventInfo extends React.Component {
             </Segment>
           : ""
         }
+
         {
           this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("edit")) ?
               <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -540,10 +663,20 @@ export default class EventInfo extends React.Component {
                   onClick={() => {
                     this.showAddAttractionModal();
                   }}
-                  style={{ marginTop: 10, marginBottom: 10, marginLeft: 5, marginRight: 'auto', backgroundColor: COLOR_CEDARVILLE_YELLOW }}
+                  style={{ marginTop: 10, marginBottom: 10, marginLeft: 5, marginRight: 5, backgroundColor: COLOR_CEDARVILLE_YELLOW }}
                 >
                   <Icon name='add' />
                   Add Attraction
+                </Button>
+                <Button
+                  icon labelPosition='left'
+                  onClick={() => {
+                    this.showAddGiveawayModal();
+                  }}
+                  style={{ marginTop: 10, marginBottom: 10, marginLeft: 5, marginRight: 'auto', backgroundColor: COLOR_CEDARVILLE_YELLOW }}
+                >
+                  <Icon name='add' />
+                  Add Giveaway
                 </Button>
               </div>
           : ""  
@@ -552,6 +685,8 @@ export default class EventInfo extends React.Component {
         <EditEngagementModal ref={this.editEngagementModalRef} />
         <EditEventModal ref={this.editEventModalRef} />
         <AddAttractionModal ref={this.addAttractionModalRef} />
+        <AddGiveawayModal ref={this.addGiveawayModalRef} />
+        <EditGiveawayModal ref={this.editGiveawayModalRef} />
       </div>
     );
   }
