@@ -46,8 +46,6 @@ class AddSlotModal extends React.Component {
         if (!v) return "";
 
         let parsedDate = new Date(v);
-        parsedDate.setHours(parsedDate.getHours() - 8);//Adjust timezone
-
         return parsedDate.toISOString().slice(0, 16);
     };
 
@@ -61,11 +59,11 @@ class AddSlotModal extends React.Component {
 
         let values = { attraction_id: this.state.attractionId, label: this.state.label, ticket_capacity: this.state.capacity };
 
-        if (this.state.hideTime !== this.state.formHideTime) {
-            let newTime = this.state.formHideTime + ":00.000Z"
+        if(this.state.hideTime !== this.state.formHideTime){
+            let newTime = this.state.formHideTime
             let parsedDate = new Date(newTime);
-            parsedDate.setHours(parsedDate.getHours() + 7); //Adjust timezone
-            values['hide_time'] = formatTime(parsedDate);
+            let utc = new Date(parsedDate.getTime() - parsedDate.getTimezoneOffset() * 60000);
+            values['hide_time'] = formatTime(utc);
         }
 
         authorizedPost(axios, API_URL + '/api/slots/', values)

@@ -117,17 +117,30 @@ class EditEngagementModal extends React.Component {
             values['image_url'] = this.state.formImageURL;
         }
 
-        if (this.state.startTime !== this.state.formStartTime) {
-            let newTime = this.state.formStartTime + ":00.000Z"
+        // if (this.state.startTime !== this.state.formStartTime) {
+        //     let newTime = this.state.formStartTime + ":00.000Z"
+        //     let parsedDate = new Date(newTime);
+        //     parsedDate.setHours(parsedDate.getHours() + 7); //Adjust timezone
+        //     values['start_time'] = formatTime(parsedDate);
+        // }
+        // if (this.state.endTime !== this.state.formEndTime) {
+        //     let newTime = this.state.formEndTime + ":00.000Z"
+        //     let parsedDate = new Date(newTime);
+        //     parsedDate.setHours(parsedDate.getHours() + 7); //Adjust timezone
+        //     values['end_time'] = formatTime(parsedDate);
+        // }
+
+        if(this.state.startTime !== this.state.formStartTime){
+            let newTime = this.state.formStartTime
             let parsedDate = new Date(newTime);
-            parsedDate.setHours(parsedDate.getHours() + 7); //Adjust timezone
-            values['start_time'] = formatTime(parsedDate);
+            let utc = new Date(parsedDate.getTime() - parsedDate.getTimezoneOffset() * 60000);
+            values['start_time'] = formatTime(utc);
         }
-        if (this.state.endTime !== this.state.formEndTime) {
-            let newTime = this.state.formEndTime + ":00.000Z"
+        if(this.state.endTime !== this.state.formEndTime){
+            let newTime = this.state.formEndTime
             let parsedDate = new Date(newTime);
-            parsedDate.setHours(parsedDate.getHours() + 7); //Adjust timezone
-            values['end_time'] = formatTime(parsedDate);
+            let utc = new Date(parsedDate.getTime() - parsedDate.getTimezoneOffset() * 60000);
+            values['end_time'] = formatTime(utc);
         }
 
         if (Object.keys(values).length > 0) {
@@ -151,12 +164,20 @@ class EditEngagementModal extends React.Component {
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value })
 
+    convertDate = v => {
+        if (!v) return "";
+
+        let parsedDate = new Date(v);
+        let utc = new Date(parsedDate.getTime() - (parsedDate.getTimezoneOffset() * 60000) * 2);
+        console.log(utc)
+        console.log(utc.toISOString())
+        return utc.toISOString().slice(0, 16);
+    };
+
     dateString = v => {
         if (!v) return "";
 
         let parsedDate = new Date(v);
-        parsedDate.setHours(parsedDate.getHours() - 8);//Adjust timezone
-
         return parsedDate.toISOString().slice(0, 16);
     };
 
@@ -274,7 +295,7 @@ class EditEngagementModal extends React.Component {
                                         label="Start Time"
                                         type="datetime-local"
                                         required
-                                        defaultValue={this.dateString(this.state.startTime.slice(0, 16))}
+                                        defaultValue={this.convertDate(this.state.startTime.slice(0, 16))}
                                         InputLabelProps={{
                                             shrink: true,
                                         }}
@@ -289,7 +310,7 @@ class EditEngagementModal extends React.Component {
                                         label="End Time"
                                         type="datetime-local"
                                         required
-                                        defaultValue={this.dateString(this.state.endTime.slice(0, 16))}
+                                        defaultValue={this.convertDate(this.state.endTime.slice(0, 16))}
                                         InputLabelProps={{
                                             shrink: true,
                                         }}
