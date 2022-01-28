@@ -78,12 +78,18 @@ class EditSlotModal extends React.Component {
         return changed;
     }
 
+    convertDate = v => {
+        if (!v) return "";
+
+        let parsedDate = new Date(v);
+        let utc = new Date(parsedDate.getTime() - (parsedDate.getTimezoneOffset() * 60000) * 2);
+        return utc.toISOString().slice(0, 16);
+    };
+
     dateString = v => {
         if (!v) return "";
 
         let parsedDate = new Date(v);
-        parsedDate.setHours(parsedDate.getHours() - 8);//Adjust timezone
-
         return parsedDate.toISOString().slice(0, 16);
     };
 
@@ -97,11 +103,11 @@ class EditSlotModal extends React.Component {
 
         let values = { label: this.state.formLabel, ticket_capacity: this.state.formCapacity };
 
-        if (this.state.hideTime !== this.state.formHideTime) {
-            let newTime = this.state.formHideTime + ":00.000Z"
+        if(this.state.hideTime !== this.state.formHideTime){
+            let newTime = this.state.formHideTime
             let parsedDate = new Date(newTime);
-            parsedDate.setHours(parsedDate.getHours() + 7); //Adjust timezone
-            values['hide_time'] = formatTime(parsedDate);
+            let utc = new Date(parsedDate.getTime() - parsedDate.getTimezoneOffset() * 60000);
+            values['hide_time'] = formatTime(utc);
         }
 
         authorizedPut(axios, API_URL + '/api/slots/' + this.state.slotId, values)
@@ -173,7 +179,7 @@ class EditSlotModal extends React.Component {
                                     label="Hide Time"
                                     type="datetime-local"
                                     required
-                                    defaultValue={this.dateString(this.state.hideTime.slice(0, 16))}
+                                    defaultValue={this.convertDate(this.state.hideTime.slice(0, 16))}
                                     InputLabelProps={{
                                         shrink: true,
                                     }}

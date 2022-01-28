@@ -65,17 +65,30 @@ class AddEngagementModal extends React.Component {
             image_url: this.state.imageURL
         }
 
+        // if(this.state.startTime !== this.state.formStartTime){
+        //     let newTime = this.state.formStartTime + ":00.000Z"
+        //     let parsedDate = new Date(newTime);
+        //     parsedDate.setHours(parsedDate.getHours() + 7); //Adjust timezone
+        //     values['start_time'] = formatTime(parsedDate);
+        // }
+        // if(this.state.endTime !== this.state.formEndTime){
+        //     let newTime = this.state.formEndTime + ":00.000Z"
+        //     let parsedDate = new Date(newTime);
+        //     parsedDate.setHours(parsedDate.getHours() + 7); //Adjust timezone
+        //     values['end_time'] = formatTime(parsedDate);
+        // }
+
         if(this.state.startTime !== this.state.formStartTime){
-            let newTime = this.state.formStartTime + ":00.000Z"
+            let newTime = this.state.formStartTime
             let parsedDate = new Date(newTime);
-            parsedDate.setHours(parsedDate.getHours() + 7); //Adjust timezone
-            values['start_time'] = formatTime(parsedDate);
+            let utc = new Date(parsedDate.getTime() - parsedDate.getTimezoneOffset() * 60000);
+            values['start_time'] = formatTime(utc);
         }
         if(this.state.endTime !== this.state.formEndTime){
-            let newTime = this.state.formEndTime + ":00.000Z"
+            let newTime = this.state.formEndTime
             let parsedDate = new Date(newTime);
-            parsedDate.setHours(parsedDate.getHours() + 7); //Adjust timezone
-            values['end_time'] = formatTime(parsedDate);
+            let utc = new Date(parsedDate.getTime() - parsedDate.getTimezoneOffset() * 60000);
+            values['end_time'] = formatTime(utc);
         }
 
         authorizedPost(axios, API_URL + '/api/engagements/', values)
@@ -101,8 +114,6 @@ class AddEngagementModal extends React.Component {
         if (!v) return "";
 
         let parsedDate = new Date(v);
-        parsedDate.setHours(parsedDate.getHours() - 8);//Adjust timezone
-
         return parsedDate.toISOString().slice(0, 16);
     };
 
