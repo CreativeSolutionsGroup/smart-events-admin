@@ -85,7 +85,7 @@ export default class Header extends React.Component {
                       onClick={() => window.open("/rewards", "_self")}
                       style={{ margin: 5, backgroundColor: 'purple', color: 'white' }}
                     >
-                      <Icon name='winner' />
+                      <Icon name='star' />
                       Rewards
                     </Button>
                   : ""
