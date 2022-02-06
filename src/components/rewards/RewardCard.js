@@ -30,6 +30,7 @@ class RewardCard extends React.Component {
                                      src={this.props.image_url}
                                      size='medium'
                                      centered
+                                     resizeMode='center'
                                      style={{
                                          aspectRatio: 1,
                                          width: 100,
