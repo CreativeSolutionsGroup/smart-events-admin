@@ -26,6 +26,7 @@ import Announcement from "./components/events/Announcement";
 
 import AttractionList from "./components/attractions/AttractionList";
 import AttractionInfo from "./components/attractions/AttractionInfo";
+import RewardManager from "./components/rewards/RewardManager";
 
 class App extends React.Component {
   state = {
@@ -80,6 +81,7 @@ class App extends React.Component {
           <PrivateRoute component={AnnouncementPage} path="/announcement" exact />
           <PrivateRoute component={Attractions} path="/attractions" exact />
           <PrivateRoute component={AttractionPage} path="/attraction/:attraction_id" exact />
+          <PrivateRoute component={Rewards} path="/rewards" exact />
         </Switch>
       </BrowserRouter>
 
@@ -158,6 +160,19 @@ function AttractionPage() {
     <div>
       <Header />
       <AttractionInfo attraction_id={attraction_id} />
+    </div>
+  );
+}
+
+function Rewards() {
+  return (
+    <div>
+      <Header />
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: "100%" }}>
+          <RewardManager />
+        </div>
+      </div>
     </div>
   );
 }

@@ -77,6 +77,19 @@ export default class Header extends React.Component {
                     </Button>
                   : ""
                 }
+                {
+                  this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("reward")) ?
+                    <Button
+                      icon
+                      labelPosition='left'
+                      onClick={() => window.open("/rewards", "_self")}
+                      style={{ margin: 5, backgroundColor: 'purple', color: 'white' }}
+                    >
+                      <Icon name='winner' />
+                      Rewards
+                    </Button>
+                  : ""
+                }
                 <Popup
                   content={
                     <TwilioAccountInfo />
