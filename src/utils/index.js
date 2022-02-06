@@ -512,3 +512,62 @@ export const getAllAttractionCapacities = async (attractions) => {
         }
     });
 }
+
+//Rewards
+export const getAllRewards = () => {
+    return fetch(API_URL + '/api/reward/')
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Rewards");
+                    console.log(res.message);
+                    alert("Error (Rewards): " + res.message);
+                    return [];
+                }
+                return res.data;
+            },
+            (err) => {
+                console.error("Failed to retrieve Rewards");
+                console.error(err);
+                return [];
+            }
+        );
+}
+
+export const getRewardById = (id) => {
+    return fetch(API_URL +  "/api/reward/" + id)
+    .then((res) => res.json())
+    .then(
+        (res) => {
+            return res.data;
+        },
+        (err) => {
+            console.log("Failed to retrieve Reward");
+            console.log(err.message);
+            alert("Error (Rewards): " + err.message);
+            return null;
+        }
+    );
+}
+
+export const getAllRewardTiers = () => {
+    return fetch(API_URL + '/api/reward_tier/')
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Reward Tiers");
+                    console.log(res.message);
+                    alert("Error (Reward Tiers): " + res.message);
+                    return [];
+                }
+                return res.data;
+            },
+            (err) => {
+                console.error("Failed to retrieve Reward Tiers");
+                console.error(err);
+                return [];
+            }
+        );
+}
