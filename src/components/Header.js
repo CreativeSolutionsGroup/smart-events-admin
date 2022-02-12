@@ -78,6 +78,19 @@ export default class Header extends React.Component {
                   : ""
                 }
                 {
+                  this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("users")) ?
+                    <Button
+                      icon
+                      labelPosition='left'
+                      onClick={() => window.open("/users", "_self")}
+                      style={{ margin: 5, backgroundColor: 'teal', color: 'white' }}
+                    >
+                      <Icon name='users' />
+                      Users
+                    </Button>
+                  : ""
+                }
+                {
                   this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("reward")) ?
                     <Button
                       icon

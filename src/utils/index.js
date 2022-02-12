@@ -126,6 +126,27 @@ export const getEvent = (eventId) => {
         );
 }
 
+export const getEngagement = (engagementId) => {
+    return fetch(API_URL + '/api/engagements/' + engagementId)
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Engagement");
+                    console.log(res.message);
+                    alert("Error (Engagement): " + res.message);
+                    return "";
+                }
+                return res.data;
+            },
+            (err) => {
+                console.error("Failed to retrieve Engagement");
+                console.error(err);
+                return "";
+            }
+        );
+}
+
 export const getAllEngagements = () => {
     return authorizedFetch(API_URL + '/api/engagements/')
         .then((res) => res.json())
@@ -566,6 +587,70 @@ export const getAllRewardTiers = () => {
             },
             (err) => {
                 console.error("Failed to retrieve Reward Tiers");
+                console.error(err);
+                return [];
+            }
+        );
+}
+
+//Users
+export const getAllUsers = () => {
+    return authorizedFetch(API_URL + '/api/user/')
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Users");
+                    console.log(res.message);
+                    alert("Error (Users): " + res.message);
+                    return [];
+                }
+                return res.data;
+            },
+            (err) => {
+                console.error("Failed to retrieve Users");
+                console.error(err);
+                return [];
+            }
+        );
+}
+
+export const getAllUserRewards = (id) => {
+    return authorizedFetch(API_URL + '/api/user/' + id + "/rewards")
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve User Rewards");
+                    console.log(res.message);
+                    alert("Error (User Rewards): " + res.message);
+                    return [];
+                }
+                return res.data;
+            },
+            (err) => {
+                console.error("Failed to retrieve User Rewards");
+                console.error(err);
+                return [];
+            }
+        );
+}
+
+export const getAllUserEngagements = (id) => {
+    return authorizedFetch(API_URL + '/api/user/' + id + "/engagements")
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve User Engagements");
+                    console.log(res.message);
+                    alert("Error (User Engagements): " + res.message);
+                    return [];
+                }
+                return res.data;
+            },
+            (err) => {
+                console.error("Failed to retrieve User Engagements");
                 console.error(err);
                 return [];
             }
