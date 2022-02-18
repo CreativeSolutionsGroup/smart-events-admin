@@ -4,17 +4,22 @@ import AddEngagementModal from "./AddEngagementModal";
 import EditEngagementModal from "./EditEngagementModal";
 import EditEventModal from "./EditEventModal"
 import AddAttractionModal from "../attractions/AddAttractionModal"
-import { getEventEngagements, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL, getEngagementEngagees, getEngagementUniqueEngagees, getAttractions, getAllAttractionCapacities, getUserPermissions } from "../../utils";
+import { getEventEngagements, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL, getAttractions, getAllAttractionCapacities, getUserPermissions, getAllLocations, getEventCheckins, getCheckinCount, getEngagementEngageeCount } from "../../utils";
 import { CSVLink } from "react-csv";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import AsyncImage from "../AsyncImage";
+import AddCheckinModal from "./AddCheckinModal";
+import EditCheckinModal from "./EditCheckinModal";
+import axios from "axios";
 
 export default class EventInfo extends React.Component {
   addEngagementModalRef = createRef();
   editEngagementModalRef = createRef();
   editEventModalRef = createRef();
   addAttractionModalRef = createRef();
+  addCheckinModalRef = createRef();
+  editCheckinModalRef = createRef();
 
   intervalID;
 
@@ -28,29 +33,36 @@ export default class EventInfo extends React.Component {
       event_desc: "",
       engagements: [],
       engagementEngagees: {},
-      allEngagementEngagees: {},
       downloadEngagementId: "",
-      downloadAllEngagees: false,
-      downloadCSV: [],
+      downloadCheckInId: "",
       attractions: [],
-      attractionCapacities: {},
+      attractionCapacities: {},      
+      checkins: [],
+      checkinCounts: {}, //Map of id -> count
+      locationNames: {},
       autoSync: false
     }
 
     this.getEventName = this.getEventName.bind(this);
     this.loadEngagements = this.loadEngagements.bind(this);
     this.loadAttractions = this.loadAttractions.bind(this);
+    this.loadCheckins = this.loadCheckins.bind(this);
+    this.loadLocationNames = this.loadLocationNames.bind(this);
 
     this.showAddEngagementModal = this.showAddEngagementModal.bind(this);
     this.showEditEngagementModal = this.showEditEngagementModal.bind(this);
     this.showEditEventModal = this.showEditEventModal.bind(this);
     this.showAddAttractionModal = this.showAddAttractionModal.bind(this);
+    this.showAddCheckinModal = this.showAddCheckinModal.bind(this);
+    this.showEditCheckinModal = this.showEditCheckinModal.bind(this);
   }
 
   componentDidMount() {
     this.getEventName();
     this.loadEngagements();
     this.loadAttractions();
+    this.loadCheckins();
+    this.loadLocationNames();
 
     //Check user permissions
     getUserPermissions(localStorage.getItem("email")).then(response => {
@@ -77,17 +89,17 @@ export default class EventInfo extends React.Component {
     return list;
   }
 
-  handleChangeDownload = (e, { name, value }) => {
-    let keyword = "";
-    this.state.engagements.forEach((engagement) => {
-      if(engagement._id === value){
-        keyword = engagement.keyword;
+  checkInDownloadSelectionList() {
+    let list = [];
+    this.state.checkins.forEach((checkIn) => {
+      let selection = {
+        key: checkIn._id,
+        text: checkIn.name,
+        value: checkIn._id
       }
+      list.push(selection);
     })
-
-    let downloadName = this.state.event_name + " (" + keyword + ").csv"
-    this.setState({ downloadEngagementId: value, downloadName: downloadName })
-    this.updateCSVData(value);
+    return list;
   }
 
   showAddEngagementModal() {
@@ -120,6 +132,24 @@ export default class EventInfo extends React.Component {
     });
   }
 
+  async showAddCheckinModal() {
+    let locations = await getAllLocations();
+    this.addCheckinModalRef.current.setState({
+      eventId: this.event_id,
+      location_ids: [],
+      locations: locations,
+      name: "",
+      description: "",
+      message: "",
+      imageURL: "",
+      startTime: "",
+      formStartTime: "",
+      endTime: "",
+      formEndTime: "",
+      open: true
+    });
+  }
+
   showEditEngagementModal(engagement) {
     this.editEngagementModalRef.current.setState({
       engagementId: engagement._id,
@@ -144,6 +174,30 @@ export default class EventInfo extends React.Component {
       description: this.state.event_desc,
       formName: this.state.event_name,
       formDescription: this.state.event_desc,
+      open: true
+    });
+  }
+
+  async showEditCheckinModal(checkin) {
+    let locations = await getAllLocations();
+    console.log(checkin.locations)
+    this.editCheckinModalRef.current.setState({
+      checkin_id: checkin._id,
+      locations: locations,
+      location_ids: checkin.locations,
+      formLocationIDs: checkin.locations,
+      name: checkin.name,
+      formName: checkin.name,
+      message: checkin.message,
+      formMessage: checkin.message,
+      description: checkin.description,
+      formDescription: checkin.description,
+      imageURL: checkin.image_url,
+      formImageURL: checkin.image_url,
+      startTime: checkin.start_time,
+      formStartTime: checkin.start_time,
+      endTime: checkin.end_time,
+      formEndTime: checkin.end_time,
       open: true
     });
   }
@@ -176,17 +230,11 @@ export default class EventInfo extends React.Component {
     .then((filteredEngagements) => {
       this.setState({ engagements: filteredEngagements });
       filteredEngagements.forEach((engagement) => {
-        getEngagementUniqueEngagees(engagement._id)
+        getEngagementEngageeCount(engagement._id)
         .then((response) => {
           let newEnagementDict = this.state.engagementEngagees;
           newEnagementDict[engagement._id] = response
           this.setState({ engagementEngagees:  newEnagementDict});
-        })
-        getEngagementEngagees(engagement._id)
-        .then((response) => {
-          let newEnagementDict = this.state.allEngagementEngagees;
-          newEnagementDict[engagement._id] = response
-          this.setState({ allEngagementEngagees:  newEnagementDict});
         })
       })
     });
@@ -235,19 +283,30 @@ export default class EventInfo extends React.Component {
     });
   }
 
-  updateCSVData(engagementId) {
-    let data = [];
-    data.push(["Message Received", "Phone"])
-    if(this.state.downloadAllEngagees){
-      this.state.allEngagementEngagees[engagementId].forEach((element) => {
-        data.push([element.message_received, element.phone]);
+  loadCheckins() {
+    getEventCheckins(this.event_id)
+    .then((filteredCheckins) => {
+      this.setState({ checkins: filteredCheckins });
+      filteredCheckins.forEach((checkin) => {
+        getCheckinCount(checkin._id)
+        .then((response) => {
+          let newCheckinDict = this.state.checkinCounts;
+          newCheckinDict[checkin._id] = response;
+          this.setState({ checkinCounts:  newCheckinDict});
+        })
       })
-    } else {
-      this.state.engagementEngagees[engagementId].forEach((element) => {
-        data.push([element.message_received, element.phone]);
+    });
+  }
+
+  loadLocationNames(){
+    getAllLocations()
+    .then(data => {
+      data.forEach((location) => {
+        let newNames = this.state.locationNames;
+        newNames[location._id] = location.name
+        this.setState({ locationNames:  newNames});
       })
-    }
-    this.setState({ downloadCSV: data })
+    })
   }
 
   toggleAutoSync() {
@@ -264,19 +323,66 @@ export default class EventInfo extends React.Component {
 
   autoSync() {
     this.state.engagements.forEach((engagement) => {
-      getEngagementUniqueEngagees(engagement._id)
+      getEngagementEngageeCount(engagement._id)
       .then((response) => {
         let newEnagementDict = this.state.engagementEngagees;
         newEnagementDict[engagement._id] = response
         this.setState({ engagementEngagees:  newEnagementDict});
       })
-      getEngagementEngagees(engagement._id)
-      .then((response) => {
-        let newEnagementDict = this.state.allEngagementEngagees;
-        newEnagementDict[engagement._id] = response
-        this.setState({ allEngagementEngagees:  newEnagementDict});
-      })
     })
+    //TODO Make this also sync checkins
+  }
+
+  fetchEngagementFile(){
+    let token = localStorage.getItem('authToken');
+    let authHeader = {Authorization: "Bearer " + token}
+    let engagement = this.state.engagements.find((e) => e._id === this.state.downloadEngagementId);
+    let fileName = this.state.event_name + " (" + (engagement === undefined ? "ERROR" : engagement.keyword) + ") Engagement Report.csv"
+    axios({
+          url: API_URL + "/api/engagements/" + this.state.downloadEngagementId + "/download",
+          method: "GET",
+          headers: authHeader,
+          responseType: "blob" // important
+      }).then(response => {
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute(
+              "download",
+              fileName
+          );
+          document.body.appendChild(link);
+          link.click();
+  
+          // Clean up and remove the link
+          link.parentNode.removeChild(link);
+      });
+  }
+
+  fetchCheckInFile(){
+    let token = localStorage.getItem('authToken');
+    let authHeader = {Authorization: "Bearer " + token}
+    let checkIn = this.state.checkins.find((c) => c._id === this.state.downloadCheckInId);
+    let fileName = this.state.event_name + " (" + (checkIn === undefined ? "ERROR" : checkIn.name) + ") Check In Report.csv"
+    axios({
+          url: API_URL + "/api/checkin/" + this.state.downloadCheckInId + "/download",
+          method: "GET",
+          headers: authHeader,
+          responseType: "blob" // important
+      }).then(response => {
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute(
+              "download",
+              fileName
+          );
+          document.body.appendChild(link);
+          link.click();
+  
+          // Clean up and remove the link
+          link.parentNode.removeChild(link);
+      });
   }
 
   responsiveCarousel = {
@@ -320,41 +426,60 @@ export default class EventInfo extends React.Component {
               on='click'
               content={
                 <div>
-                   <Dropdown
-                      placeholder='Engagement'
-                      selection
-                      value={this.state.downloadEngagementId}
-                      options={this.engagmentDownloadSelectionList()}
-                      onChange={this.handleChangeDownload}
-                      style={{ margin: 10 }}
-                    />
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <Checkbox 
-                        label='Include Duplicate Entries'
-                        onChange={(e, { checked }) => {
-                          this.updateCSVData(this.state.downloadEngagementId);
-                          this.setState((prevState) => ({ downloadAllEngagees: !prevState.downloadAllEngagees }))
-                        }}
-                        checked={this.state.downloadAllEngagees}
-                        style={{marginLeft: 'auto', marginRight: 'auto', marginTop: 5}}
-                        disabled={this.state.downloadEngagementId === undefined || this.state.downloadEngagementId === ""}
+                  <div>
+                    <label>Engagement Download</label>  
+                    <Dropdown
+                        placeholder='Engagement'
+                        selection
+                        value={this.state.downloadEngagementId}
+                        options={this.engagmentDownloadSelectionList()}
+                        onChange={(e, { name, value }) => 
+                          {
+                            this.setState({downloadEngagementId: value});
+                          }
+                        }
+                        style={{ margin: 10 }}
                       />
-                      <div style={{ marginLeft: 'auto', marginRight: 'auto', marginTop: 5, marginBottom: 5 }}>
-                        <CSVLink
-                          data={this.state.downloadCSV}
-                          filename={this.state.downloadName}
-                          target="_blank"
-                          onClick={event => {
-                            if (this.state.downloadEngagementId === "") {
-                              return false;
-                            }
-                          }}
-                        >
-                          <Button color='green' disabled={this.state.downloadEngagementId === ""}>Download</Button>
-                        </CSVLink>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ marginLeft: 'auto', marginRight: 'auto', marginTop: 5, marginBottom: 5 }}>
+                          <Button 
+                              color='green' 
+                              disabled={this.state.downloadEngagementId === ""}
+                              onClick={() => this.fetchEngagementFile()}
+                            >
+                                Download
+                            </Button>
+                        </div>
                       </div>
+                  </div>
+                  <div>
+                  <Divider/>
+                  <label>Check In Download</label>  
+                  <Dropdown
+                    placeholder='Checkin'
+                    selection
+                    value={this.state.downloadCheckInId}
+                    options={this.checkInDownloadSelectionList()}
+                    onChange={(e, { name, value }) => 
+                      {
+                        this.setState({downloadCheckInId: value});
+                      }
+                    }
+                    style={{ margin: 10 }}
+                  />
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ marginLeft: 'auto', marginRight: 'auto', marginTop: 5, marginBottom: 5 }}>
+                       <Button 
+                          color='green' 
+                          disabled={this.state.downloadCheckInId === ""}
+                          onClick={() => this.fetchCheckInFile()}
+                        >
+                            Download
+                        </Button>
                     </div>
-                </div>                
+                  </div>
+                </div>    
+               </div>            
               }
               basic
             />
@@ -435,15 +560,92 @@ export default class EventInfo extends React.Component {
                     <Card.Content extra>
                       <div>
                         <Icon name="users" />
-                        {this.state.engagementEngagees[element._id] === undefined ? 0 : this.state.engagementEngagees[element._id].length}
-                        {" "}
-                        ({this.state.allEngagementEngagees[element._id] === undefined ? 0 : this.state.allEngagementEngagees[element._id].length})
+                        {this.state.engagementEngagees[element._id] === undefined ? 0 : this.state.engagementEngagees[element._id]}
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <Icon name="clock" />
                         {formatTime(element.start_time)}
                         {" - "}
                         {formatTime(element.end_time)}
+                      </div>
+                    </Card.Content>
+                  </Card>
+                );
+              })
+            }
+          </Card.Group>
+        </Segment>
+        {/* Check In Cards */}
+        <Segment compact raised style={{marginLeft: 'auto', marginRight: 'auto'}}>
+          <div style={{ display: 'flex', marginTop: 5 }}>
+            <h2 style={{ marginLeft: 'auto', marginRight: 'auto' }}>Checkins</h2>
+          </div>
+          <Divider />
+          {this.state.checkins.length === 0 ? <div><b>No Checkins have been created</b></div>: ""}
+          <Card.Group centered style={{ margin: 5 }}>
+            {
+              this.state.checkins.map((element) => {
+                let cardLocationNames = element.locations.map((location, i) => {
+                  return this.state.locationNames[location] + (i < element.locations.length - 1 ? ", ": "")
+                })
+                return (
+                  <Card 
+                    onClick={() => 
+                      {
+                        if(this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("edit"))){
+                          this.showEditCheckinModal(element)
+                        }
+                      }
+                    }
+                    key={"card_" + element._id} style={{ width: 'fit-content' }}
+                  >
+                    <Card.Content style={{ backgroundColor: COLOR_CEDARVILLE_BLUE }}>
+                      <Card.Header>
+                        <div style={{ display: 'flex' }}>
+                          {element.name}
+
+                          {/*Visible Indicator*/}
+                          {isLive(element) ?
+                            <Popup
+                              content="Checkin is Live"
+                              position='top right'
+                              trigger={<Icon name="eye" size='large' style={{ marginLeft: 'auto', marginRight: 5, marginTop: 'auto', marginBottom: 'auto', color: COLOR_CEDARVILLE_YELLOW }} />}
+                            />
+                            : ""}
+                        </div>
+                      </Card.Header>
+                    </Card.Content>
+                    <Card.Content>
+                      {
+                        element.description !== "" ?
+                            <div>
+                              <Card.Description style={{color: 'black', marginBottom: 10}}>{element.description}</Card.Description>
+                            </div>
+                        : ""
+                      }                   
+                    
+                      <Card.Description style={{fontWeight: 'bold', color: 'black'}}>Message (Public): </Card.Description>
+                      <Card.Description style={{ whiteSpace: 'pre-line', marginLeft: 10 }}>"{element.message}"</Card.Description>
+                    </Card.Content>
+                    {element.image_url !== "" ? 
+                      <Card.Content>
+                        <AsyncImage src={element.image_url} size='medium'/>
+                      </Card.Content>
+                    : ""}
+                    <Card.Content extra>
+                      <div>
+                        <Icon name="users" />
+                        {this.state.checkinCounts[element._id] === undefined ? 0 : this.state.checkinCounts[element._id]}
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'row' }}>
+                        <Icon name="clock" />
+                        {formatTime(element.start_time)}
+                        {" - "}
+                        {formatTime(element.end_time)}
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'row' }}>
+                        <Icon name="map marker alternate" />
+                        {cardLocationNames}
                       </div>
                     </Card.Content>
                   </Card>
@@ -538,6 +740,16 @@ export default class EventInfo extends React.Component {
                 <Button
                   icon labelPosition='left'
                   onClick={() => {
+                    this.showAddCheckinModal();
+                  }}
+                  style={{ marginTop: 10, marginBottom: 10, marginLeft: 5, marginRight: 5, backgroundColor: COLOR_CEDARVILLE_YELLOW }}
+                >
+                  <Icon name='add' />
+                  Add Checkin
+                </Button>
+                <Button
+                  icon labelPosition='left'
+                  onClick={() => {
                     this.showAddAttractionModal();
                   }}
                   style={{ marginTop: 10, marginBottom: 10, marginLeft: 5, marginRight: 'auto', backgroundColor: COLOR_CEDARVILLE_YELLOW }}
@@ -552,6 +764,8 @@ export default class EventInfo extends React.Component {
         <EditEngagementModal ref={this.editEngagementModalRef} />
         <EditEventModal ref={this.editEventModalRef} />
         <AddAttractionModal ref={this.addAttractionModalRef} />
+        <AddCheckinModal ref={this.addCheckinModalRef} />
+        <EditCheckinModal ref={this.editCheckinModalRef} />
       </div>
     );
   }

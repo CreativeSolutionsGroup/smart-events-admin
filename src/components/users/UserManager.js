@@ -91,9 +91,7 @@ export default class UserManager extends React.Component {
     updatePageUsers(activePage){
         let begin = activePage * PAGE_USER_COUNT - PAGE_USER_COUNT;
         let end = activePage * PAGE_USER_COUNT;
-        console.log(activePage + ":" + begin + " - " + end)
         let visibleUsers = this.state.sortedUsers.slice(begin, end);
-        console.log(visibleUsers.length + " | " + this.state.visiblePageUsers.length);
         this.setState({visiblePageUsers: visibleUsers});
     }
 
@@ -135,9 +133,7 @@ export default class UserManager extends React.Component {
     }
 
     async showEditUserRewardsModal(user_id) {
-        console.log(user_id)
         let userRewards = await getAllUserRewards(user_id);
-        console.log(userRewards)
         this.userRewardsModalRef.current.setState({
             user_id: user_id,
             rewards: userRewards,

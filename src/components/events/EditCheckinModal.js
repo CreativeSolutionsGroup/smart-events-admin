@@ -1,24 +1,29 @@
 import React from "react";
-import { Button, Modal, Input, Form, Image, TextArea, Icon, Grid } from "semantic-ui-react";
+import { Button, Modal, Input, Form, Image, TextArea, Icon, Grid, Dropdown } from "semantic-ui-react";
 import TextField from '@material-ui/core/TextField';
 import axios from "axios";
 import { API_URL, authorizedDelete, authorizedPut, formatTime, clientId } from "../../utils"
 import GooglePicker from "react-google-picker";
 
-class EditEngagementModal extends React.Component {
+class EditCheckinModal extends React.Component {
 
     constructor(props) {
         super(props);
 
         // Props and state
         this.state = {
-            engagementId: props.engagementId === undefined ? "" : props.engagementId,
-            keyword: props.keyword === undefined ? "" : props.keyword,
+            checkin_id: props.checkin_id === undefined ? "" : props.checkin_id,
+            locations: props.locations === undefined ? [] : props.locations,
+            location_ids: props.location_ids === undefined ? [] : props.location_ids,
+            name: props.name === undefined ? "" : props.name,
+            description: props.description === undefined ? "" : props.description,
             message: props.message === undefined ? "" : props.message,
             imageURL: props.imageURL === undefined ? "" : props.imageURL,
             startTime: props.startTime === undefined ? "" : props.startTime,
             endTime: props.endTime === undefined ? "" : props.endTime,
-            formKeyword: props.keyword === undefined ? "" : props.keyword,
+            formLocationIDs: props.location_ids === undefined ? [] : props.location_ids,
+            formName: props.name === undefined ? "" : props.name,
+            formDescription: props.description === undefined ? "" : props.description,
             formMessage: props.message === undefined ? "" : props.message,
             formImageURL: props.imageURL === undefined ? "" : props.imageURL,
             formStartTime: props.startTime === undefined ? "" : props.startTime,
@@ -32,11 +37,11 @@ class EditEngagementModal extends React.Component {
     }
 
     handleDelete() {
-        if (this.state.engagementId === "") {
+        if (this.state.checkin_id === "") {
             return;
         }
         this.setState({ open: false, openDelete: false });
-        authorizedDelete(axios, API_URL + '/api/engagements/' + this.state.engagementId)
+        authorizedDelete(axios, API_URL + '/api/checkin/' + this.state.checkin_id)
             .then(async response => {
                 const data = await response.data;
 
@@ -53,15 +58,36 @@ class EditEngagementModal extends React.Component {
             });
     }
 
+    //List of locations 
+    locationKeywordSelectionList() {
+        let list = [];
+        this.state.locations.forEach((location) => {
+            let selection = {
+                key: location._id,
+                text: location.name,
+                value: location._id
+            }
+            list.push(selection);
+        })
+        return list;
+    }
+
     isSubmitValid() {
-        if (this.state.engagementId === "") {
+        if (this.state.checkin_id === "") {
             return false;
         }
 
         let changed = false;
-        if (this.state.keyword !== this.state.formKeyword) {
+        if (this.state.location_ids !== this.state.formLocationIDs) {
             changed = true;
-            if (this.state.formKeyword === "") {
+            if (this.state.formLocationIDs.length === 0) {
+                return false;
+            }
+        }
+
+        if (this.state.name !== this.state.formName) {
+            changed = true;
+            if (this.state.formName === "") {
                 return false;
             }
         }
@@ -71,6 +97,10 @@ class EditEngagementModal extends React.Component {
             if (this.state.formMessage === "") {
                 return false;
             }
+        }
+
+        if (this.state.description !== this.state.formDescription) {
+            changed = true;
         }
 
         if (this.state.imageURL !== this.state.formImageURL) {
@@ -105,30 +135,25 @@ class EditEngagementModal extends React.Component {
 
         let values = {}
 
-        if (this.state.keyword !== this.state.formKeyword) {
-            values['keyword'] = this.state.formKeyword;
+        if (this.state.location_ids !== this.state.formLocationIDs) {
+            values['locations'] = this.state.formLocationIDs;
+        }
+
+        if (this.state.name !== this.state.formName) {
+            values['name'] = this.state.formName;
         }
 
         if (this.state.message !== this.state.formMessage) {
             values['message'] = this.state.formMessage;
         }
 
+        if (this.state.description !== this.state.formDescription) {
+            values['description'] = this.state.formDescription;
+        }
+
         if (this.state.imageURL !== this.state.formImageURL) {
             values['image_url'] = this.state.formImageURL;
         }
-
-        // if (this.state.startTime !== this.state.formStartTime) {
-        //     let newTime = this.state.formStartTime + ":00.000Z"
-        //     let parsedDate = new Date(newTime);
-        //     parsedDate.setHours(parsedDate.getHours() + 7); //Adjust timezone
-        //     values['start_time'] = formatTime(parsedDate);
-        // }
-        // if (this.state.endTime !== this.state.formEndTime) {
-        //     let newTime = this.state.formEndTime + ":00.000Z"
-        //     let parsedDate = new Date(newTime);
-        //     parsedDate.setHours(parsedDate.getHours() + 7); //Adjust timezone
-        //     values['end_time'] = formatTime(parsedDate);
-        // }
 
         if(this.state.startTime !== this.state.formStartTime){
             let newTime = this.state.formStartTime
@@ -144,7 +169,7 @@ class EditEngagementModal extends React.Component {
         }
 
         if (Object.keys(values).length > 0) {
-            authorizedPut(axios, API_URL + '/api/engagements/' + this.state.engagementId, values)
+            authorizedPut(axios, API_URL + '/api/checkin/' + this.state.checkin_id, values)
                 .then(async response => {
                     const data = await response.data;
 
@@ -186,7 +211,6 @@ class EditEngagementModal extends React.Component {
             for(let i = 0; i < data.docs.length; i++){
                 let doc = data.docs[i];
                 let docId = doc.id;
-                console.log(docId);
                 if(docId !== undefined){
                     finalString += i > 0 ? ("|"+ driveImageURL + docId) : (driveImageURL + docId);
                 }
@@ -210,8 +234,8 @@ class EditEngagementModal extends React.Component {
                     <Modal.Header>
                         <div style={{ display: 'flex', flexDirection: 'row' }}>
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <div>Edit Engagement</div>
-                                <div>{this.state.engagementId}</div>
+                                <div>Edit Check In</div>
+                                <div>{this.state.checkin_id}</div>
                             </div>
                             <Button
                                 icon='trash'
@@ -225,22 +249,45 @@ class EditEngagementModal extends React.Component {
                     <Modal.Content>
                         <Form>
                             <Form.Field required>
-                                <label>Keyword</label>
+                                <label>Name</label>
                                 <Input
                                     fluid
-                                    defaultValue={this.state.keyword}
-                                    name='formKeyword'
+                                    defaultValue={this.state.name}
+                                    name='formName'
+                                    onChange={this.handleChange}
+                                />
+                            </Form.Field>
+                            <Form.Field>
+                                <label>Description (Private)</label>
+                                <Input
+                                    fluid
+                                    defaultValue={this.state.description}
+                                    name='formDescription'
                                     onChange={this.handleChange}
                                 />
                             </Form.Field>
                             <Form.Field required>
-                                <label>Message</label>
+                                <label>Message (Public)</label>
                                 <TextArea 
                                     defaultValue={this.state.message}
                                     name='formMessage'
                                     onChange={this.handleChange}
                                  />
-                                 {this.state.formMessage === undefined ? 0 : this.state.formMessage.length} / 160
+                            </Form.Field>
+                            <Form.Field required>
+                                <label>Location(s)</label>
+                                <Dropdown
+                                    placeholder='Select Location(s)'
+                                    clearable
+                                    selection
+                                    multiple
+                                    search
+                                    value={this.state.formLocationIDs}
+                                    options={this.locationKeywordSelectionList()}
+                                    onChange={this.handleChange}
+                                    name="formLocationIDs"
+                                    style={{marginTop: 5, marginBottom: 5}}
+                                />
                             </Form.Field>
                             <Form.Field>
                                 <div style={{display: 'flex', marginRight: 0, width: '100%'}}>
@@ -273,19 +320,7 @@ class EditEngagementModal extends React.Component {
                                             </Button>
                                     </GooglePicker>
                                 </div>
-                                <Grid style={{overflow: 'scroll', display: 'inline'}}>
-                                    <Grid.Row centered verticalAlign='middle'>
-                                    {
-                                        this.state.formImageURL.split("|").map((imageURL) => {
-                                            return (
-                                                <Grid.Column width={5} key={"column_" + imageURL}>
-                                                    <Image src={imageURL} size='medium'/>
-                                                </Grid.Column>
-                                            )
-                                        })
-                                    }
-                                    </Grid.Row>
-                                </Grid>
+                                {this.state.formImageURL !== "" ? <Image src={this.state.formImageURL} size='medium' style={{marginLeft: 'auto', marginRight: 'auto', marginTop: 10}}/> : ""}
                             </Form.Field>
                             <Form.Group widths='equal'>
                                 <Form.Field>
@@ -349,7 +384,7 @@ class EditEngagementModal extends React.Component {
                 >
                     <Modal.Header>Delete</Modal.Header>
                     <Modal.Content>
-                        Do you want to delete the '{this.state.keyword}' engagement?
+                        Do you want to delete the '{this.state.keyword}' Checkin?
                     </Modal.Content>
                     <Modal.Actions>
                         <Button
@@ -372,4 +407,4 @@ class EditEngagementModal extends React.Component {
     }
 }
 
-export default EditEngagementModal;
+export default EditCheckinModal;

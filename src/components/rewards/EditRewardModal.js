@@ -122,7 +122,6 @@ class EditRewardModal extends React.Component {
         if(data.docs !== undefined){
             let doc = data.docs[0]; //Only Get one
             let docId = doc.id;
-            console.log(docId);
             if(docId !== undefined){
                 this.setState({formImage_url: driveimage_url + docId})
             }

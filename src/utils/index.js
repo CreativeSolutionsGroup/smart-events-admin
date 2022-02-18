@@ -1,6 +1,6 @@
 export const COLOR_CEDARVILLE_YELLOW = "#F3A00F";
 export const COLOR_CEDARVILLE_BLUE = "#31B7E6";
-export const API_URL = "https://api.cusmartevents.com" //"http://localhost:3001"
+export const API_URL = "http://localhost:3001"//"https://api.cusmartevents.com" //"http://localhost:3001"
 export const ENGAGEMENT_WEBHOOK_GIVEAWAY = "https://engagements.cusmartevents.com/webhook/giveaway" //"http://localhost:3001/webhook/giveaway"
 export const ENGAGEMENT_WEBHOOK_ANNOUNCEMENT = "https://engagements.cusmartevents.com/webhook/announcement" //"http://localhost:3001/webhook/announcement" 
 
@@ -216,8 +216,8 @@ export const getEngagementEngagees = (engagementId) => {
         );
 }
 
-export const getEngagementUniqueEngagees = (engagementId) => {
-    return authorizedFetch(API_URL + '/api/engagements/' + engagementId + "/engagees")
+export const getEngagementEngageeCount = (engagementId) => {
+    return authorizedFetch(API_URL + '/api/engagements/' + engagementId + "/engagees/count")
         .then((res) => res.json())
         .then(
             (res) => {
@@ -225,99 +225,32 @@ export const getEngagementUniqueEngagees = (engagementId) => {
                     console.log("Failed to retrieve Engagement Engagees");
                     console.log(res.message);
                     alert("Error (Engagees): " + res.message);
-                    return [];
+                    return -1;
                 }
-                let uniquePhoneNumbers = [];
-                let uniqueList = [];
-                res.data.forEach((engagee) => {
-                    if(!uniquePhoneNumbers.includes(engagee.phone)){
-                        uniqueList.push(engagee);
-                        uniquePhoneNumbers.push(engagee.phone);
-                    }
-                });
-                return uniqueList;
+                return parseInt(res.data.count);
             },
             (err) => {
                 console.error("Failed to retrieve Engagement Engagees");
                 console.error(err);
-                return [];
+                return -1;
             }
         );
 }
 
-export const getAllEngageesCount = () => {
-    return authorizedFetch(API_URL + '/api/engagees/')
-        .then((res) => res.json())
-        .then(
-            (res) => {
-                if (res.status !== "success") {
-                    console.log("Failed to retrieve Engagees");
-                    console.log(res.message);
-                    alert("Error (Engagees): " + res.message);
-                    return {};
-                }
-
-                let filteredEngagees = {};
-                res.data.forEach(engagee => {
-                   let oldCount = 0;
-                    if (filteredEngagees[engagee.engagement_id] != null) {
-                        oldCount = filteredEngagees[engagee.engagement_id];
-                    }
-                    filteredEngagees[engagee.engagement_id] = oldCount + 1;
-                });
-                return filteredEngagees;
-            },
-            (err) => {
-                console.error("Failed to retrieve Engagees");
-                console.error(err);
-                return {};
-            }
-        );
-}
-
-export const getAllUniqueEngageesCount = () => {
-    return authorizedFetch(API_URL + '/api/engagees/')
-        .then((res) => res.json())
-        .then(
-            (res) => {
-                if (res.status !== "success") {
-                    console.log("Failed to retrieve Engagees");
-                    console.log(res.message);
-                    alert("Error (Engagees): " + res.message);
-                    return {};
-                }
-
-                let filteredEngagees = {};
-                res.data.forEach(engagee => {
-                    let list = [];
-                    if (filteredEngagees[engagee.engagement_id] != null) {
-                        list = filteredEngagees[engagee.engagement_id];
-                    }
-                    let phone = engagee.phone;
-                    if(!list.includes(phone)){
-                        list.push(phone);
-                        filteredEngagees[engagee.engagement_id] = list;
-                    }
-                });
-                return filteredEngagees;
-            },
-            (err) => {
-                console.error("Failed to retrieve Engagees");
-                console.error(err);
-                return {};
-            }
-        );
-}
-
-export const getEngagementEngageeCounts = (engagements) => {
-    let filteredEngagees = {};
-    engagements.forEach((engagement) => {
-        getEngagementEngagees(engagement._id)
-        .then((response) => {
-            filteredEngagees[engagement._id] = response.length;
-        })
-    })
-    return filteredEngagees;
+export const getAllEngagmentEngageeCounts = () => {
+    return getAllEngagements()
+        .then(async res => {
+            let counts = {};
+            console.log(res)
+            await Promise.all(res.map(async (engagement) => {
+                console.log(engagement)
+                let count = await getEngagementEngageeCount(engagement._id);
+                console.log(count)
+                counts[engagement._id] = count;
+            }))
+            console.log(counts)
+            return counts;
+        });
 }
 
 export const getGoogleSheetJSON = (sheetId) => {
@@ -653,6 +586,97 @@ export const getAllUserEngagements = (id) => {
                 console.error("Failed to retrieve User Engagements");
                 console.error(err);
                 return [];
+            }
+        );
+}
+
+export const getAllLocations = () => {
+    return fetch(API_URL + '/api/location/')
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Locations");
+                    console.log(res.message);
+                    alert("Error (Locations): " + res.message);
+                    return [];
+                }
+                return res.data;
+            },
+            (err) => {
+                console.error("Failed to retrieve Locations");
+                console.error(err);
+                return [];
+            }
+        );
+}
+
+//CHECKINS
+export const getEventCheckins = (eventId) => {
+    return fetch(API_URL + '/api/checkin/')
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Checkins");
+                    console.log(res.message);
+                    alert("Error (Checkins): " + res.message);
+                    return [];
+                }
+                let filteredCheckins = [];
+                res.data.forEach(element => {
+                    if (element.event_id === eventId) {
+                        filteredCheckins.push(element);
+                    }
+                });
+                return filteredCheckins;
+            },
+            (err) => {
+                console.error("Failed to retrieve Checkins");
+                console.error(err);
+                return [];
+            }
+        );
+}
+
+export const getCheckinUserCheckins = (checkinId) => {
+    return authorizedFetch(API_URL + '/api/checkin/' + checkinId + "/checkins")
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Checkin User Checkins");
+                    console.log(res.message);
+                    alert("Error (Checkin User Checkins): " + res.message);
+                    return [];
+                }
+                return res.data;
+            },
+            (err) => {
+                console.error("Failed to retrieve Checkin User Checkins");
+                console.error(err);
+                return [];
+            }
+        );
+}
+
+export const getCheckinCount = (checkinId) => {
+    return authorizedFetch(API_URL + '/api/checkin/' + checkinId + "/checkins/count")
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Checkin Checkin Count");
+                    console.log(res.message);
+                    alert("Error (Checkin Checkin Count): " + res.message);
+                    return -1;
+                }
+                return parseInt(res.data.count);
+            },
+            (err) => {
+                console.error("Failed to retrieve Checkin Checkin Count");
+                console.error(err);
+                return -1;
             }
         );
 }
