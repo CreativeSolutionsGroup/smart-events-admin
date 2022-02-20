@@ -2,6 +2,7 @@ import React, { createRef } from "react";
 import { Icon, Card, Button, Divider } from "semantic-ui-react";
 import { getUserPermissions, getAllLocations, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE } from "../../utils";
 import AddLocationModal from "./AddLocationModal";
+import EditLocationModal from "./EditLocationModal";
 
 export default class LocationManager extends React.Component {
     addLocationModalRef = createRef();
@@ -42,10 +43,12 @@ export default class LocationManager extends React.Component {
         this.editLocationModalRef.current.setState({
             location_id: location._id,
             name: location.name,
-            coordiantes: {latitude: location.latitude, longitude: location.longitude},
-            range: location.radius,
+            latitude: location.latitude, 
+            longitude: location.longitude,
+            radius: location.radius,
             formName: location.name,
-            formCoordiantes: {latitude: location.latitude, longitude: location.longitude},
+            formLatitude: location.latitude, 
+            formLongitude: location.longitude,
             formRadius: location.radius,
             open: true
         });
@@ -132,7 +135,7 @@ export default class LocationManager extends React.Component {
                         : ""
                 }
                 <AddLocationModal ref={this.addLocationModalRef} />
-                {/* <EditRewardModal ref={this.editLocationModalRef} /> */}
+                <EditLocationModal ref={this.editLocationModalRef} />
             </div>
         );
     }

@@ -1,6 +1,6 @@
 export const COLOR_CEDARVILLE_YELLOW = "#F3A00F";
 export const COLOR_CEDARVILLE_BLUE = "#31B7E6";
-export const API_URL = "http://localhost:3001"//"https://api.cusmartevents.com" //"http://localhost:3001"
+export const API_URL = "https://api.cusmartevents.com" //"http://localhost:3001"
 export const ENGAGEMENT_WEBHOOK_GIVEAWAY = "https://engagements.cusmartevents.com/webhook/giveaway" //"http://localhost:3001/webhook/giveaway"
 export const ENGAGEMENT_WEBHOOK_ANNOUNCEMENT = "https://engagements.cusmartevents.com/webhook/announcement" //"http://localhost:3001/webhook/announcement" 
 
@@ -241,14 +241,10 @@ export const getAllEngagmentEngageeCounts = () => {
     return getAllEngagements()
         .then(async res => {
             let counts = {};
-            console.log(res)
             await Promise.all(res.map(async (engagement) => {
-                console.log(engagement)
                 let count = await getEngagementEngageeCount(engagement._id);
-                console.log(count)
                 counts[engagement._id] = count;
             }))
-            console.log(counts)
             return counts;
         });
 }

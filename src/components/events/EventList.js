@@ -1,7 +1,7 @@
 import React, { createRef } from "react";
 import { Icon, Card, Button, Divider, CardContent, Input } from "semantic-ui-react";
 import AddEventModal from "./AddEventModal"
-import { getEvents, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, getAllEngagmentEngageeCounts, getAllEngagements, getUserPermissions } from "../../utils";
+import { getEvents, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, getEngagementEngageeCount, getAllEngagements, getUserPermissions } from "../../utils";
 import { ThisMonthInstance } from "twilio/lib/rest/api/v2010/account/usage/record/thisMonth";
 import Understand from "twilio/lib/rest/preview/Understand";
 
@@ -51,17 +51,14 @@ export default class EventList extends React.Component {
   loadEventTotalEngagements() {
     getAllEngagements()
     .then((engagements) => {
-      getAllEngagmentEngageeCounts()
-      .then((engagementCounts) => {
-          let eventEngageeCount = {}
-          engagements.forEach((engagement) => {
-            let count = engagementCounts[engagement._id] === undefined ? 0 : engagementCounts[engagement._id];
-            let oldCount = eventEngageeCount[engagement.event_id] === undefined ? 0 : eventEngageeCount[engagement.event_id];
-            eventEngageeCount[engagement.event_id] = oldCount + count;
-          })
+        let eventEngageeCount = {};
+        engagements.forEach(async (engagement) => {
+          let serverCount = await getEngagementEngageeCount(engagement._id);
+          let count = serverCount === undefined ? 0 : serverCount;
+          let oldCount = eventEngageeCount[engagement.event_id] === undefined ? 0 : eventEngageeCount[engagement.event_id];
+          eventEngageeCount[engagement.event_id] = oldCount + count;
           this.setState({ eventEngagements: eventEngageeCount });
-        }
-      );
+        })        
     })
   }
 

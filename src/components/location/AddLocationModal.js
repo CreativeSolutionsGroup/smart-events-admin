@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Modal, Input, Form, TextArea } from "semantic-ui-react";
 import axios from "axios";
-import { authorizedPost } from "../../utils";
+import { API_URL, authorizedPost } from "../../utils";
 
 class AddLocationModal extends React.Component {
 
@@ -33,7 +33,7 @@ class AddLocationModal extends React.Component {
             return false;
         }
 
-        if(this.state.radius < 50){
+        if (this.state.radius === undefined || this.state.radius === "" || parseInt(this.state.radius) < 50) {
             return false;
         }
 
@@ -55,7 +55,7 @@ class AddLocationModal extends React.Component {
             radius: this.state.radius
         };
 
-        authorizedPost(axios, "http://localhost:3001" + '/api/location/', values)
+        authorizedPost(axios, API_URL + '/api/location/', values)
             .then(async response => {
                 const data = await response.data;
 
@@ -126,7 +126,9 @@ class AddLocationModal extends React.Component {
                                     <Input
                                         name='radius'
                                         onChange={this.handleChange}
+                                        type="number"
                                     />
+                                    <div style={{color: 'red'}}>{this.state.radius === undefined || this.state.radius === "" || parseInt(this.state.radius) < 50 ? "Radius must be 50m or more" : ""}</div>
                                 </Form.Field>
                             </Form.Group>
                         </Form>

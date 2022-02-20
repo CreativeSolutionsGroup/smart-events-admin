@@ -226,6 +226,7 @@ class EditRewardTierModal extends React.Component {
                                         name='formMin_points'
                                         value={this.state.formMin_points}
                                         onChange={this.handleChange}
+                                        type="number"
                                     />
                                 </Form.Field>
                             </Form.Group>
