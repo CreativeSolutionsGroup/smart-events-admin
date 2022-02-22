@@ -1,11 +1,11 @@
 import React from "react";
-import { Button, Modal, Input, Form, Image, TextArea, Icon, Grid} from "semantic-ui-react";
+import { Button, Modal, Input, Form, Image, TextArea, Icon, Dropdown} from "semantic-ui-react";
 import TextField from '@material-ui/core/TextField';
 import axios from "axios";
 import { API_URL, authorizedPost, formatTime, clientId } from "../../utils"
 import GooglePicker from 'react-google-picker';
 
-class AddEngagementModal extends React.Component {
+class AddCheckinModal extends React.Component {
 
     constructor(props) {
         super(props);
@@ -13,7 +13,10 @@ class AddEngagementModal extends React.Component {
         // Props and state
         this.state = {
             eventId: props.eventId === undefined ? "" : props.eventId,
-            keyword: props.keyword === undefined ? "" : props.keyword,
+            locations: props.locations === undefined ? [] : props.locations,
+            location_ids: props.location_ids === undefined ? [] : props.location_ids,
+            name: props.name === undefined ? "" : props.name,
+            description: props.description === undefined ? "" : props.description,
             message: props.message === undefined ? "" : props.message,
             imageURL: props.imageURL === undefined ? "" : props.imageURL,
             startTime: props.startTime === undefined ? "" : props.startTime,
@@ -26,12 +29,30 @@ class AddEngagementModal extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
+    //List of locations 
+    locationKeywordSelectionList() {
+        let list = [];
+        this.state.locations.forEach((location) => {
+            let selection = {
+                key: location._id,
+                text: location.name,
+                value: location._id
+            }
+            list.push(selection);
+        })
+        return list;
+    }
+
     isSubmitValid() {
         if (this.state.eventId === "") {
             return false;
         }
 
-        if (this.state.keyword === "") {
+        if (this.state.location_ids.length === 0) {
+            return false;
+        }
+
+        if (this.state.name === "") {
             return false;
         }
 
@@ -58,25 +79,16 @@ class AddEngagementModal extends React.Component {
         }
         this.setState({ open: false });
 
+        console.log(this.state.location_ids)
+
         let values = {
             event_id: this.state.eventId,
-            keyword: this.state.keyword,
+            locations: this.state.location_ids,
+            name: this.state.name,
             message: this.state.message,
+            description: this.state.description,
             image_url: this.state.imageURL
         }
-
-        // if(this.state.startTime !== this.state.formStartTime){
-        //     let newTime = this.state.formStartTime + ":00.000Z"
-        //     let parsedDate = new Date(newTime);
-        //     parsedDate.setHours(parsedDate.getHours() + 7); //Adjust timezone
-        //     values['start_time'] = formatTime(parsedDate);
-        // }
-        // if(this.state.endTime !== this.state.formEndTime){
-        //     let newTime = this.state.formEndTime + ":00.000Z"
-        //     let parsedDate = new Date(newTime);
-        //     parsedDate.setHours(parsedDate.getHours() + 7); //Adjust timezone
-        //     values['end_time'] = formatTime(parsedDate);
-        // }
 
         if(this.state.startTime !== this.state.formStartTime){
             let newTime = this.state.formStartTime
@@ -91,7 +103,7 @@ class AddEngagementModal extends React.Component {
             values['end_time'] = formatTime(utc);
         }
 
-        authorizedPost(axios, API_URL + '/api/engagements/', values)
+        authorizedPost(axios, API_URL + '/api/checkin/', values)
         .then(async response => {
             const data = await response.data;
 
@@ -125,6 +137,7 @@ class AddEngagementModal extends React.Component {
             for(let i = 0; i < data.docs.length; i++){
                 let doc = data.docs[i];
                 let docId = doc.id;
+                console.log(docId);
                 if(docId !== undefined){
                     finalString += i > 0 ? ("|"+ driveImageURL + docId) : (driveImageURL + docId);
                 }
@@ -146,27 +159,50 @@ class AddEngagementModal extends React.Component {
                     open={this.state.open}
                 >
                     <Modal.Header>
-                        Create Engagement
+                        Create Check In
                     </Modal.Header>
                     <Modal.Content>
                         <Form>
                             <Form.Field required>
-                                <label>Keyword</label>
+                                <label>Name</label>
                                 <Input
                                     fluid
-                                    defaultValue={this.state.keyword}
-                                    name='keyword'
+                                    defaultValue={this.state.name}
+                                    name='name'
+                                    onChange={this.handleChange}
+                                />
+                            </Form.Field>
+                            <Form.Field>
+                                <label>Description (Private)</label>
+                                <Input
+                                    fluid
+                                    defaultValue={this.state.description}
+                                    name='description'
                                     onChange={this.handleChange}
                                 />
                             </Form.Field>
                             <Form.Field required>
-                                <label>Message</label>
+                                <label>Message (Public)</label>
                                 <TextArea 
                                     defaultValue={this.state.message}
                                     name='message'
                                     onChange={this.handleChange}
                                  />
-                                 {this.state.message === undefined ? 0 : this.state.message.length} / 160
+                            </Form.Field>
+                            <Form.Field required>
+                                <label>Location(s)</label>
+                                <Dropdown
+                                    placeholder='Select Location(s)'
+                                    clearable
+                                    selection
+                                    multiple
+                                    search
+                                    value={this.state.location_ids}
+                                    options={this.locationKeywordSelectionList()}
+                                    onChange={this.handleChange}
+                                    name="location_ids"
+                                    style={{marginTop: 5, marginBottom: 5}}
+                                />
                             </Form.Field>
                             <Form.Field>
                                 <div style={{display: 'flex', marginRight: 0, width: '100%'}}>
@@ -201,20 +237,7 @@ class AddEngagementModal extends React.Component {
                                     </GooglePicker>
                                     
                                 </div>
-                                {/*Display Images in scroll list*/}
-                                <Grid style={{overflow: 'scroll', display: 'inline'}}>
-                                    <Grid.Row centered verticalAlign='middle'>
-                                    {
-                                        this.state.imageURL.split("|").map((imageURL) => {
-                                            return (
-                                                <Grid.Column width={5} key={"column_" + imageURL}>
-                                                    <Image src={imageURL} size='medium'/>
-                                                </Grid.Column>
-                                            )
-                                        })
-                                    }
-                                    </Grid.Row>
-                                </Grid>
+                                {this.state.imageURL !== "" ? <Image src={this.state.imageURL} size='medium' style={{marginLeft: 'auto', marginRight: 'auto', marginTop: 10}}/> : ""}
                             </Form.Field>
                             <Form.Group widths='equal'>
                                 <Form.Field>
@@ -271,4 +294,4 @@ class AddEngagementModal extends React.Component {
     }
 }
 
-export default AddEngagementModal;
+export default AddCheckinModal;

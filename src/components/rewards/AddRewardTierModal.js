@@ -165,6 +165,7 @@ class AddRewardTierModal extends React.Component {
                                     <Input
                                         name='min_points'
                                         onChange={this.handleChange}
+                                        type="number"
                                     />
                                 </Form.Field>
                             </Form.Group>

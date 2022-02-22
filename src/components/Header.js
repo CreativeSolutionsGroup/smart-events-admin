@@ -52,15 +52,41 @@ export default class Header extends React.Component {
                   Attractions
                 </Button>
                 {
-                  this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("text")) ?
+                  this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("users")) ?
                     <Button
                       icon
                       labelPosition='left'
-                      onClick={() => window.open("/announcement", "_self")}
-                      style={{ margin: 5, backgroundColor: 'orange', color: 'white' }}
+                      onClick={() => window.open("/users", "_self")}
+                      style={{ margin: 5, backgroundColor: 'teal', color: 'white' }}
                     >
-                      <Icon name='bullhorn' />
-                      Text Blast
+                      <Icon name='users' />
+                      Users
+                    </Button>
+                  : ""
+                }
+                {
+                  this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("location")) ?
+                    <Button
+                      icon
+                      labelPosition='left'
+                      onClick={() => window.open("/locations", "_self")}
+                      style={{ margin: 5, backgroundColor: 'violet', color: 'white' }}
+                    >
+                      <Icon name='map marker alternate' />
+                      Locations
+                    </Button>
+                  : ""
+                }
+                {
+                  this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("reward")) ?
+                    <Button
+                      icon
+                      labelPosition='left'
+                      onClick={() => window.open("/rewards", "_self")}
+                      style={{ margin: 5, backgroundColor: 'purple', color: 'white' }}
+                    >
+                      <Icon name='star' />
+                      Rewards
                     </Button>
                   : ""
                 }
@@ -78,15 +104,15 @@ export default class Header extends React.Component {
                   : ""
                 }
                 {
-                  this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("reward")) ?
+                  this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("text")) ?
                     <Button
                       icon
                       labelPosition='left'
-                      onClick={() => window.open("/rewards", "_self")}
-                      style={{ margin: 5, backgroundColor: 'purple', color: 'white' }}
+                      onClick={() => window.open("/announcement", "_self")}
+                      style={{ margin: 5, backgroundColor: 'orange', color: 'white' }}
                     >
-                      <Icon name='star' />
-                      Rewards
+                      <Icon name='bullhorn' />
+                      Text Blast
                     </Button>
                   : ""
                 }

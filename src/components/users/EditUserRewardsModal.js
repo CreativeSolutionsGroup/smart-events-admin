@@ -2,38 +2,31 @@ import React from "react";
 import { Button, Modal, Input, Form, TextArea, Dropdown, Card} from "semantic-ui-react";
 import axios from "axios";
 import {API_URL, authorizedDelete, authorizedPut} from "../../utils"
-import RewardCard from "./RewardCard";
+import RewardCard from "../rewards/RewardCard";
 
-class EditRewardTierModal extends React.Component {
+class EditUserRewardsModal extends React.Component {
 
     constructor(props) {
         super(props);
 
         // Props and state
         this.state = {
-            reward_tier_id: props.reward_tier_id === undefined ? "" : props.reward_tier_id,
-            name: props.name === undefined ? "" : props.name,
-            description: props.description === undefined ? "" : props.description,
-            color: props.color === undefined ? "" : props.color,
-            min_points: props.min_points === undefined ? 0 : props.min_points,
+            user_id: props.user_id === undefined ? "" : props.user_id,
             rewards: props.rewards === undefined ? [] : props.rewards,
-            reward_list: props.reward_list === undefined ? [] : props.reward_list,
-            formName: props.name === undefined ? "" : props.name,
-            formColor: props.color === undefined ? "" : props.color,
-            formMin_points: props.min_points === undefined ? 0 : props.min_points,
-            formRewards: props.rewards === undefined ? [] : props.rewards
+            formRewards: props.rewards === undefined ? [] : props.rewards,
+            reward_list: props.reward_list === undefined ? [] : props.reward_list            
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleDelete = this.handleDelete.bind(this);
+        //this.handleDelete = this.handleDelete.bind(this);
     }
 
-    handleDelete() {
-        if (this.state.reward_tier_id === "") {
+    /*handleDeleteReward() {
+        if (this.state.user_reward_id === "") {
             return;
         }
         this.setState({ open: false, openDelete: false });
-        authorizedDelete(axios, API_URL + '/api/reward_tier/' + this.state.reward_tier_id)
+        authorizedDelete(axios, API_URL + '/api/user_rewards/' + this.state.user_reward_id)
             .then(async response => {
                 const data = await response.data;
 
@@ -48,40 +41,14 @@ class EditRewardTierModal extends React.Component {
                 alert("Error: " + error);
                 console.log(error);
             });
-    }
+    }*/
 
     isSubmitValid() {
-        if (this.state.reward_tier_id === "") {
+        if (this.state.user_id === "") {
             return false;
         }
+
         let changed = false;
-        if (this.state.name !== this.state.formName) {
-            changed = true;
-            if (this.state.formName === "") {
-                return false;
-            }
-        }
-
-        if (this.state.description !== this.state.formDescription) {
-            changed = true;
-            if (this.state.formDescription === "") {
-                return false;
-            }
-        }
-
-        if (this.state.color !== this.state.formColor) {
-            changed = true;
-            if (this.state.formColor === "") {
-                return false;
-            }
-        }
-
-        if (this.state.min_points !== this.state.formMin_points) {
-            changed = true;
-            if(this.state.min_points < 0){
-                return false;
-            }
-        }
 
         if (this.state.rewards !== this.state.formRewards) {
             changed = true;
@@ -98,7 +65,7 @@ class EditRewardTierModal extends React.Component {
         }
         this.setState({ open: false });
 
-        let values = { 
+        /*let values = { 
             name: this.state.formName, 
             description: this.state.formDescription, 
             color: this.state.formColor,
@@ -120,7 +87,7 @@ class EditRewardTierModal extends React.Component {
             .catch(error => {
                 alert("Error: " + error);
                 console.log(error);
-            });
+            });*/
     }
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value })
@@ -129,6 +96,9 @@ class EditRewardTierModal extends React.Component {
     rewardKeywordSelectionList() {
         let list = [];
         this.state.reward_list.forEach((reward) => {
+            if(this.state.formRewards.find((user_reward) => user_reward.reward_id === reward._id) !== undefined){
+                return;
+            }
             let selection = {
                 key: reward._id,
                 text: reward.name,
@@ -140,7 +110,26 @@ class EditRewardTierModal extends React.Component {
     }
 
     handleChangeRewards = (e, { name, value }) => {
-        this.setState({ formRewards: value });
+        console.log(value);
+
+        let newReward = {
+            user_id: this.state.user_id,
+            reward_id: value,
+            remaining_uses: 1,
+        }
+        let newRewards = this.state.formRewards;
+        newRewards.push(newReward)
+        this.setState({ formRewards: newRewards });
+    }
+
+    handleRemoveReward(user_reward){
+        let array = [...this.state.formRewards]; // make a separate copy of the array
+        let index = array.indexOf(user_reward)
+        if (index !== -1) {
+            array.splice(index, 1);
+            this.setState({formRewards: array});
+        }
+        this.setState({ openDelete: false, rewardToDelete: undefined, rewardToDeleteName: undefined})
     }
 
     render() {
@@ -148,7 +137,7 @@ class EditRewardTierModal extends React.Component {
             <div>
                 <Modal
                     closeIcon
-                    size="large"
+                    size="small"
                     onClose={() => this.setState({ open: false })}
                     onOpen={() => this.setState({ open: true })}
                     open={this.state.open}
@@ -156,15 +145,8 @@ class EditRewardTierModal extends React.Component {
                     <Modal.Header>
                         <div style={{ display: 'flex', flexDirection: 'row' }}>
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <div>Edit Reward Tier</div>
+                                <div>Edit User Rewards</div>
                             </div>
-                            <Button
-                                icon='trash'
-                                style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 'auto', marginRight: 5 }}
-                                onClick={() => {
-                                    this.setState({ openDelete: true })
-                                }}
-                            />
                         </div>
                     </Modal.Header>
                     <Modal.Content
@@ -173,77 +155,16 @@ class EditRewardTierModal extends React.Component {
                             flexDirection: 'column'
                         }}
                     >
-                        <Form>
-                            <Form.Field required>
-                                <label>Name</label>
-                                <Input
-                                    fluid
-                                    defaultValue={this.state.name}
-                                    name='formName'
-                                    onChange={this.handleChange}
-                                />
-                            </Form.Field>
-                            <Form.Field required>
-                                <label>Description (Public)</label>
-                                <TextArea
-                                    defaultValue={this.state.description}
-                                    name='formDescription'
-                                    onChange={this.handleChange}
-                                />
-                            </Form.Field>
-                            <Form.Group widths='equal'>
-                                <Form.Field required>
-                                    <label>Color</label>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row'
-                                        }}
-                                    >
-                                        <Input
-                                            name='formColor'
-                                            value={this.state.formColor}
-                                            onChange={this.handleChange}
-                                        />
-                                        <div
-                                            style={{
-                                                width: 20,
-                                                height: 20,
-                                                marginLeft: 5,
-                                                marginTop: 'auto',
-                                                marginBottom: 'auto',
-                                                border: '1px solid black',
-                                                backgroundColor: this.state.formColor
-                                            }}
-                                        >
-
-                                        </div>
-                                    </div>
-                                </Form.Field>
-                                <Form.Field>
-                                    <label>Points needed to unlock</label>
-                                    <Input
-                                        name='formMin_points'
-                                        value={this.state.formMin_points}
-                                        onChange={this.handleChange}
-                                        type="number"
-                                    />
-                                </Form.Field>
-                            </Form.Group>
-                            <Form.Field>
-                                <label>Rewards</label>
-                                <Dropdown
-                                    clearable
-                                    selection
-                                    multiple
-                                    placeholder='Reward(s)'
-                                    options={this.rewardKeywordSelectionList()}
-                                    value={this.state.formRewards}
-                                    onChange={this.handleChangeRewards}
-                                    style={{marginTop: 5, marginBottom: 5}}
-                                />
-                            </Form.Field>    
-                        </Form>
+                        <label>Reward List</label>
+                        <Dropdown
+                            search
+                            fluid
+                            value={''}
+                            placeholder='Reward(s)'
+                            options={this.rewardKeywordSelectionList()}
+                            onChange={this.handleChangeRewards}
+                            style={{marginTop: 5, marginBottom: 5, width: '100%'}}
+                        />
                         {/* Show fake reward cards */}
                         {this.state.rewards.length > 0 ?                        
                             <Card.Group
@@ -252,17 +173,22 @@ class EditRewardTierModal extends React.Component {
                                     marginLeft: 'auto',
                                     marginRight: 'auto'
                                 }}
+                                centered
                             >
                                 {
-                                    this.state.formRewards.map((reward_id) => {
-                                        let database_reward = this.state.reward_list.find((reward) => reward._id === reward_id)
+                                    this.state.formRewards.map((user_reward) => {
+                                        let database_reward = this.state.reward_list.find((reward) => reward._id === user_reward.reward_id)
+                                        if(database_reward === null || database_reward === undefined)return "";
                                         return (
                                             <div
                                                 style={{
                                                     marginTop: 'auto',
                                                     marginBottom: 'auto',
                                                     marginLeft: 10,
-                                                    marginRight: 10
+                                                    marginRight: 10,
+                                                    marginTop: 'auto',
+                                                    marginBottom: 'auto',
+                                                    padding: 10
                                                 }}
                                                 key={"reward_card_"+database_reward._id}
                                             >
@@ -271,6 +197,9 @@ class EditRewardTierModal extends React.Component {
                                                     name={database_reward.name}
                                                     description={database_reward.description}
                                                     image_url={database_reward.image_url}
+                                                    count={user_reward.remaining_uses}
+                                                    closeable={true}
+                                                    closeCard={() => this.setState({ openDelete: true, rewardToDelete: user_reward, rewardToDeleteName: database_reward.name})}
                                                 />
                                             </div>
                                         );
@@ -309,7 +238,7 @@ class EditRewardTierModal extends React.Component {
                     <Modal.Header>Delete</Modal.Header>
                     <Modal.Content>
                         <div style={{display: 'flex', flexDirection: 'column'}}>
-                            <div>Do you want to delete the '{this.state.name}' Tier?</div>
+                            <div>Do you want to delete this user's '{this.state.rewardToDeleteName}' Reward?</div>
                         </div>
                     </Modal.Content>
                     <Modal.Actions>
@@ -317,7 +246,7 @@ class EditRewardTierModal extends React.Component {
                             content="Delete"
                             labelPosition='right'
                             icon='trash'
-                            onClick={() => this.handleDelete()}
+                            onClick={() => this.handleRemoveReward(this.state.rewardToDelete)}
                             negative
                         />
                         <Button
@@ -333,4 +262,4 @@ class EditRewardTierModal extends React.Component {
     }
 }
 
-export default EditRewardTierModal;
+export default EditUserRewardsModal;

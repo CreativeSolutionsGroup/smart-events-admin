@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardContent } from "semantic-ui-react";
+import { Card, CardContent, Icon } from "semantic-ui-react";
 import AsyncImage from "../AsyncImage";
 
 class RewardCard extends React.Component {
@@ -11,6 +11,26 @@ class RewardCard extends React.Component {
     render() {
         return (
             <Card onClick={this.props.onClick} key={"reward_" + this.props.reward_id}>
+                 {this.props.closeable !== undefined && this.props.closeable ? 
+                    <Card.Header
+                        style={{
+                            display: 'flex'
+                        }}
+                    >
+                        <Icon 
+                            style={{
+                                marginLeft: 'auto',
+                                marginRight: 5,
+                                marginTop: 5
+                            }}
+                            name='close'
+                            onClick={() => {
+                                this.props.closeCard()
+                            }}
+                        />
+                    </Card.Header>
+                : ""}
+                 
                  <CardContent
                      style={{
                          display: 'flex'
@@ -58,6 +78,7 @@ class RewardCard extends React.Component {
                                  }}
                              >
                                  {this.props.name}
+                                 {this.props.count !== undefined ? ` x${this.props.count}` : ""}
                              </div>
                              <div
                                  style={{
