@@ -50,18 +50,18 @@ class TextGroupModal extends React.Component {
             (res) => {
                 let data = res.data;
                 if (data.status !== 'success') {
-                    console.log("Failed to send announcement");
+                    console.log("Failed to send textblast");
                     console.log(data.message);
-                    alert("Error (Announcement): " + data.message);
+                    alert("Error (TextBlast): " + data.message);
                 }
                 else {
                     this.props.messageSent();
                 }
             },
             (err) => {
-                console.error("Failed to send announcement");
+                console.error("Failed to send textblast");
                 console.error(err);
-                alert("Error (Announcement): " + err);
+                alert("Error (TextBlast): " + err);
             }
         );
     }

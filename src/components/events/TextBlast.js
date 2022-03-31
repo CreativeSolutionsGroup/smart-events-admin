@@ -4,7 +4,7 @@ import { getEventEngagements, getEvents, getEngagementEngagees } from "../../uti
 import { CSVLink } from "react-csv";
 import TextGroupModal from "./TextGroupModal";
 
-export default class Announcement extends React.Component {
+export default class TextBlast extends React.Component {
     textGroupModalRef = createRef();
 
     constructor(props) {

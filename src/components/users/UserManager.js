@@ -17,6 +17,7 @@ export default class UserManager extends React.Component {
             users: [],
             sortedUsers: [],
             visiblePageUsers: [],
+            selectedUsers: [],
             sortOrder: 0,
             searchValue: "",
             reward_tiers: [],
@@ -143,6 +144,21 @@ export default class UserManager extends React.Component {
         });
     }
 
+    addOrRemoveUserFromSelected(selected, user_id){
+        let selectedUsersCopy = [...this.state.selectedUsers]
+        if(selected){
+            selectedUsersCopy.push(user_id);
+            this.setState({selectedUsers: selectedUsersCopy});
+        }
+        else {
+            var index = selectedUsersCopy.indexOf(user_id)
+            if (index !== -1) {
+                selectedUsersCopy.splice(index, 1);
+                this.setState({selectedUsers: selectedUsersCopy});
+            }
+        }
+    }
+
     render() {
         return (
             <div
@@ -164,134 +180,175 @@ export default class UserManager extends React.Component {
                         {this.state.loading_users ?
                             <Loader content="Loading Users" active/>
                         :
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                            }}
-                        >
-                            <Input
-                                icon='search'
-                                placeholder='Search...'
-                                style={{ width: '45%', marginLeft: 'auto', marginRight: 'auto' }}
-                                value={this.state.searchValue}
-                                onChange={(e, { name, value }) => {
-                                    this.setState({ searchValue: value })
-                                }}
-                            />
-                            <Table 
-                                celled 
-                                padded
+                            <div
                                 style={{
-                                    width: '75%',
-                                    marginLeft: 'auto',
-                                    marginRight: 'auto'
+                                    display: 'flex',
+                                    flexDirection: 'column',
                                 }}
-                                color="grey"
-                                inverted
                             >
-                                <Table.Header>
-                                    <Table.Row>
-                                        <Table.HeaderCell></Table.HeaderCell>
-                                        <Table.HeaderCell>Name</Table.HeaderCell>
-                                        <Table.HeaderCell>Email</Table.HeaderCell>
-                                        <Table.HeaderCell singleLine textAlign="center">Student ID</Table.HeaderCell>
-                                        <Table.HeaderCell textAlign="center">Phone #</Table.HeaderCell>
-                                        <Table.HeaderCell singleLine textAlign="center">Reward Points</Table.HeaderCell>
-                                        <Table.HeaderCell singleLine textAlign="center">Reward Tier</Table.HeaderCell>
-                                        <Table.HeaderCell></Table.HeaderCell>
-                                    </Table.Row>
-                                </Table.Header>
-
-                                <Table.Body>
-                                    {
-                                        //Show page users unless searching
-                                        (this.state.searchValue !== "" ? this.getFilteredUsers(this.state.searchValue).slice(0, PAGE_USER_COUNT) : this.state.visiblePageUsers).map((user, i) => {
-                                            let userTier = this.state.reward_tiers.find((tier) => tier.min_points <= user.reward_points);
-                                            return (
-                                                <Table.Row
-                                                    key={"row_" + i}
-                                                >
-                                                    <Table.Cell 
-                                                        collapsing
-                                                        textAlign="center"
-                                                    >
-                                                        <Checkbox>
-                                                        </Checkbox>
-                                                    </Table.Cell>
-                                                    <Table.Cell singleLine>
-                                                        {user.name}
-                                                    </Table.Cell>
-                                                    <Table.Cell>
-                                                        <a
-                                                            style={{
-                                                                fontWeight: 'normal',
-                                                                color: 'white',
-                                                                textDecoration: 'underline'
-                                                            }}
-                                                            href={`mailto:${user.email}`}
-                                                        >
-                                                            {user.email}
-                                                        </a>
-                                                    </Table.Cell>
-                                                    <Table.Cell collapsing textAlign="center">
-                                                        {user.student_id}
-                                                    </Table.Cell>
-                                                    <Table.Cell collapsing>
-                                                        <a
-                                                            style={{
-                                                                fontWeight: 'normal',
-                                                                color: 'white',
-                                                                textDecoration: 'underline'
-                                                            }}
-                                                            href={`tel:${user.phone_number}`}
-                                                        >
-                                                            {user.phone_number}
-                                                        </a>
-                                                    </Table.Cell>
-                                                    <Table.Cell collapsing textAlign="center">
-                                                        {user.reward_points}
-                                                    </Table.Cell>
-                                                    <Table.Cell collapsing textAlign="center" style={{color: userTier.color, fontWeight: 'bold'}}>
-                                                        {userTier.name}
-                                                    </Table.Cell>
-                                                    <Table.Cell collapsing>
-                                                        <Button
-                                                            icon='setting'
-                                                            color='orange'
-                                                            size='tiny'
-                                                            style={{
-                                                                marginLeft: 'auto',
-                                                                marginRight: 'auto'
-                                                            }}
-                                                            onClick={() => this.showUserInfoModal(user)}
-                                                        >
-                                                        </Button>
-                                                    </Table.Cell>
-                                                </Table.Row>
-                                            );
-                                        })
-                                    }
-                                </Table.Body>
-                            </Table>
-                            {/* Page picker that is hidden when searching */}
-                            {this.state.searchValue === "" ?
-                                <Pagination
-                                    activePage={this.state.activePage}
-                                    onPageChange={(e, { activePage }) => {
-                                        this.setState({ activePage: activePage })
-                                        this.updatePageUsers(activePage)
+                                <Input
+                                    icon='search'
+                                    placeholder='Search...'
+                                    style={{ width: '45%', marginLeft: 'auto', marginRight: 'auto' }}
+                                    value={this.state.searchValue}
+                                    onChange={(e, { name, value }) => {
+                                        this.setState({ searchValue: value })
                                     }}
-                                    totalPages={Math.ceil(this.state.sortedUsers.length / PAGE_USER_COUNT)}
-                                    pointing secondary
-                                    defaultActivePage={1}
+                                />
+                                <div
                                     style={{
+                                        width: '75%',
+                                        marginTop: 10,
                                         marginLeft: 'auto',
                                         marginRight: 'auto'
                                     }}
-                                />
-                            : ""}
-                        </div>
+                                >
+                                    <Table 
+                                        celled 
+                                        padded                                    
+                                        color="grey"
+                                        inverted
+                                    >
+                                        <Table.Header>
+                                            <Table.Row>
+                                                <Table.HeaderCell></Table.HeaderCell>
+                                                <Table.HeaderCell>Name</Table.HeaderCell>
+                                                <Table.HeaderCell>Email</Table.HeaderCell>
+                                                <Table.HeaderCell singleLine textAlign="center">Student ID</Table.HeaderCell>
+                                                <Table.HeaderCell textAlign="center">Phone #</Table.HeaderCell>
+                                                <Table.HeaderCell singleLine textAlign="center">Reward Points</Table.HeaderCell>
+                                                <Table.HeaderCell singleLine textAlign="center">Reward Tier</Table.HeaderCell>
+                                                <Table.HeaderCell></Table.HeaderCell>
+                                            </Table.Row>
+                                        </Table.Header>
+
+                                        <Table.Body>
+                                            {
+                                                //Show page users unless searching
+                                                (this.state.searchValue !== "" ? this.getFilteredUsers(this.state.searchValue).slice(0, PAGE_USER_COUNT) : this.state.visiblePageUsers).map((user, i) => {
+                                                    let userTier = this.state.reward_tiers.find((tier) => tier.min_points <= user.reward_points);
+                                                    return (
+                                                        <Table.Row
+                                                            key={"row_" + i}
+                                                        >
+                                                            <Table.Cell 
+                                                                collapsing
+                                                                textAlign="center"
+                                                            >
+                                                                <Checkbox
+                                                                    onChange={(e, data) => {
+                                                                        this.addOrRemoveUserFromSelected(data.checked, user._id);
+                                                                    }}
+                                                                    checked={this.state.selectedUsers.includes(user._id)}
+                                                                >
+                                                                </Checkbox>
+                                                            </Table.Cell>
+                                                            <Table.Cell singleLine>
+                                                                {user.name}
+                                                            </Table.Cell>
+                                                            <Table.Cell>
+                                                                <a
+                                                                    style={{
+                                                                        fontWeight: 'normal',
+                                                                        color: 'white',
+                                                                        textDecoration: 'underline'
+                                                                    }}
+                                                                    href={`mailto:${user.email}`}
+                                                                >
+                                                                    {user.email}
+                                                                </a>
+                                                            </Table.Cell>
+                                                            <Table.Cell collapsing textAlign="center">
+                                                                {user.student_id}
+                                                            </Table.Cell>
+                                                            <Table.Cell collapsing>
+                                                                <a
+                                                                    style={{
+                                                                        fontWeight: 'normal',
+                                                                        color: 'white',
+                                                                        textDecoration: 'underline'
+                                                                    }}
+                                                                    href={`tel:${user.phone_number}`}
+                                                                >
+                                                                    {user.phone_number}
+                                                                </a>
+                                                            </Table.Cell>
+                                                            <Table.Cell collapsing textAlign="center">
+                                                                {user.reward_points}
+                                                            </Table.Cell>
+                                                            <Table.Cell collapsing textAlign="center" style={{color: userTier.color, fontWeight: 'bold'}}>
+                                                                {userTier.name}
+                                                            </Table.Cell>
+                                                            <Table.Cell collapsing>
+                                                                <Button
+                                                                    icon='setting'
+                                                                    color='orange'
+                                                                    size='tiny'
+                                                                    style={{
+                                                                        marginLeft: 'auto',
+                                                                        marginRight: 'auto'
+                                                                    }}
+                                                                    onClick={() => this.showUserInfoModal(user)}
+                                                                >
+                                                                </Button>
+                                                            </Table.Cell>
+                                                        </Table.Row>
+                                                    );
+                                                })
+                                            }
+                                        </Table.Body>
+                                    </Table>
+                                    {/* Selected User Counter */}
+                                    {this.state.selectedUsers.length > 0 ?
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                marginLeft: 10,
+                                                marginRight: 'auto'
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    marginTop: 'auto',
+                                                    marginBottom: 'auto',
+                                                    marginRight: 5,
+                                                    fontSize: 16,
+                                                    fontWeight: 'bold'
+                                                }}
+                                            >
+                                                {`Selected Users: ${this.state.selectedUsers.length}`}
+                                            </div>
+                                            <Button 
+                                                size="mini"
+                                                content="X"
+                                                onClick={() => {
+                                                    this.setState({selectedUsers: []})
+                                                }}
+                                            />
+                                        </div>
+                                    : ""}
+                                </div>
+
+                                {/* Page picker that is hidden when searching */}
+                                {this.state.searchValue === "" ?
+                                    <Pagination
+                                        activePage={this.state.activePage}
+                                        onPageChange={(e, { activePage }) => {
+                                            this.setState({ activePage: activePage })
+                                            this.updatePageUsers(activePage)
+                                        }}
+                                        totalPages={Math.ceil(this.state.sortedUsers.length / PAGE_USER_COUNT)}
+                                        pointing secondary
+                                        defaultActivePage={1}
+                                        style={{
+                                            marginLeft: 'auto',
+                                            marginRight: 'auto'
+                                        }}
+                                    />
+                                : ""}
+                            </div>
                         }
                     <Divider />
                     {/* {

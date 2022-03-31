@@ -1,6 +1,6 @@
 export const COLOR_CEDARVILLE_YELLOW = "#F3A00F";
 export const COLOR_CEDARVILLE_BLUE = "#31B7E6";
-export const API_URL = "https://api.cusmartevents.com" //"http://localhost:3001"
+export const API_URL = "http://localhost:3001" //"https://api.cusmartevents.com" //"http://localhost:3001"
 export const ENGAGEMENT_WEBHOOK_GIVEAWAY = "https://engagements.cusmartevents.com/webhook/giveaway" //"http://localhost:3001/webhook/giveaway"
 export const ENGAGEMENT_WEBHOOK_ANNOUNCEMENT = "https://engagements.cusmartevents.com/webhook/announcement" //"http://localhost:3001/webhook/announcement" 
 
@@ -671,6 +671,68 @@ export const getCheckinCount = (checkinId) => {
             },
             (err) => {
                 console.error("Failed to retrieve Checkin Checkin Count");
+                console.error(err);
+                return -1;
+            }
+        );
+}
+
+//ANNOUNCEMENTS
+export const getAllAnnouncements = () => {
+    return fetch(API_URL + '/api/announcement/')
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Announcements");
+                    console.log(res.message);
+                    alert("Error (Announcements): " + res.message);
+                    return [];
+                }
+                return res.data;
+            },
+            (err) => {
+                console.error("Failed to retrieve Announcements");
+                console.error(err);
+                return [];
+            }
+        );
+}
+
+export const getAnnouncementSentCount = (announcement_id) => {
+    return authorizedFetch(API_URL + '/api/announcement/' + announcement_id + "/count")
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Announcement Count");
+                    console.log(res.message);
+                    return -1;
+                }
+                return res.data.count;
+            },
+            (err) => {
+                console.error("Failed to retrieve Announcement Count");
+                console.error(err);
+                return -1;
+            }
+        );
+}
+
+export const getAnnouncementReadCount = (announcement_id) => {
+    return authorizedFetch(API_URL + '/api/announcement/' + announcement_id + "/count_read")
+        .then((res) => res.json())
+        .then(
+            (res) => {
+                if (res.status !== "success") {
+                    console.log("Failed to retrieve Announcement Read Count");
+                    console.log(res.message);
+                    return -1;
+                }
+                return res.data.count;
+            },
+            (err) => {
+                console.error("Failed to retrieve Announcement Read Count");
                 console.error(err);
                 return -1;
             }
