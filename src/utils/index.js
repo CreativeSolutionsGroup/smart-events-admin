@@ -1,6 +1,6 @@
 export const COLOR_CEDARVILLE_YELLOW = "#F3A00F";
 export const COLOR_CEDARVILLE_BLUE = "#31B7E6";
-export const API_URL = "https://api.cusmartevents.com" //"http://localhost:3001"
+export const API_URL = "http://localhost:3001" //"https://api.cusmartevents.com" //"http://localhost:3001"
 export const ENGAGEMENT_WEBHOOK_GIVEAWAY = "https://engagements.cusmartevents.com/webhook/giveaway" //"http://localhost:3001/webhook/giveaway"
 export const ENGAGEMENT_WEBHOOK_ANNOUNCEMENT = "https://engagements.cusmartevents.com/webhook/announcement" //"http://localhost:3001/webhook/announcement" 
 
@@ -586,21 +586,21 @@ export const getAllUserEngagements = (id) => {
         );
 }
 
-export const getAllLocations = () => {
-    return fetch(API_URL + '/api/location/')
+export const getAllBeacons = () => {
+    return fetch(API_URL + '/api/beacon/')
         .then((res) => res.json())
         .then(
             (res) => {
                 if (res.status !== "success") {
-                    console.log("Failed to retrieve Locations");
+                    console.log("Failed to retrieve Beacons");
                     console.log(res.message);
-                    alert("Error (Locations): " + res.message);
+                    alert("Error (Beacons): " + res.message);
                     return [];
                 }
                 return res.data;
             },
             (err) => {
-                console.error("Failed to retrieve Locations");
+                console.error("Failed to retrieve Beacons");
                 console.error(err);
                 return [];
             }

@@ -13,15 +13,15 @@ class EditCheckinModal extends React.Component {
         // Props and state
         this.state = {
             checkin_id: props.checkin_id === undefined ? "" : props.checkin_id,
-            locations: props.locations === undefined ? [] : props.locations,
-            location_ids: props.location_ids === undefined ? [] : props.location_ids,
+            beacons: props.beacons === undefined ? [] : props.beacons,
+            beacon_ids: props.beacon_ids === undefined ? [] : props.beacon_ids,
             name: props.name === undefined ? "" : props.name,
             description: props.description === undefined ? "" : props.description,
             message: props.message === undefined ? "" : props.message,
             imageURL: props.imageURL === undefined ? "" : props.imageURL,
             startTime: props.startTime === undefined ? "" : props.startTime,
             endTime: props.endTime === undefined ? "" : props.endTime,
-            formLocationIDs: props.location_ids === undefined ? [] : props.location_ids,
+            formBeaconIDs: props.beacon_ids === undefined ? [] : props.beacon_ids,
             formName: props.name === undefined ? "" : props.name,
             formDescription: props.description === undefined ? "" : props.description,
             formMessage: props.message === undefined ? "" : props.message,
@@ -58,14 +58,14 @@ class EditCheckinModal extends React.Component {
             });
     }
 
-    //List of locations 
-    locationKeywordSelectionList() {
+    //List of beacons 
+    beaconKeywordSelectionList() {
         let list = [];
-        this.state.locations.forEach((location) => {
+        this.state.beacons.forEach((beacon) => {
             let selection = {
-                key: location._id,
-                text: location.name,
-                value: location._id
+                key: beacon._id,
+                text: beacon.name,
+                value: beacon._id
             }
             list.push(selection);
         })
@@ -78,9 +78,9 @@ class EditCheckinModal extends React.Component {
         }
 
         let changed = false;
-        if (this.state.location_ids !== this.state.formLocationIDs) {
+        if (this.state.beacon_ids !== this.state.formBeaconIDs) {
             changed = true;
-            if (this.state.formLocationIDs.length === 0) {
+            if (this.state.formBeaconIDs.length === 0) {
                 return false;
             }
         }
@@ -135,8 +135,8 @@ class EditCheckinModal extends React.Component {
 
         let values = {}
 
-        if (this.state.location_ids !== this.state.formLocationIDs) {
-            values['locations'] = this.state.formLocationIDs;
+        if (this.state.beacon_ids !== this.state.formBeaconIDs) {
+            values['beacons'] = this.state.formBeaconIDs;
         }
 
         if (this.state.name !== this.state.formName) {
@@ -275,17 +275,17 @@ class EditCheckinModal extends React.Component {
                                  />
                             </Form.Field>
                             <Form.Field required>
-                                <label>Location(s)</label>
+                                <label>Beacon(s)</label>
                                 <Dropdown
-                                    placeholder='Select Location(s)'
+                                    placeholder='Select Beacon(s)'
                                     clearable
                                     selection
                                     multiple
                                     search
-                                    value={this.state.formLocationIDs}
-                                    options={this.locationKeywordSelectionList()}
+                                    value={this.state.formBeaconIDs}
+                                    options={this.beaconKeywordSelectionList()}
                                     onChange={this.handleChange}
-                                    name="formLocationIDs"
+                                    name="formBeaconIDs"
                                     style={{marginTop: 5, marginBottom: 5}}
                                 />
                             </Form.Field>

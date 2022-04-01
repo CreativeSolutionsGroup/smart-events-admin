@@ -6,22 +6,18 @@ import { API_URL, authorizedDelete, authorizedPut, formatTime, clientId } from "
 import GooglePicker from "react-google-picker";
 import { FormGroup } from "@material-ui/core";
 
-class EditLocationModal extends React.Component {
+class EditBeaconModal extends React.Component {
 
     constructor(props) {
         super(props);
 
         // Props and state
         this.state = {
-            location_id: props.location_id === undefined ? "" : props.location_id,
+            beacon_id: props.beacon_id === undefined ? "" : props.beacon_id,
             name: props.name === undefined ? "" : props.name,
-            latitude: props.latitude === undefined ? 0.0 : props.latitude,
-            longitude: props.longitude === undefined ? 0.0 : props.longitude,
-            radius: props.radius === undefined ? 0 : props.radius,
+            uuid: props.uuid === undefined ? "" : props.uuid,
             formName: props.name === undefined ? "" : props.name,
-            formLatitude: props.latitude === undefined ? 0.0 : props.latitude,
-            formLongitude: props.longitude === undefined ? 0.0 : props.longitude,
-            formRadius: props.radius === undefined ? 0.0 : props.radius,
+            formUUID: props.uuid === undefined ? "" : props.uuid,
             open: false,
             openDelete: false
         };
@@ -31,11 +27,11 @@ class EditLocationModal extends React.Component {
     }
 
     handleDelete() {
-        if (this.state.location_id === "") {
+        if (this.state.beacon_id === "") {
             return;
         }
         this.setState({ open: false, openDelete: false });
-        authorizedDelete(axios, API_URL + '/api/location/' + this.state.location_id)
+        authorizedDelete(axios, API_URL + '/api/beacon/' + this.state.beacon_id)
             .then(async response => {
                 const data = await response.data;
 
@@ -53,7 +49,7 @@ class EditLocationModal extends React.Component {
     }
 
     isSubmitValid() {
-        if (this.state.location_id === "") {
+        if (this.state.beacon_id === "") {
             return false;
         }
 
@@ -66,23 +62,9 @@ class EditLocationModal extends React.Component {
             }
         }
 
-        if (this.state.latitude !== this.state.formLatitude) {
+        if (this.state.latitude !== this.state.formUUID) {
             changed = true;
-            if (this.state.formLatitude === 0.0) {
-                return false;
-            }
-        }
-
-        if (this.state.longitude !== this.state.formLongitude) {
-            changed = true;
-            if (this.state.formLongitude === 0.0) {
-                return false;
-            }
-        }
-
-        if (this.state.radius !== this.state.formRadius) {
-            changed = true;
-            if (this.state.formRadius === undefined || this.state.formRadius === "" || parseInt(this.state.formRadius) < 50) {
+            if (this.state.formUUID === "") {
                 return false;
             }
         }
@@ -104,20 +86,12 @@ class EditLocationModal extends React.Component {
             values['name'] = this.state.formName;
         }
 
-        if (this.state.latitude !== this.state.formLatitude) {
-            values['latitude'] = this.state.formLatitude;
-        }
-
-        if (this.state.longitude !== this.state.formLongitude) {
-            values['longitude'] = this.state.formLongitude;
-        }
-
-        if (this.state.radius !== this.state.formRadius) {
-            values['radius'] = this.state.formRadius;
+        if (this.state.uuid !== this.state.formUUID) {
+            values['uuid'] = this.state.formUUID;
         }
 
         if (Object.keys(values).length > 0) {
-            authorizedPut(axios, API_URL + '/api/location/' + this.state.location_id, values)
+            authorizedPut(axios, API_URL + '/api/beacon/' + this.state.beacon_id, values)
                 .then(async response => {
                     const data = await response.data;
 
@@ -150,8 +124,8 @@ class EditLocationModal extends React.Component {
                     <Modal.Header>
                         <div style={{ display: 'flex', flexDirection: 'row' }}>
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <div>Edit Location</div>
-                                <div>{this.state.location_id}</div>
+                                <div>Edit Beacon</div>
+                                <div>{this.state.beacon_id}</div>
                             </div>
                             <Button
                                 icon='trash'
@@ -173,34 +147,15 @@ class EditLocationModal extends React.Component {
                                     onChange={this.handleChange}
                                 />
                             </Form.Field>
-                            <Form.Group widths='equal'>
-                                <Form.Field required>
-                                    <label>Latitude</label>
-                                    <Input
-                                        defaultValue={this.state.latitude}
-                                        name='formLatitude'
-                                        onChange={this.handleChange}
-                                    />
-                                </Form.Field>
-                                <Form.Field required>
-                                    <label>Longitude</label>
-                                    <Input
-                                        defaultValue={this.state.longitude}
-                                        name='formLongitude'
-                                        onChange={this.handleChange}
-                                    />
-                                </Form.Field>
-                                <Form.Field required>
-                                    <label>Radius</label>
-                                    <Input
-                                        defaultValue={this.state.radius}
-                                        name='formRadius'
-                                        onChange={this.handleChange}
-                                        type="number"
-                                    />
-                                    <div style={{color: 'red'}}>{this.state.formRadius === undefined || this.state.formRadius === "" || parseInt(this.state.formRadius) < 50 ? "Radius must be 50m or more" : ""}</div>
-                                </Form.Field>
-                            </Form.Group>
+                            <Form.Field required>
+                                <label>UUID</label>
+                                <Input
+                                    fluid
+                                    defaultValue={this.state.uuid}
+                                    name='formUUID'
+                                    onChange={this.handleChange}
+                                />
+                            </Form.Field>
                         </Form>
                     </Modal.Content>
                     <Modal.Actions>
@@ -254,4 +209,4 @@ class EditLocationModal extends React.Component {
     }
 }
 
-export default EditLocationModal;
+export default EditBeaconModal;

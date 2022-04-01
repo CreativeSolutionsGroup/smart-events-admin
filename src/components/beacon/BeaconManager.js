@@ -1,68 +1,61 @@
 import React, { createRef } from "react";
 import { Icon, Card, Button, Divider } from "semantic-ui-react";
-import { getUserPermissions, getAllLocations, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE } from "../../utils";
-import AddLocationModal from "./AddLocationModal";
-import EditLocationModal from "./EditLocationModal";
+import { getUserPermissions, getAllBeacons, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE } from "../../utils";
+import AddBeaconModal from "./AddBeaconModal";
+import EditBeaconModal from "./EditBeaconModal";
 
-export default class LocationManager extends React.Component {
-    addLocationModalRef = createRef();
-    editLocationModalRef = createRef();
+export default class BeaconManager extends React.Component {
+    addBeaconModalRef = createRef();
+    editBeaconModalRef = createRef();
 
     constructor(props) {
         super(props);
 
         this.state = {
-            locations: [],
-            selectedCoords: null
+            beacons: []
         }
 
-        this.loadLocations = this.loadLocations.bind(this);
+        this.loadBeacons = this.loadBeacons.bind(this);
 
-        this.showAddLocationModal = this.showAddLocationModal.bind(this);
-        this.showEditLocationModal = this.showEditLocationModal.bind(this);       
+        this.showAddBeaconModal = this.showAddBeaconModal.bind(this);
+        this.showEditBeaconModal = this.showEditBeaconModal.bind(this);       
     }
 
     componentDidMount() {
-        this.loadLocations();
+        this.loadBeacons();
         getUserPermissions(localStorage.getItem("email")).then(response => {
             this.setState({ permissions: response });
         })
     }
 
-    showAddLocationModal() {
-        this.addLocationModalRef.current.setState({
+    showAddBeaconModal() {
+        this.addBeaconModalRef.current.setState({
             name: "",
-            latitude: 0.0,
-            longitude: 0.0,
-            radius: 50,
+            uuid: "",
             open: true
         });
     }
 
-    showEditLocationModal(location) {
-        this.editLocationModalRef.current.setState({
-            location_id: location._id,
-            name: location.name,
-            latitude: location.latitude, 
-            longitude: location.longitude,
-            radius: location.radius,
-            formName: location.name,
-            formLatitude: location.latitude, 
-            formLongitude: location.longitude,
-            formRadius: location.radius,
+    showEditBeaconModal(beacon) {
+        this.editBeaconModalRef.current.setState({
+            beacon_id: beacon._id,
+            name: beacon.name,
+            formName: beacon.name,
+            uuid: beacon.uuid,
+            formUUID: beacon.uuid,
             open: true
         });
     }
 
-    loadLocations() {
-        getAllLocations()
+    loadBeacons() {
+        getAllBeacons()
             .then((res) => {
-                this.setState({ locations: res });
+                this.setState({ beacons: res });
             })
     }
 
-    clickLocation(location) {
-        this.showEditLocationModal(location);
+    clickBeacon(beacon) {
+        this.showEditBeaconModal(beacon);
     }
 
     render() {
@@ -74,19 +67,19 @@ export default class LocationManager extends React.Component {
                     marginTop: 50
                 }}
             >
-                <h2 style={{ marginLeft: 'auto', marginRight: 'auto' }}>Locations</h2>
+                <h2 style={{ marginLeft: 'auto', marginRight: 'auto' }}>Beacons</h2>
                 <Divider />
 
                 <Card.Group style={{ margin: 5 }} centered>
                     {
-                        this.state.locations.map((location) => {
+                        this.state.beacons.map((beacon) => {
                             return (
                                 <Card
-                                    key={location._id}
-                                    onClick={() => this.clickLocation(location)}
+                                    key={beacon._id}
+                                    onClick={() => this.clickBeacon(beacon)}
                                 >
                                     <Card.Content style={{ backgroundColor: COLOR_CEDARVILLE_BLUE, color: 'black' }}>
-                                        <Card.Header>{location.name}</Card.Header>
+                                        <Card.Header>{beacon.name}</Card.Header>
                                     </Card.Content>
                                     <Card.Content>
                                         <div
@@ -98,17 +91,12 @@ export default class LocationManager extends React.Component {
                                             <div
                                                 style={{color: 'black', fontWeight: 'bold', marginTop: 5, marginBottom: 5}}
                                             >
-                                                Lat: {location.latitude}
+                                                UUID:
                                             </div>
                                             <div
-                                                style={{color: 'black', fontWeight: 'bold', marginTop: 5, marginBottom: 5}}
+                                                style={{color: 'black', marginBottom: 5}}
                                             >
-                                                Long: {location.longitude}
-                                            </div>
-                                            <div
-                                                style={{color: 'black', fontWeight: 'bold', marginTop: 5, marginBottom: 5}}
-                                            >
-                                                Radius: {location.radius}m
+                                                {beacon.uuid}
                                             </div>
                                         </div>
                                     </Card.Content>
@@ -124,18 +112,18 @@ export default class LocationManager extends React.Component {
                             <Button
                                 icon labelPosition='left'
                                 onClick={() => {
-                                    this.showAddLocationModal();
+                                    this.showAddBeaconModal();
                                 }}
                                 style={{ marginTop: 10, marginBottom: 10, marginLeft: 'auto', marginRight: 'auto', backgroundColor: COLOR_CEDARVILLE_YELLOW }}
                             >
                                 <Icon name='add' />
-                                Add Location
+                                Add Beacon
                             </Button>
                         </div>
                         : ""
                 }
-                <AddLocationModal ref={this.addLocationModalRef} />
-                <EditLocationModal ref={this.editLocationModalRef} />
+                <AddBeaconModal ref={this.addBeaconModalRef} />
+                <EditBeaconModal ref={this.editBeaconModalRef} />
             </div>
         );
     }
