@@ -13,8 +13,8 @@ class AddCheckinModal extends React.Component {
         // Props and state
         this.state = {
             eventId: props.eventId === undefined ? "" : props.eventId,
-            locations: props.locations === undefined ? [] : props.locations,
-            location_ids: props.location_ids === undefined ? [] : props.location_ids,
+            beacons: props.beacons === undefined ? [] : props.beacons,
+            beacon_ids: props.beacon_ids === undefined ? [] : props.beacon_ids,
             name: props.name === undefined ? "" : props.name,
             description: props.description === undefined ? "" : props.description,
             message: props.message === undefined ? "" : props.message,
@@ -29,14 +29,14 @@ class AddCheckinModal extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    //List of locations 
-    locationKeywordSelectionList() {
+    //List of beacons 
+    beaconKeywordSelectionList() {
         let list = [];
-        this.state.locations.forEach((location) => {
+        this.state.beacons.forEach((beacon) => {
             let selection = {
-                key: location._id,
-                text: location.name,
-                value: location._id
+                key: beacon._id,
+                text: beacon.name,
+                value: beacon._id
             }
             list.push(selection);
         })
@@ -48,7 +48,7 @@ class AddCheckinModal extends React.Component {
             return false;
         }
 
-        if (this.state.location_ids.length === 0) {
+        if (this.state.beacon_ids.length === 0) {
             return false;
         }
 
@@ -79,11 +79,11 @@ class AddCheckinModal extends React.Component {
         }
         this.setState({ open: false });
 
-        console.log(this.state.location_ids)
+        console.log(this.state.beacon_ids)
 
         let values = {
             event_id: this.state.eventId,
-            locations: this.state.location_ids,
+            beacons: this.state.beacon_ids,
             name: this.state.name,
             message: this.state.message,
             description: this.state.description,
@@ -190,17 +190,17 @@ class AddCheckinModal extends React.Component {
                                  />
                             </Form.Field>
                             <Form.Field required>
-                                <label>Location(s)</label>
+                                <label>Beacon(s)</label>
                                 <Dropdown
-                                    placeholder='Select Location(s)'
+                                    placeholder='Select Beacon(s)'
                                     clearable
                                     selection
                                     multiple
                                     search
-                                    value={this.state.location_ids}
-                                    options={this.locationKeywordSelectionList()}
+                                    value={this.state.beacon_ids}
+                                    options={this.beaconKeywordSelectionList()}
                                     onChange={this.handleChange}
-                                    name="location_ids"
+                                    name="beacon_ids"
                                     style={{marginTop: 5, marginBottom: 5}}
                                 />
                             </Form.Field>

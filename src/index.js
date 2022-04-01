@@ -28,7 +28,7 @@ import AttractionList from "./components/attractions/AttractionList";
 import AttractionInfo from "./components/attractions/AttractionInfo";
 import RewardManager from "./components/rewards/RewardManager";
 import UserManager from "./components/users/UserManager";
-import LocationManager from "./components/location/LocationManager";
+import BeaconManager from "./components/beacon/BeaconManager";
 
 class App extends React.Component {
   state = {
@@ -81,7 +81,7 @@ class App extends React.Component {
           <PrivateRoute component={Event} path="/event/:event_id" exact />
           <PrivateRoute component={GiveawayPage} path="/giveaway" exact />
           <PrivateRoute component={AnnouncementPage} path="/announcement" exact />
-          <PrivateRoute component={Locations} path="/locations" exact />
+          <PrivateRoute component={Beacons} path="/beacons" exact />
           <PrivateRoute component={Attractions} path="/attractions" exact />
           <PrivateRoute component={AttractionPage} path="/attraction/:attraction_id" exact />
           <PrivateRoute component={Rewards} path="/rewards" exact />
@@ -181,13 +181,13 @@ function Rewards() {
   );
 }
 
-function Locations() {
+function Beacons() {
   return (
     <div>
       <Header />
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <div style={{ width: "100%" }}>
-          <LocationManager />
+          <BeaconManager />
         </div>
       </div>
     </div>

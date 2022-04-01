@@ -65,15 +65,15 @@ export default class Header extends React.Component {
                   : ""
                 }
                 {
-                  this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("location")) ?
+                  this.state.permissions !== undefined && (this.state.permissions.includes("admin") || this.state.permissions.includes("beacon")) ?
                     <Button
                       icon
                       labelPosition='left'
-                      onClick={() => window.open("/locations", "_self")}
-                      style={{ margin: 5, backgroundColor: 'violet', color: 'white' }}
+                      onClick={() => window.open("/beacons", "_self")}
+                      style={{ margin: 5, backgroundColor: 'blue', color: 'white' }}
                     >
-                      <Icon name='map marker alternate' />
-                      Locations
+                      <Icon name='bluetooth' />
+                      Beacons
                     </Button>
                   : ""
                 }

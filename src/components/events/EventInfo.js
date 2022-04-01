@@ -4,7 +4,7 @@ import AddEngagementModal from "./AddEngagementModal";
 import EditEngagementModal from "./EditEngagementModal";
 import EditEventModal from "./EditEventModal"
 import AddAttractionModal from "../attractions/AddAttractionModal"
-import { getEventEngagements, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL, getAttractions, getAllAttractionCapacities, getUserPermissions, getAllLocations, getEventCheckins, getCheckinCount, getEngagementEngageeCount } from "../../utils";
+import { getEventEngagements, COLOR_CEDARVILLE_YELLOW, COLOR_CEDARVILLE_BLUE, isLive, formatTime, authorizedFetch, API_URL, getAttractions, getAllAttractionCapacities, getUserPermissions, getAllBeacons, getEventCheckins, getCheckinCount, getEngagementEngageeCount } from "../../utils";
 import { CSVLink } from "react-csv";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
@@ -39,7 +39,7 @@ export default class EventInfo extends React.Component {
       attractionCapacities: {},      
       checkins: [],
       checkinCounts: {}, //Map of id -> count
-      locationNames: {},
+      beaconNames: {},
       autoSync: false
     }
 
@@ -47,7 +47,7 @@ export default class EventInfo extends React.Component {
     this.loadEngagements = this.loadEngagements.bind(this);
     this.loadAttractions = this.loadAttractions.bind(this);
     this.loadCheckins = this.loadCheckins.bind(this);
-    this.loadLocationNames = this.loadLocationNames.bind(this);
+    this.loadBeaconNames = this.loadBeaconNames.bind(this);
 
     this.showAddEngagementModal = this.showAddEngagementModal.bind(this);
     this.showEditEngagementModal = this.showEditEngagementModal.bind(this);
@@ -62,7 +62,7 @@ export default class EventInfo extends React.Component {
     this.loadEngagements();
     this.loadAttractions();
     this.loadCheckins();
-    this.loadLocationNames();
+    this.loadBeaconNames();
 
     //Check user permissions
     getUserPermissions(localStorage.getItem("email")).then(response => {
@@ -133,11 +133,11 @@ export default class EventInfo extends React.Component {
   }
 
   async showAddCheckinModal() {
-    let locations = await getAllLocations();
+    let beacons = await getAllBeacons();
     this.addCheckinModalRef.current.setState({
       eventId: this.event_id,
-      location_ids: [],
-      locations: locations,
+      beacon_ids: [],
+      beacons: beacons,
       name: "",
       description: "",
       message: "",
@@ -179,13 +179,13 @@ export default class EventInfo extends React.Component {
   }
 
   async showEditCheckinModal(checkin) {
-    let locations = await getAllLocations();
-    console.log(checkin.locations)
+    let beacons = await getAllBeacons();
+    console.log(checkin.beacons)
     this.editCheckinModalRef.current.setState({
       checkin_id: checkin._id,
-      locations: locations,
-      location_ids: checkin.locations,
-      formLocationIDs: checkin.locations,
+      beacons: beacons,
+      beacon_ids: checkin.beacons,
+      formBeaconIDs: checkin.beacons,
       name: checkin.name,
       formName: checkin.name,
       message: checkin.message,
@@ -298,13 +298,13 @@ export default class EventInfo extends React.Component {
     });
   }
 
-  loadLocationNames(){
-    getAllLocations()
+  loadBeaconNames(){
+    getAllBeacons()
     .then(data => {
-      data.forEach((location) => {
-        let newNames = this.state.locationNames;
-        newNames[location._id] = location.name
-        this.setState({ locationNames:  newNames});
+      data.forEach((beacon) => {
+        let newNames = this.state.beaconNames;
+        newNames[beacon._id] = beacon.name
+        this.setState({ beaconNames:  newNames});
       })
     })
   }
@@ -585,8 +585,8 @@ export default class EventInfo extends React.Component {
           <Card.Group centered style={{ margin: 5 }}>
             {
               this.state.checkins.map((element) => {
-                let cardLocationNames = element.locations.map((location, i) => {
-                  return this.state.locationNames[location] + (i < element.locations.length - 1 ? ", ": "")
+                let cardBeaconNames = element.beacons.map((beacon, i) => {
+                  return this.state.beaconNames[beacon] + (i < element.beacons.length - 1 ? ", ": "")
                 })
                 return (
                   <Card 
@@ -644,8 +644,8 @@ export default class EventInfo extends React.Component {
                         {formatTime(element.end_time)}
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'row' }}>
-                        <Icon name="map marker alternate" />
-                        {cardLocationNames}
+                        <Icon name="bluetooth" />
+                        {cardBeaconNames}
                       </div>
                     </Card.Content>
                   </Card>

@@ -3,7 +3,7 @@ import { Button, Modal, Input, Form, TextArea } from "semantic-ui-react";
 import axios from "axios";
 import { API_URL, authorizedPost } from "../../utils";
 
-class AddLocationModal extends React.Component {
+class AddBeaconModal extends React.Component {
 
     constructor(props) {
         super(props);
@@ -11,9 +11,7 @@ class AddLocationModal extends React.Component {
         // Props and state
         this.state = {
             name: "",
-            latitude: 0.0,
-            longitude: 0.0,
-            radius: 50
+            uuid: ""
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -25,15 +23,7 @@ class AddLocationModal extends React.Component {
             return false;
         }
 
-        if (this.state.latitude === 0.0) {
-            return false;
-        }
-
-        if (this.state.longitude === 0.0) {
-            return false;
-        }
-
-        if (this.state.radius === undefined || this.state.radius === "" || parseInt(this.state.radius) < 50) {
+        if (this.state.uuid === "") {
             return false;
         }
 
@@ -50,12 +40,10 @@ class AddLocationModal extends React.Component {
 
         let values = { 
             name: this.state.name, 
-            latitude: this.state.latitude, 
-            longitude: this.state.longitude,
-            radius: this.state.radius
+            uuid: this.state.uuid
         };
 
-        authorizedPost(axios, API_URL + '/api/location/', values)
+        authorizedPost(axios, API_URL + '/api/beacon/', values)
             .then(async response => {
                 const data = await response.data;
 
@@ -87,7 +75,7 @@ class AddLocationModal extends React.Component {
                     <Modal.Header>
                         <div style={{ display: 'flex', flexDirection: 'row' }}>
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <div>Create Location</div>
+                                <div>Add Beacon</div>
                             </div>
                         </div>
                     </Modal.Header>
@@ -106,31 +94,14 @@ class AddLocationModal extends React.Component {
                                     onChange={this.handleChange}
                                 />
                             </Form.Field>
-                            <Form.Group widths='equal'>
-                                <Form.Field required>
-                                    <label>Latitude</label>
-                                    <Input
-                                        name='latitude'
-                                        onChange={this.handleChange}
-                                    />
-                                </Form.Field>
-                                <Form.Field required>
-                                    <label>Longitude</label>
-                                    <Input
-                                        name='longitude'
-                                        onChange={this.handleChange}
-                                    />
-                                </Form.Field>
-                                <Form.Field required>
-                                    <label>Radius</label>
-                                    <Input
-                                        name='radius'
-                                        onChange={this.handleChange}
-                                        type="number"
-                                    />
-                                    <div style={{color: 'red'}}>{this.state.radius === undefined || this.state.radius === "" || parseInt(this.state.radius) < 50 ? "Radius must be 50m or more" : ""}</div>
-                                </Form.Field>
-                            </Form.Group>
+                            <Form.Field required>
+                                <label>UUID</label>
+                                <Input
+                                    fluid
+                                    name='uuid'
+                                    onChange={this.handleChange}
+                                />
+                            </Form.Field>
                         </Form>
                     </Modal.Content>
                     <Modal.Actions>
@@ -156,4 +127,4 @@ class AddLocationModal extends React.Component {
     }
 }
 
-export default AddLocationModal;
+export default AddBeaconModal;
