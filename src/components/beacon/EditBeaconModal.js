@@ -15,9 +15,11 @@ class EditBeaconModal extends React.Component {
         this.state = {
             beacon_id: props.beacon_id === undefined ? "" : props.beacon_id,
             name: props.name === undefined ? "" : props.name,
+            identifier: props.identifier === undefined ? "" : props.identifier,
             uuid: props.uuid === undefined ? "" : props.uuid,
             formName: props.name === undefined ? "" : props.name,
             formUUID: props.uuid === undefined ? "" : props.uuid,
+            formIdentifier: props.identifier === undefined ? "" : props.identifier,
             open: false,
             openDelete: false
         };
@@ -62,9 +64,16 @@ class EditBeaconModal extends React.Component {
             }
         }
 
-        if (this.state.latitude !== this.state.formUUID) {
+        if (this.state.uuid !== this.state.formUUID) {
             changed = true;
             if (this.state.formUUID === "") {
+                return false;
+            }
+        }
+
+        if (this.state.identifier !== this.state.formIdentifier) {
+            changed = true;
+            if (this.state.formIdentifier === "") {
                 return false;
             }
         }
@@ -84,6 +93,10 @@ class EditBeaconModal extends React.Component {
 
         if (this.state.name !== this.state.formName) {
             values['name'] = this.state.formName;
+        }
+
+        if (this.state.identifier !== this.state.formIdentifier) {
+            values['identifier'] = this.state.formIdentifier;
         }
 
         if (this.state.uuid !== this.state.formUUID) {
@@ -144,6 +157,15 @@ class EditBeaconModal extends React.Component {
                                     fluid
                                     defaultValue={this.state.name}
                                     name='formName'
+                                    onChange={this.handleChange}
+                                />
+                            </Form.Field>
+                            <Form.Field required>
+                                <label>Identifier</label>
+                                <Input
+                                    fluid
+                                    defaultValue={this.state.identifier}
+                                    name='formIdentifier'
                                     onChange={this.handleChange}
                                 />
                             </Form.Field>

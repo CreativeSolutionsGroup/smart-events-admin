@@ -11,6 +11,7 @@ class AddBeaconModal extends React.Component {
         // Props and state
         this.state = {
             name: "",
+            identifier: "",
             uuid: ""
         };
 
@@ -27,6 +28,10 @@ class AddBeaconModal extends React.Component {
             return false;
         }
 
+        if(this.state.identifier === ""){
+            return false;
+        }
+
         return true;
     }
 
@@ -39,7 +44,8 @@ class AddBeaconModal extends React.Component {
         this.setState({ open: false });
 
         let values = { 
-            name: this.state.name, 
+            name: this.state.name,
+            identifier: this.state.identifier, 
             uuid: this.state.uuid
         };
 
@@ -91,6 +97,14 @@ class AddBeaconModal extends React.Component {
                                 <Input
                                     fluid
                                     name='name'
+                                    onChange={this.handleChange}
+                                />
+                            </Form.Field>
+                            <Form.Field required>
+                                <label>Identifier</label>
+                                <Input
+                                    fluid
+                                    name='identifier'
                                     onChange={this.handleChange}
                                 />
                             </Form.Field>

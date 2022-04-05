@@ -31,6 +31,7 @@ export default class BeaconManager extends React.Component {
     showAddBeaconModal() {
         this.addBeaconModalRef.current.setState({
             name: "",
+            identifier: "",
             uuid: "",
             open: true
         });
@@ -41,6 +42,8 @@ export default class BeaconManager extends React.Component {
             beacon_id: beacon._id,
             name: beacon.name,
             formName: beacon.name,
+            identifier: beacon.identifier,
+            formIdentifier: beacon.identifier,
             uuid: beacon.uuid,
             formUUID: beacon.uuid,
             open: true
@@ -88,6 +91,16 @@ export default class BeaconManager extends React.Component {
                                                 flexDirection: 'column'
                                             }}
                                         >
+                                            <div
+                                                style={{color: 'black', fontWeight: 'bold', marginTop: 5, marginBottom: 5}}
+                                            >
+                                                Identifier:
+                                            </div>
+                                            <div
+                                                style={{color: 'black', marginBottom: 5}}
+                                            >
+                                                {beacon.identifier}
+                                            </div>
                                             <div
                                                 style={{color: 'black', fontWeight: 'bold', marginTop: 5, marginBottom: 5}}
                                             >
