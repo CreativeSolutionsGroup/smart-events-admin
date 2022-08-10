@@ -1,8 +1,8 @@
 export const COLOR_CEDARVILLE_YELLOW = "#F3A00F";
 export const COLOR_CEDARVILLE_BLUE = "#31B7E6";
-export const API_URL = "https://api.cusmartevents.com" //"http://localhost:3001"
-export const ENGAGEMENT_WEBHOOK_GIVEAWAY = "https://engagements.cusmartevents.com/webhook/giveaway" //"http://localhost:3001/webhook/giveaway"
-export const ENGAGEMENT_WEBHOOK_ANNOUNCEMENT = "https://engagements.cusmartevents.com/webhook/announcement" //"http://localhost:3001/webhook/announcement" 
+export const API_URL = process.env.API_URL ?? "http://localhost:3001" //"http://localhost:3001"
+export const ENGAGEMENT_WEBHOOK_GIVEAWAY = (process.env.ENGAGEMENT_WEBHOOK_ROOT ?? "http://localhost:3001/webhook")  + "/giveaway" //"http://localhost:3001/webhook/giveaway"
+export const ENGAGEMENT_WEBHOOK_ANNOUNCEMENT = (process.env.ENGAGEMENT_WEBHOOK_ROOT ?? "http://localhost:3001/webhook") + "/announcement" //"http://localhost:3001/webhook/announcement" 
 
 export const clientId =
   '787844068457-38ubcdtp9moimvtq3a1du037nphmo8ee.apps.googleusercontent.com';
